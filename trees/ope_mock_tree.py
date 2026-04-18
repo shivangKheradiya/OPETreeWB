@@ -11,22 +11,23 @@ No PyDBML dependency.
 """
 
 from OPETreeWB.trees.ope_tree_base import OPETree
-
-from OPETreeWB.core.provider_factory import create_provider
-from OPETreeWB.commands.session_commands import set_active_provider
-from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
-from OPETreeWB.core.app_context import APP_CONTEXT
-
 from OPETreeWB.core.label_utils import format_node_label
 
 
 class MockElementRef:
+    """
+    PyDBML-like mock ElementRef.
+    """
+
     def __init__(self, *, type_name, name=None, node_id=None, attributes=None):
         self._type = type_name
         self._name = name
         self._id = node_id
         self._attrs = attributes or {}
 
+    # -------------------------------------------------
+    # Core properties (match PyDBML semantics)
+    # -------------------------------------------------
     @property
     def id(self):
         return self._id
@@ -39,6 +40,9 @@ class MockElementRef:
     def name(self):
         return self._name
 
+    # -------------------------------------------------
+    # Attribute browser interface
+    # -------------------------------------------------
     def keys(self):
         return ["Type", "Name", "NodeID"] + list(self._attrs.keys())
 
@@ -57,10 +61,10 @@ class MockElementRef:
         except KeyError:
             raise AttributeError(name)
 
+    # -------------------------------------------------
+    # Unified label (used by ALL trees)
+    # -------------------------------------------------
     def label(self):
-        """
-        Unified label used by all trees.
-        """
         return format_node_label(
             type_name=self._type,
             name=self._name,
@@ -93,6 +97,7 @@ class OPEMockTree(OPETree):
         )
         self.addTopLevelItem(root_item)
 
+        # Child 1
         part1_ref = MockElementRef(
             type_name="Part",
             name="Part001",
@@ -116,7 +121,6 @@ class OPEMockTree(OPETree):
             part2_ref.label(),
             part2_ref,
         )
-
         root_item.addChild(part2_item)
 
         root_item.setExpanded(True)

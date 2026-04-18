@@ -1,0 +1,3 @@
+[submodule "PyDBML"]
+	path = PyDBML
+	url = https://github.com/shivangKheradiya/DBML.git

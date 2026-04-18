@@ -3,18 +3,20 @@
 Show OPE Tree Explorer command.
 
 This command opens the OPE Tree Explorer as a standalone dockable panel.
-It does NOT create or manage the Attribute Browser.
+It selects between a real PyDBML-backed tree and a mock tree.
 """
 
+import FreeCAD
 import FreeCADGui
 from PySide import QtCore, QtWidgets
 
-# Import the tree you want to show
-# For now we use the mock tree
+from OPETreeWB.core.app_context import APP_CONTEXT
+from OPETreeWB.core.provider_factory import create_provider
+from OPETreeWB.commands.session_commands import set_active_provider
+
 from OPETreeWB.trees.ope_mock_tree import OPEMockTree
-# Later you can switch to:
-# from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
-# from OPETreeWB.commands.session_commands import set_active_provide
+from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
+
 
 class ShowOPETreeCommand:
     """
@@ -28,24 +30,24 @@ class ShowOPETreeCommand:
         }
 
     def IsActive(self):
-        # Always available
-        return True
+        """
+        Enable the command only when OPE connection is configured.
+        """
+        return APP_CONTEXT.is_configured()
+
 
     def Activated(self):
-        """
-        Called when the user clicks the command.
-        """
         main_window = FreeCADGui.getMainWindow()
 
         # -------------------------------------------------
         # Avoid creating duplicate dock widgets
         # -------------------------------------------------
-        existing_dock = main_window.findChild(
+        existing = main_window.findChild(
             QtWidgets.QDockWidget, "OPETreeExplorerDock"
         )
-        if existing_dock:
-            existing_dock.raise_()
-            existing_dock.show()
+        if existing:
+            existing.raise_()
+            existing.show()
             return
 
         # -------------------------------------------------
@@ -53,25 +55,39 @@ class ShowOPETreeCommand:
         # -------------------------------------------------
         dock = QtWidgets.QDockWidget("OPE Tree Explorer", main_window)
         dock.setObjectName("OPETreeExplorerDock")
-
         dock.setAllowedAreas(
             QtCore.Qt.LeftDockWidgetArea |
             QtCore.Qt.RightDockWidgetArea
         )
 
         # -------------------------------------------------
-        # Create tree widget (ONLY the tree)
+        # Choose backend: real provider or mock
         # -------------------------------------------------
-        tree = OPEMockTree(dock)
+        try:
+            if not APP_CONTEXT.is_configured():
+                raise RuntimeError(
+                    "OPE connection or root node is not configured"
+                )
 
-        # Example for real data later:
-        # provider = ...
-        # root_node_id = ...
-        # tree = OPEDesiTree(provider, root_node_id, dock)
-        
-        # provider = create_desi_provider()   # <-- your code
-        # root_node_id = 1001
-        # set_active_provider(provider)
+            provider = create_provider()
+            provider.start_session()
+
+            set_active_provider(provider)
+
+            root_node_id = APP_CONTEXT.root_node_id
+            tree = OPEDesiTree(provider, root_node_id, dock)
+
+            FreeCAD.Console.PrintMessage(
+                f"OPE Tree: connected to backend "
+                f"(root node {root_node_id})\n"
+            )
+
+        except Exception as exc:
+            FreeCAD.Console.PrintError(
+                "OPE Tree: backend unavailable, using mock tree\n"
+                f"Reason: {exc}\n"
+            )
+            tree = OPEMockTree(dock)
 
         dock.setWidget(tree)
 

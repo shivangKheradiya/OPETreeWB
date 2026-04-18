@@ -11,10 +11,8 @@ UI code MUST NOT directly inspect PyDBML internals.
 from typing import List
 
 try:
-    from PyDBML.core import ElementRef
     from PyDBML.datatypes import RefTarget
 except ImportError:
-    ElementRef = None
     RefTarget = None
 
 from OPETreeWB.core.label_utils import format_node_label
@@ -36,18 +34,17 @@ class PyDBMLTreeAdapter:
     # ---------------------------------------------------------
     def get_label(self, element_ref) -> str:
         """
-        Return a unified tree label:
+        Return unified tree label:
             <Type> <Name or ID>
         """
         element = element_ref.element
-    
         type_name = element.type or "Node"
-    
+
         try:
             name = element_ref["Name"] if element_ref.exists("Name") else None
         except Exception:
             name = None
-    
+
         return format_node_label(
             type_name=type_name,
             name=name,
@@ -62,21 +59,16 @@ class PyDBMLTreeAdapter:
         Return child ElementRefs discovered via REFERENCE attributes.
         """
         children = []
-
         element = element_ref.element
 
         for attr in element.attributes.values():
             if attr.type == "REFERENCE":
-                children.append(
-                    self._resolve_ref(attr.value)
-                )
+                children.append(self._resolve_ref(attr.value))
 
             elif attr.type == "ARRAY":
                 for item in attr.value:
                     if self._is_ref(item):
-                        children.append(
-                            self._resolve_ref(item)
-                        )
+                        children.append(self._resolve_ref(item))
 
         return children
 

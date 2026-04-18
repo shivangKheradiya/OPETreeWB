@@ -13,7 +13,7 @@ Usage:
 Consumers (trees, attribute viewer, commands) subscribe to CN.changed.
 """
 
-from PySide import QtCore, QtWidgets
+from PySide import QtCore
 
 
 # Sentinel object for distinguishing getter vs setter call
@@ -56,7 +56,7 @@ class _CurrentNode(QtCore.QObject):
         self.changed.emit(self._cn)
 
     # ---------------------------------------------------------
-    # Convenience helpers (optional but useful)
+    # Convenience helpers
     # ---------------------------------------------------------
     def clear(self):
         """Clear the current node."""

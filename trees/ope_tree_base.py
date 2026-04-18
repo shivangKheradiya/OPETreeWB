@@ -26,24 +26,17 @@ class OPETree(QtWidgets.QTreeWidget):
         self.setHeaderHidden(True)
         self.setSelectionMode(QtWidgets.QTreeWidget.SingleSelection)
 
-        # Selection handling
         self.itemSelectionChanged.connect(self._on_selection_changed)
 
     # ---------------------------------------------------------
     # Tree item helpers
     # ---------------------------------------------------------
-    def create_item(self, text: str, element_ref=None) -> QtWidgets.QTreeWidgetItem:
-        """
-        Create a tree item and attach an ElementRef to it.
-        """
+    def create_item(self, text: str, element_ref=None):
         item = QtWidgets.QTreeWidgetItem([text])
         item.setData(0, QtCore.Qt.UserRole, element_ref)
         return item
 
-    def get_element_ref(self, item: QtWidgets.QTreeWidgetItem):
-        """
-        Retrieve ElementRef stored on a tree item.
-        """
+    def get_element_ref(self, item):
         return item.data(0, QtCore.Qt.UserRole)
 
     # ---------------------------------------------------------
@@ -51,15 +44,7 @@ class OPETree(QtWidgets.QTreeWidget):
     # ---------------------------------------------------------
     def _on_selection_changed(self):
         items = self.selectedItems()
-        if not items:
-            CN(None)
-            return
-
-        item = items[0]
-        element_ref = self.get_element_ref(item)
-
-        # Push into global CN
-        CN(element_ref)
+        CN(items[0].data(0, QtCore.Qt.UserRole) if items else None)
 
     # ---------------------------------------------------------
     # Convenience
