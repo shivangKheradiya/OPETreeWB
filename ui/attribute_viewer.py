@@ -6,14 +6,14 @@ Displays attributes of the global Current Node (CN).
 Listens to CN changes and updates automatically.
 """
 
-from PySide2.QtWidgets import (
+from PySide.QtWidgets import (
     QWidget,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
 )
 
-from PySide2.QtCore import Qt
+from PySide.QtCore import Qt
 
 from OPETreeWB.core.cn_manager import CN
 

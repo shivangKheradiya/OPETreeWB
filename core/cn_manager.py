@@ -13,7 +13,7 @@ Usage:
 Consumers (trees, attribute viewer, commands) subscribe to CN.changed.
 """
 
-from PySide2.QtCore import QObject, Signal
+from PySide.QtCore import QObject, Signal
 
 
 # Sentinel object for distinguishing getter vs setter call

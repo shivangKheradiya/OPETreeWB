@@ -5,12 +5,14 @@ Command to show the OPE Tree dock panel.
 
 import FreeCADGui
 
-from PySide2.QtWidgets import QDockWidget, QWidget, QSplitter
-from PySide2.QtCore import Qt
+from PySide import QtCore, QtWidgets
 
-from OPETreeWB.trees.ope_tree_base import OPETree
 from OPETreeWB.ui.attribute_viewer import AttributeViewer
+
+# --- Tree choices ---
 from OPETreeWB.trees.ope_mock_tree import OPEMockTree
+# from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
+
 
 class ShowOPETreeCommand:
     """
@@ -30,27 +32,33 @@ class ShowOPETreeCommand:
         mw = FreeCADGui.getMainWindow()
 
         # Avoid creating duplicate dock widgets
-        existing = mw.findChild(QDockWidget, "OPETreeDock")
+        existing = mw.findChild(QtWidgets.QDockWidget, "OPETreeDock")
         if existing:
             existing.raise_()
             existing.show()
             return
 
-        dock = QDockWidget("OPE Tree", mw)
+        dock = QtWidgets.QDockWidget("OPE Tree", mw)
         dock.setObjectName("OPETreeDock")
         dock.setAllowedAreas(
-            Qt.LeftDockWidgetArea |
-            Qt.RightDockWidgetArea
+            QtCore.Qt.LeftDockWidgetArea |
+            QtCore.Qt.RightDockWidgetArea
         )
 
-        container = QWidget(dock)
-        splitter = QSplitter(Qt.Vertical, container)
+        splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
 
-        # Tree (empty for now, domain trees come later)
-        # tree = OPETree(splitter)
+        # -------------------------------------------------
+        # TREE SELECTION POINT
+        # -------------------------------------------------
+
+        # ✅ SAFE DEFAULT (mock data)
         tree = OPEMockTree(splitter)
 
-        # Attribute viewer (CN-driven)
+        # 🔧 REAL DATA (enable later)
+        # provider = ...
+        # root_node_id = ...
+        # tree = OPEDesiTree(provider, root_node_id, splitter)
+
         attr_viewer = AttributeViewer(splitter)
 
         splitter.addWidget(tree)
@@ -58,5 +66,5 @@ class ShowOPETreeCommand:
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
 
-        dock.setWidget(container)
-        mw.addDockWidget(Qt.RightDockWidgetArea, dock)
+        dock.setWidget(splitter)
+        mw.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)

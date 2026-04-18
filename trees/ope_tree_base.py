@@ -10,8 +10,8 @@ Responsibilities:
 This class is domain-agnostic.
 """
 
-from PySide2.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide2.QtCore import Qt
+from PySide.QtWidgets import QTreeWidget, QTreeWidgetItem
+from PySide.QtCore import Qt
 
 from OPETreeWB.core.cn_manager import CN
 
