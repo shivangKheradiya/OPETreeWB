@@ -7,10 +7,6 @@ import socket
 
 from OPETreeWB.core.app_context import APP_CONTEXT
 
-from PyDBML.providers.ope_api import OpeApiProvider
-from PyDBML.identity.snowflake import SnowflakeIDGenerator
-from PyDBML.metadata.attribute_registry import AttributeRegistry
-
 
 def create_provider():
     """
@@ -18,7 +14,12 @@ def create_provider():
     """
     if not APP_CONTEXT.is_configured():
         raise RuntimeError("OPE connection is not configured")
-
+    
+    from PyDBML import (
+        OpeApiProvider,
+        SnowflakeIDGenerator,
+        AttributeRegistry,
+    )
     registry = AttributeRegistry(
         registry_path="PATH_TO_ATTRIBUTE_REGISTRY.json"
     )
