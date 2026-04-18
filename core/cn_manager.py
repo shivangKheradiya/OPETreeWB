@@ -13,21 +13,21 @@ Usage:
 Consumers (trees, attribute viewer, commands) subscribe to CN.changed.
 """
 
-from PySide.QtCore import QObject, Signal
+from PySide import QtCore, QtWidgets
 
 
 # Sentinel object for distinguishing getter vs setter call
 _NOT_SET = object()
 
 
-class _CurrentNode(QObject):
+class _CurrentNode(QtCore.QObject):
     """
     Global Current Node holder.
 
     Behaves like a callable state variable with change notification.
     """
 
-    changed = Signal(object)  # ElementRef | int | None
+    changed = QtCore.Signal(object)  # ElementRef | int | None
 
     def __init__(self):
         super().__init__()

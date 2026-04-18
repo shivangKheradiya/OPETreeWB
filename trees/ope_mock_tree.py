@@ -12,6 +12,10 @@ No PyDBML dependency.
 
 from OPETreeWB.trees.ope_tree_base import OPETree
 
+from OPETreeWB.core.provider_factory import create_provider
+from OPETreeWB.commands.session_commands import set_active_provider
+from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
+from OPETreeWB.core.app_context import APP_CONTEXT
 
 from OPETreeWB.core.label_utils import format_node_label
 

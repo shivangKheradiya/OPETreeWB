@@ -44,10 +44,7 @@ class PyDBMLTreeAdapter:
         type_name = element.type or "Node"
     
         try:
-            if element_ref.exists("Name"):
-                name = element_ref["Name"]
-            else:
-                name = None
+            name = element_ref["Name"] if element_ref.exists("Name") else None
         except Exception:
             name = None
     
@@ -56,21 +53,6 @@ class PyDBMLTreeAdapter:
             name=name,
             node_id=element_ref.id,
         )
-
-        """
-        Return display label for a tree node.
-        """
-        if element_ref is None:
-            return "<None>"
-
-        # Prefer Name attribute if available
-        try:
-            if element_ref.exists("Name"):
-                return str(element_ref["Name"])
-        except Exception:
-            pass
-
-        return f"Node {element_ref.id}"
 
     # ---------------------------------------------------------
     # Child traversal

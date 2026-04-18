@@ -68,4 +68,4 @@ class OPETree(QtWidgets.QTreeWidget):
         """
         Clear all items from the tree.
         """
-        # self.clear()
+        self.clear()
