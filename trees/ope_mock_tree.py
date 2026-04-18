@@ -13,28 +13,55 @@ No PyDBML dependency.
 from OPETreeWB.trees.ope_tree_base import OPETree
 
 
-class MockElementRef:
-    """
-    Minimal stand-in for PyDBML ElementRef.
-    """
+from OPETreeWB.core.label_utils import format_node_label
 
-    def __init__(self, attributes: dict):
-        self._attrs = attributes
+
+class MockElementRef:
+    def __init__(self, *, type_name, name=None, node_id=None, attributes=None):
+        self._type = type_name
+        self._name = name
+        self._id = node_id
+        self._attrs = attributes or {}
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def type(self):
+        return self._type
+
+    @property
+    def name(self):
+        return self._name
 
     def keys(self):
-        return list(self._attrs.keys())
+        return ["Type", "Name", "NodeID"] + list(self._attrs.keys())
 
     def __getitem__(self, key):
+        if key == "Type":
+            return self._type
+        if key == "Name":
+            return self._name
+        if key == "NodeID":
+            return self._id
         return self._attrs[key]
 
     def __getattr__(self, name):
         try:
-            return self._attrs[name]
+            return self[name]
         except KeyError:
             raise AttributeError(name)
 
-    def __repr__(self):
-        return f"<MockElementRef {self._attrs}>"
+    def label(self):
+        """
+        Unified label used by all trees.
+        """
+        return format_node_label(
+            type_name=self._type,
+            name=self._name,
+            node_id=self._id,
+        )
 
 
 class OPEMockTree(OPETree):
@@ -50,31 +77,42 @@ class OPEMockTree(OPETree):
         self.clear_tree()
 
         # Root node
-        root_ref = MockElementRef({
-            "Name": "RootAssembly",
-            "Type": "Assembly",
-            "Owner": "OPE",
-        })
+        root_ref = MockElementRef(
+            type_name="Assembly",
+            name="RootAssembly",
+            node_id=1,
+        )
 
-        root_item = self.create_item("RootAssembly", root_ref)
+        root_item = self.create_item(
+            root_ref.label(),
+            root_ref,
+        )
         self.addTopLevelItem(root_item)
 
-        # Child 1
-        part1_ref = MockElementRef({
-            "Name": "Part001",
-            "Material": "Steel",
-            "Weight": 12.5,
-        })
-        part1_item = self.create_item("Part001", part1_ref)
+        part1_ref = MockElementRef(
+            type_name="Part",
+            name="Part001",
+            node_id=2,
+        )
+
+        part1_item = self.create_item(
+            part1_ref.label(),
+            part1_ref,
+        )
         root_item.addChild(part1_item)
 
         # Child 2
-        part2_ref = MockElementRef({
-            "Name": "Part002",
-            "Material": "Aluminium",
-            "Weight": 4.2,
-        })
-        part2_item = self.create_item("Part002", part2_ref)
+        part2_ref = MockElementRef(
+            type_name="Part",
+            name="Part002",
+            node_id=3,
+        )
+
+        part2_item = self.create_item(
+            part2_ref.label(),
+            part2_ref,
+        )
+
         root_item.addChild(part2_item)
 
         root_item.setExpanded(True)

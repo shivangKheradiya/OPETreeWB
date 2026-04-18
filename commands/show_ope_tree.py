@@ -14,7 +14,7 @@ from PySide import QtCore, QtWidgets
 from OPETreeWB.trees.ope_mock_tree import OPEMockTree
 # Later you can switch to:
 # from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
-
+# from OPETreeWB.commands.session_commands import set_active_provide
 
 class ShowOPETreeCommand:
     """
@@ -68,6 +68,10 @@ class ShowOPETreeCommand:
         # provider = ...
         # root_node_id = ...
         # tree = OPEDesiTree(provider, root_node_id, dock)
+        
+        # provider = create_desi_provider()   # <-- your code
+        # root_node_id = 1001
+        # set_active_provider(provider)
 
         dock.setWidget(tree)
 

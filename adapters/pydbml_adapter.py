@@ -17,6 +17,7 @@ except ImportError:
     ElementRef = None
     RefTarget = None
 
+from OPETreeWB.core.label_utils import format_node_label
 
 class PyDBMLTreeAdapter:
     """
@@ -34,6 +35,28 @@ class PyDBMLTreeAdapter:
     # Tree label
     # ---------------------------------------------------------
     def get_label(self, element_ref) -> str:
+        """
+        Return a unified tree label:
+            <Type> <Name or ID>
+        """
+        element = element_ref.element
+    
+        type_name = element.type or "Node"
+    
+        try:
+            if element_ref.exists("Name"):
+                name = element_ref["Name"]
+            else:
+                name = None
+        except Exception:
+            name = None
+    
+        return format_node_label(
+            type_name=type_name,
+            name=name,
+            node_id=element_ref.id,
+        )
+
         """
         Return display label for a tree node.
         """

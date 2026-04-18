@@ -54,5 +54,10 @@ class AttributeViewer(QWidget):
         """
         Slot called when CN changes.
         """
-        self.table.setRowCount(0)
+        if element_ref is None:
+            self.clear()
+            return
+
+        for key in element_ref.keys():
+            value = element_ref[key]
 
