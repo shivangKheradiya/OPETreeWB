@@ -1,30 +1,26 @@
-# commands/show_ope_tree.py
+# commands/show_attribute_browser.py
 """
-Show OPE Tree Explorer command.
+Show OPE Attribute Browser command.
 
-This command opens the OPE Tree Explorer as a standalone dockable panel.
-It does NOT create or manage the Attribute Browser.
+This command opens the Attribute Browser as a standalone dockable panel.
+It listens to the global Current Node (CN) and updates automatically.
 """
 
 import FreeCADGui
 from PySide import QtCore, QtWidgets
 
-# Import the tree you want to show
-# For now we use the mock tree
-from OPETreeWB.trees.ope_mock_tree import OPEMockTree
-# Later you can switch to:
-# from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
+from OPETreeWB.ui.attribute_viewer import AttributeViewer
 
 
-class ShowOPETreeCommand:
+class ShowAttributeBrowserCommand:
     """
-    FreeCAD command to show the OPE Tree Explorer panel.
+    FreeCAD command to show the OPE Attribute Browser panel.
     """
 
     def GetResources(self):
         return {
-            "MenuText": "Show OPE Tree Explorer",
-            "ToolTip": "Open the OPE Tree Explorer",
+            "MenuText": "Show OPE Attribute Browser",
+            "ToolTip": "Open the OPE Attribute Browser",
         }
 
     def IsActive(self):
@@ -41,7 +37,7 @@ class ShowOPETreeCommand:
         # Avoid creating duplicate dock widgets
         # -------------------------------------------------
         existing_dock = main_window.findChild(
-            QtWidgets.QDockWidget, "OPETreeExplorerDock"
+            QtWidgets.QDockWidget, "OPEAttributeBrowserDock"
         )
         if existing_dock:
             existing_dock.raise_()
@@ -51,30 +47,26 @@ class ShowOPETreeCommand:
         # -------------------------------------------------
         # Create dock widget
         # -------------------------------------------------
-        dock = QtWidgets.QDockWidget("OPE Tree Explorer", main_window)
-        dock.setObjectName("OPETreeExplorerDock")
+        dock = QtWidgets.QDockWidget("OPE Attribute Browser", main_window)
+        dock.setObjectName("OPEAttributeBrowserDock")
 
         dock.setAllowedAreas(
             QtCore.Qt.LeftDockWidgetArea |
-            QtCore.Qt.RightDockWidgetArea
+            QtCore.Qt.RightDockWidgetArea |
+            QtCore.Qt.BottomDockWidgetArea
         )
 
         # -------------------------------------------------
-        # Create tree widget (ONLY the tree)
+        # Create attribute viewer (ONLY this widget)
         # -------------------------------------------------
-        tree = OPEMockTree(dock)
+        attr_viewer = AttributeViewer(dock)
 
-        # Example for real data later:
-        # provider = ...
-        # root_node_id = ...
-        # tree = OPEDesiTree(provider, root_node_id, dock)
-
-        dock.setWidget(tree)
+        dock.setWidget(attr_viewer)
 
         # -------------------------------------------------
         # Add dock to FreeCAD UI
         # -------------------------------------------------
         main_window.addDockWidget(
-            QtCore.Qt.LeftDockWidgetArea,
+            QtCore.Qt.RightDockWidgetArea,
             dock
         )

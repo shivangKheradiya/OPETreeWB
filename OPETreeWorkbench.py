@@ -8,20 +8,32 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
 
     def Initialize(self):
         from OPETreeWB.commands.show_ope_tree import ShowOPETreeCommand
+        from OPETreeWB.commands.show_attribute_browser import ShowAttributeBrowserCommand
 
         FreeCADGui.addCommand(
             "ShowOPETree",
             ShowOPETreeCommand()
         )
 
+        FreeCADGui.addCommand(
+            "ShowOPEAttributeBrowser",
+            ShowAttributeBrowserCommand()
+        )
+
         self.appendMenu(
             "OPE Tree",
-            ["ShowOPETree"]
+            [
+                "ShowOPETree",
+                "ShowOPEAttributeBrowser",
+            ]
         )
 
         self.appendToolbar(
             "OPE Tree",
-            ["ShowOPETree"]
+            [
+                "ShowOPETree",
+                "ShowOPEAttributeBrowser",
+            ]
         )
 
     def Activated(self):
