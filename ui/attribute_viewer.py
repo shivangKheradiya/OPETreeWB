@@ -12,7 +12,6 @@ from PySide.QtWidgets import (
     QTableWidgetItem,
     QVBoxLayout,
 )
-
 from PySide.QtCore import Qt
 
 from OPETreeWB.core.cn_manager import CN
@@ -48,16 +47,32 @@ class AttributeViewer(QWidget):
         layout.addWidget(self.table)
 
     # ---------------------------------------------------------
+    # Helpers
+    # ---------------------------------------------------------
+    def clear(self):
+        """
+        Clear the attribute table.
+        """
+        self.table.setRowCount(0)
+
+    # ---------------------------------------------------------
     # CN handling
     # ---------------------------------------------------------
     def _on_cn_changed(self, element_ref):
         """
         Slot called when CN changes.
         """
+        self.clear()
+
         if element_ref is None:
-            self.clear()
             return
 
-        for key in element_ref.keys():
-            value = element_ref[key]
+        for row, key in enumerate(element_ref.keys()):
+            try:
+                value = element_ref[key]
+            except Exception as exc:
+                value = f"<ERROR: {exc}>"
 
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(str(key)))
+            self.table.setItem(row, 1, QTableWidgetItem(str(value)))

@@ -10,13 +10,12 @@ Responsibilities:
 This class is domain-agnostic.
 """
 
-from PySide.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide.QtCore import Qt
+from PySide import QtCore, QtWidgets
 
 from OPETreeWB.core.cn_manager import CN
 
 
-class OPETree(QTreeWidget):
+class OPETree(QtWidgets.QTreeWidget):
     """
     Base class for all OPE Trees (DESI, CATA, ENGG, etc).
     """
@@ -25,7 +24,7 @@ class OPETree(QTreeWidget):
         super().__init__(parent)
 
         self.setHeaderHidden(True)
-        self.setSelectionMode(QTreeWidget.SingleSelection)
+        self.setSelectionMode(QtWidgets.QTreeWidget.SingleSelection)
 
         # Selection handling
         self.itemSelectionChanged.connect(self._on_selection_changed)
@@ -33,19 +32,19 @@ class OPETree(QTreeWidget):
     # ---------------------------------------------------------
     # Tree item helpers
     # ---------------------------------------------------------
-    def create_item(self, text: str, element_ref=None) -> QTreeWidgetItem:
+    def create_item(self, text: str, element_ref=None) -> QtWidgets.QTreeWidgetItem:
         """
         Create a tree item and attach an ElementRef to it.
         """
-        item = QTreeWidgetItem([text])
-        item.setData(0, Qt.UserRole, element_ref)
+        item = QtWidgets.QTreeWidgetItem([text])
+        item.setData(0, QtCore.Qt.UserRole, element_ref)
         return item
 
-    def get_element_ref(self, item: QTreeWidgetItem):
+    def get_element_ref(self, item: QtWidgets.QTreeWidgetItem):
         """
         Retrieve ElementRef stored on a tree item.
         """
-        return item.data(0, Qt.UserRole)
+        return item.data(0, QtCore.Qt.UserRole)
 
     # ---------------------------------------------------------
     # Selection handling
@@ -69,4 +68,4 @@ class OPETree(QTreeWidget):
         """
         Clear all items from the tree.
         """
-        self.clear()
+        # self.clear()
