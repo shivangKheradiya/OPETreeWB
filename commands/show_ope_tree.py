@@ -60,34 +60,33 @@ class ShowOPETreeCommand:
             QtCore.Qt.RightDockWidgetArea
         )
 
-        # -------------------------------------------------
-        # Choose backend: real provider or mock
-        # -------------------------------------------------
+        # ------------------------------
+        # 1️⃣ Provider setup (fail-fast)
+        # ------------------------------
+        provider = create_provider()
+        provider.start_session()
+        set_active_provider(provider)
+
+        FreeCAD.Console.PrintMessage("✅ Provider created and session started\n")
+
+        # ------------------------------
+        # 2️⃣ Tree construction (separate)
+        # ------------------------------
         try:
-            if not APP_CONTEXT.is_configured():
-                raise RuntimeError(
-                    "OPE connection or root node is not configured"
-                )
-
-            provider = create_provider()
-            provider.start_session()
-
-            set_active_provider(provider)
-
             root_node_id = APP_CONTEXT.root_node_id
             tree = OPEDesiTree(provider, root_node_id, dock)
 
             FreeCAD.Console.PrintMessage(
-                f"OPE Tree: connected to backend "
-                f"(root node {root_node_id})\n"
+                f"✅ OPE Tree built (root node {root_node_id})\n"
             )
 
         except Exception as exc:
+            import traceback
             FreeCAD.Console.PrintError(
-                "OPE Tree: backend unavailable, using mock tree\n"
-                f"Reason: {exc}\n"
+                "❌ Tree build failed\n"
+                f"{traceback.format_exc()}\n"
             )
-            tree = OPEMockTree(dock)
+            raise  # VERY IMPORTANT
 
         dock.setWidget(tree)
 

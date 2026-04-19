@@ -4,7 +4,7 @@ OPEDesiTree
 
 DESI domain tree backed by PyDBML.
 """
-
+from PyDBML import ElementRef
 from OPETreeWB.trees.ope_tree_base import OPETree
 from OPETreeWB.adapters.pydbml_adapter import PyDBMLTreeAdapter
 
@@ -27,7 +27,7 @@ class OPEDesiTree(OPETree):
         self.provider = provider
         self.adapter = PyDBMLTreeAdapter(provider)
 
-        root_ref = self.provider.get_element(root_node_id)
+        root_ref = ElementRef(self.provider, root_node_id)
         self._build_tree(root_ref)
 
     # ---------------------------------------------------------

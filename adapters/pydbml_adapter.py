@@ -12,6 +12,7 @@ from typing import List
 
 try:
     from PyDBML.datatypes import RefTarget
+    from PyDBML import ElementRef
 except ImportError:
     RefTarget = None
 
@@ -33,17 +34,25 @@ class PyDBMLTreeAdapter:
     # Tree label
     # ---------------------------------------------------------
     def get_label(self, element_ref) -> str:
-        """
-        Return unified tree label:
-            <Type> <Name or ID>
-        """
-        element = element_ref.element
-        type_name = element.type or "Node"
+        # ✅ Load element explicitly (never use element_ref.element)
+        element = self.provider.load_node(element_ref.id)
 
+        # Resolve Type
+        type_name = "Node"
         try:
-            name = element_ref["Name"] if element_ref.exists("Name") else None
+            type_attr_id = self.provider.registry.get_id("Type")
+            if type_attr_id in element.attributes:
+                type_name = element.attributes[type_attr_id].value
         except Exception:
-            name = None
+            pass
+
+        # Resolve Name
+        name = None
+        try:
+            if element_ref.exists("Name"):
+                name = element_ref["Name"]
+        except Exception:
+            pass
 
         return format_node_label(
             type_name=type_name,
@@ -55,20 +64,19 @@ class PyDBMLTreeAdapter:
     # Child traversal
     # ---------------------------------------------------------
     def get_children(self, element_ref) -> List:
-        """
-        Return child ElementRefs discovered via REFERENCE attributes.
-        """
+        provider = self.provider
+        owner_attr_id = provider.registry.get_id("Owner")
+
         children = []
-        element = element_ref.element
 
-        for attr in element.attributes.values():
-            if attr.type == "REFERENCE":
-                children.append(self._resolve_ref(attr.value))
+        rows = provider.search_by_attribute(
+            attribute_id=owner_attr_id,
+            value=element_ref.id,
+        )
 
-            elif attr.type == "ARRAY":
-                for item in attr.value:
-                    if self._is_ref(item):
-                        children.append(self._resolve_ref(item))
+        for row in rows:
+            child_node_id = row["node_id"]
+            children.append(ElementRef(provider, child_node_id))
 
         return children
 
