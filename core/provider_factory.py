@@ -4,6 +4,7 @@ Factory for creating PyDBML providers from the AppContext.
 """
 
 import socket
+import os
 from pathlib import Path
 from OPETreeWB.core.app_context import APP_CONTEXT
 
@@ -30,7 +31,7 @@ def create_provider():
         base_url=APP_CONTEXT.api_url,
         code=APP_CONTEXT.project_code,
         domain=APP_CONTEXT.domain,
-        username=APP_CONTEXT.username,
+        username=APP_CONTEXT.username or os.getlogin(),
         hostname=APP_CONTEXT.hostname or socket.gethostname(),
         attribute_registry=registry,
         snowflake=SnowflakeIDGenerator(),
