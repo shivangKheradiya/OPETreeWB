@@ -31,6 +31,7 @@ class AttributeViewer(QWidget):
 
         # Listen to CN changes
         CN.changed.connect(self._on_cn_changed)
+        self.table.itemChanged.connect(self._on_item_changed)
 
     # ---------------------------------------------------------
     # UI setup
@@ -125,3 +126,37 @@ class AttributeViewer(QWidget):
 
         # Array / others → string fallback
         return text_value
+    
+    
+    def _on_item_changed(self, item):
+        # Only react to Value column
+        if item.column() != 1:
+            return
+
+        row = item.row()
+        if row not in self._row_to_attr:
+            return
+
+        element_ref = CN()
+        if element_ref is None:
+            return
+
+        attr_name = self._row_to_attr[row]
+        new_text = item.text()
+
+        try:
+            value = self._coerce_value(
+                element_ref,
+                attr_name,
+                new_text,
+            )
+
+            # ✅ THIS is the real binding
+            element_ref[attr_name] = value
+
+        except Exception as exc:
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Update failed",
+                str(exc),
+            )
