@@ -34,13 +34,9 @@ class ConnectionDialog(QtWidgets.QDialog):
             "ENGG",
         ])
 
-        self.root_node_id_edit = QtWidgets.QLineEdit()
-        self.root_node_id_edit.setPlaceholderText("e.g. 1001")
-
         layout.addRow("API Base URL:", self.api_url_edit)
         layout.addRow("Project Code:", self.project_code_edit)
         layout.addRow("Domain:", self.domain_combo)
-        layout.addRow("Root Node ID:", self.root_node_id_edit)
 
         # Buttons
         buttons = QtWidgets.QDialogButtonBox(
@@ -56,17 +52,33 @@ class ConnectionDialog(QtWidgets.QDialog):
     # Data handling
     # -------------------------------------------------
     def _load_existing_values(self):
+        # -----------------------------
+        # API URL
+        # -----------------------------
         if APP_CONTEXT.api_url:
             self.api_url_edit.setText(APP_CONTEXT.api_url)
-
+        else:
+            self.api_url_edit.setText("http://127.0.0.1:8000/")
+    
+        # -----------------------------
+        # Project code
+        # -----------------------------
         if APP_CONTEXT.project_code:
             self.project_code_edit.setText(APP_CONTEXT.project_code)
-
+        else:
+            self.project_code_edit.setText("XYZ")
+    
+        # -----------------------------
+        # Domain
+        # -----------------------------
         if APP_CONTEXT.domain:
             idx = self.domain_combo.findText(APP_CONTEXT.domain)
             if idx >= 0:
                 self.domain_combo.setCurrentIndex(idx)
-
+    
+        # -----------------------------
+        # Root node ID (optional / legacy)
+        # -----------------------------
         if APP_CONTEXT.root_node_id is not None:
             self.root_node_id_edit.setText(str(APP_CONTEXT.root_node_id))
 
@@ -75,26 +87,10 @@ class ConnectionDialog(QtWidgets.QDialog):
         api_url = self.api_url_edit.text().strip()
         project_code = self.project_code_edit.text().strip()
         domain = self.domain_combo.currentText()
-        root_id_text = self.root_node_id_edit.text().strip()
-
-        # Basic validation for root node id
-        if root_id_text:
-            try:
-                root_node_id = int(root_id_text)
-            except ValueError:
-                QtWidgets.QMessageBox.critical(
-                    self,
-                    "Invalid Root Node ID",
-                    "Root Node ID must be an integer."
-                )
-                return
-        else:
-            root_node_id = None
 
         # Store in global context
         APP_CONTEXT.api_url = api_url
         APP_CONTEXT.project_code = project_code
         APP_CONTEXT.domain = domain
-        APP_CONTEXT.root_node_id = root_node_id
 
         self.accept()

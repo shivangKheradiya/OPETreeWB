@@ -1,56 +1,47 @@
-# adapters/pydbml_adapter.py
+# OPETreeWB/adapters/pydbml_adapter.py
+
 """
 PyDBML → OPETree adapter.
 
-This module translates PyDBML ElementRef objects into
-tree-ready representations (labels and child nodes).
+Converts PyDBML ElementRef objects into
+tree-ready labels and child ElementRefs.
 
-UI code MUST NOT directly inspect PyDBML internals.
+IMPORTANT:
+- Adapters NEVER import ElementRef
+- Adapters NEVER import RefTarget
+- Adapters NEVER touch ElementRef.element
 """
 
 from typing import List
-
-try:
-    from PyDBML.datatypes import RefTarget
-    from PyDBML import ElementRef
-except ImportError:
-    RefTarget = None
-
 from OPETreeWB.core.label_utils import format_node_label
 
-class PyDBMLTreeAdapter:
-    """
-    Adapter for representing PyDBML ElementRef objects in OPETree.
-    """
 
+class PyDBMLTreeAdapter:
     def __init__(self, provider):
-        """
-        provider:
-            PyDBML provider instance (e.g. OpeApiProvider)
-        """
         self.provider = provider
 
     # ---------------------------------------------------------
     # Tree label
     # ---------------------------------------------------------
     def get_label(self, element_ref) -> str:
-        # ✅ Load element explicitly (never use element_ref.element)
+        # Load raw Element via provider (SAFE)
         element = self.provider.load_node(element_ref.id)
 
-        # Resolve Type
+        # Type
         type_name = "Node"
         try:
-            type_attr_id = self.provider.registry.get_id("Type")
-            if type_attr_id in element.attributes:
-                type_name = element.attributes[type_attr_id].value
+            type_id = self.provider.registry.get_id("Type")
+            if type_id in element.attributes:
+                type_name = element.attributes[type_id].value
         except Exception:
             pass
 
-        # Resolve Name
+        # Name
         name = None
         try:
-            if element_ref.exists("Name"):
-                name = element_ref["Name"]
+            name_id = self.provider.registry.get_id("Name")
+            if name_id in element.attributes:
+                name = element.attributes[name_id].value
         except Exception:
             pass
 
@@ -61,38 +52,19 @@ class PyDBMLTreeAdapter:
         )
 
     # ---------------------------------------------------------
-    # Child traversal
+    # Child traversal (Owner-based hierarchy)
     # ---------------------------------------------------------
     def get_children(self, element_ref) -> List:
         provider = self.provider
         owner_attr_id = provider.registry.get_id("Owner")
-
-        children = []
 
         rows = provider.search_by_attribute(
             attribute_id=owner_attr_id,
             value=element_ref.id,
         )
 
-        for row in rows:
-            child_node_id = row["node_id"]
-            children.append(ElementRef(provider, child_node_id))
-
-        return children
-
-    # ---------------------------------------------------------
-    # Helpers
-    # ---------------------------------------------------------
-    def _is_ref(self, value) -> bool:
-        return RefTarget is not None and isinstance(value, RefTarget)
-
-    def _resolve_ref(self, ref_target):
-        """
-        Resolve RefTarget → ElementRef using provider.
-        """
-        try:
-            return self.provider.get_element(
-                int(ref_target.element_id)
-            )
-        except Exception:
-            return None
+        # Ask provider to give ElementRef (NEVER construct directly)
+        return [
+            provider.get_element(row["node_id"])
+            for row in rows
+        ]

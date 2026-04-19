@@ -29,8 +29,7 @@ class AppContext:
         return bool(
             self.api_url and
             self.project_code and
-            self.domain and
-            self.root_node_id is not None
+            self.domain
         )
 
     def clear(self):

@@ -27,7 +27,7 @@ class OPEDesiTree(OPETree):
         self.provider = provider
         self.adapter = PyDBMLTreeAdapter(provider)
 
-        root_ref = ElementRef(self.provider, root_node_id)
+        root_ref = self.provider.get_element(root_node_id)
         self._build_tree(root_ref)
 
     # ---------------------------------------------------------
@@ -35,10 +35,12 @@ class OPEDesiTree(OPETree):
     # ---------------------------------------------------------
     def _build_tree(self, root_ref):
         self.clear_tree()
+        roots = self._discover_world_roots()
 
-        root_item = self._build_item_recursive(root_ref)
-        self.addTopLevelItem(root_item)
-        root_item.setExpanded(True)
+        for root_ref in roots:
+            root_item = self._build_item_recursive(root_ref)
+            self.addTopLevelItem(root_item)
+            root_item.setExpanded(True)
 
     def _build_item_recursive(self, element_ref):
         """
@@ -54,3 +56,44 @@ class OPEDesiTree(OPETree):
             item.addChild(child_item)
 
         return item
+
+    def _discover_world_roots(self):
+        """
+        Discover WORLD root nodes.
+        Criteria:
+        - Type == "WORLD"
+        - No Owner or Owner is null/0
+        """
+        provider = self.provider
+        registry = provider.registry
+
+        type_attr = registry.get_id("Type")
+        owner_attr = registry.get_id("Owner")
+
+        # 1️⃣ Find all WORLD-typed nodes
+        world_rows = provider.search_by_attribute(
+            attribute_id=type_attr,
+            value="WORLD",
+        )
+
+        world_node_ids = {row["node_id"] for row in world_rows}
+
+        if not world_node_ids:
+            return []
+
+        # 2️⃣ Find nodes that HAVE an Owner
+        owner_rows = provider.search_by_attribute(
+            attribute_id=owner_attr,
+            value=None,  # we only want presence check, value filtered below
+        )
+
+        owned_nodes = {
+            row["node_id"]
+            for row in owner_rows
+            if row["value"] not in (None, 0)
+        }
+
+        # 3️⃣ Roots = WORLD nodes WITHOUT owner
+        root_ids = world_node_ids - owned_nodes
+
+        return [ElementRef(provider, nid) for nid in root_ids]

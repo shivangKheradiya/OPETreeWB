@@ -73,13 +73,7 @@ class ShowOPETreeCommand:
         # 2️⃣ Tree construction (separate)
         # ------------------------------
         try:
-            root_node_id = APP_CONTEXT.root_node_id
-            tree = OPEDesiTree(provider, root_node_id, dock)
-
-            FreeCAD.Console.PrintMessage(
-                f"✅ OPE Tree built (root node {root_node_id})\n"
-            )
-
+            tree = OPEDesiTree(provider, dock)
         except Exception as exc:
             import traceback
             FreeCAD.Console.PrintError(
