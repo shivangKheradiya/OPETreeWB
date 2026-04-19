@@ -36,8 +36,8 @@ class AttributeViewer(QWidget):
     # UI setup
     # ---------------------------------------------------------
     def _build_ui(self):
-        self.table = QTableWidget(0, 2)
-        self.table.setHorizontalHeaderLabels(["Attribute", "Value"])
+        self.table = QTableWidget(0, 3)
+        self.table.setHorizontalHeaderLabels(["Attribute", "Value", "Data ID"])
 
         self.table.horizontalHeader().setStretchLastSection(True)
         
@@ -46,7 +46,7 @@ class AttributeViewer(QWidget):
             QTableWidget.EditKeyPressed
         )
         self.table.setSelectionMode(QTableWidget.SingleSelection)
-
+        # self.table.setColumnHidden(2, True)
         layout = QVBoxLayout(self)
         layout.addWidget(self.table)
 
@@ -63,37 +63,44 @@ class AttributeViewer(QWidget):
     # CN handling
     # ---------------------------------------------------------
     def _on_cn_changed(self, element_ref):
-        """
-        Slot called when CN changes.
-        """
-        self.clear()
+       self.clear()
 
-        if element_ref is None:
-            return
+       if element_ref is None:
+           return
 
-        self.table.blockSignals(True)
-        self._row_to_attr.clear()
+       self.table.blockSignals(True)
+       self._row_to_attr.clear()
 
-        for row, key in enumerate(element_ref.keys()):
-            try:
-                value = element_ref[key]
-            except Exception as exc:
-                value = f"<ERROR: {exc}>"
+       provider = element_ref._provider
+       node_id = element_ref.id
 
-            self.table.insertRow(row)
+       # ✅ Access provider cache: { attr_id: (data_id, value) }
+       cache = provider._cache.get(node_id, {})
 
-            # Attribute name (read-only)
-            key_item = QTableWidgetItem(str(key))
-            key_item.setFlags(key_item.flags() & ~Qt.ItemIsEditable)
-            self.table.setItem(row, 0, key_item)
+       for row, attr_id in enumerate(cache.keys()):
+           attr_name = provider.registry.get_name(attr_id)
+           data_id, value = cache[attr_id]
 
-            # Attribute value (editable)
-            val_item = QTableWidgetItem(str(value))
-            self.table.setItem(row, 1, val_item)
+           self.table.insertRow(row)
 
-            self._row_to_attr[row] = key
+           # Attribute name (read-only)
+           key_item = QTableWidgetItem(attr_name)
+           key_item.setFlags(key_item.flags() & ~Qt.ItemIsEditable)
+           self.table.setItem(row, 0, key_item)
 
-        self.table.blockSignals(False)
+           # Attribute value (editable)
+           val_item = QTableWidgetItem(str(value))
+           self.table.setItem(row, 1, val_item)
+
+           # ✅ Data ID (hidden column)
+           data_item = QTableWidgetItem(str(data_id))
+           data_item.setFlags(data_item.flags() & ~Qt.ItemIsEditable)
+           self.table.setItem(row, 2, data_item)
+
+           # ✅ Map row → attribute name
+           self._row_to_attr[row] = attr_name
+
+       self.table.blockSignals(False)
 
     def _coerce_value(self, element_ref, attr_key, text_value):
         """
@@ -104,17 +111,17 @@ class AttributeViewer(QWidget):
             old_value = element_ref[attr_key]
         except Exception:
             return text_value
-    
+
         # Boolean
         if isinstance(old_value, bool):
             return text_value.lower() in ("1", "true", "yes", "on")
-    
+
         # Number
         if isinstance(old_value, int):
             return int(text_value)
-    
+
         if isinstance(old_value, float):
             return float(text_value)
-    
+
         # Array / others → string fallback
         return text_value
