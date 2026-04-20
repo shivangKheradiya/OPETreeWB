@@ -64,44 +64,57 @@ class AttributeViewer(QWidget):
     # CN handling
     # ---------------------------------------------------------
     def _on_cn_changed(self, element_ref):
-       self.clear()
+        self.clear()
 
-       if element_ref is None:
-           return
+        if element_ref is None:
+            return
 
-       self.table.blockSignals(True)
-       self._row_to_attr.clear()
+        self.table.blockSignals(True)
+        self._row_to_attr.clear()
 
-       provider = element_ref._provider
-       node_id = element_ref.id
+        provider = element_ref._provider
+        # ✅ disable editing if no active session
+        editable = provider._session_id is not None
+        self.table.setEditTriggers(
+            QTableWidget.DoubleClicked | QTableWidget.EditKeyPressed
+            if editable
+            else QTableWidget.NoEditTriggers
+        )
 
-       # ✅ Access provider cache: { attr_id: (data_id, value) }
-       cache = provider._cache.get(node_id, {})
+        node_id = element_ref.id
 
-       for row, attr_id in enumerate(cache.keys()):
-           attr_name = provider.registry.get_name(attr_id)
-           data_id, value = cache[attr_id]
+        # ✅ Access provider cache: { attr_id: (data_id, value) }
+        # cache = provider._cache.get(node_id, {})
+        cache = provider._cache.get(node_id)
+        if not cache:
+            # session ended or data not loaded
+            self.table.blockSignals(False)
+            return
+        
+        for row, attr_id in enumerate(cache.keys()):
+            attr_name = provider.registry.get_name(attr_id)
+            data_id, value = cache[attr_id]
 
-           self.table.insertRow(row)
+            self.table.insertRow(row)
 
-           # Attribute name (read-only)
-           key_item = QTableWidgetItem(attr_name)
-           key_item.setFlags(key_item.flags() & ~Qt.ItemIsEditable)
-           self.table.setItem(row, 0, key_item)
+            # Attribute name (read-only)
+            key_item = QTableWidgetItem(attr_name)
+            key_item.setFlags(key_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, 0, key_item)
 
-           # Attribute value (editable)
-           val_item = QTableWidgetItem(str(value))
-           self.table.setItem(row, 1, val_item)
+            # Attribute value (editable)
+            val_item = QTableWidgetItem(str(value))
+            self.table.setItem(row, 1, val_item)
 
-           # ✅ Data ID (hidden column)
-           data_item = QTableWidgetItem(str(data_id))
-           data_item.setFlags(data_item.flags() & ~Qt.ItemIsEditable)
-           self.table.setItem(row, 2, data_item)
+            # ✅ Data ID (hidden column)
+            data_item = QTableWidgetItem(str(data_id))
+            data_item.setFlags(data_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, 2, data_item)
 
-           # ✅ Map row → attribute name
-           self._row_to_attr[row] = attr_name
+            # ✅ Map row → attribute name
+            self._row_to_attr[row] = attr_name
 
-       self.table.blockSignals(False)
+        self.table.blockSignals(False)
 
     def _coerce_value(self, element_ref, attr_key, text_value):
         """

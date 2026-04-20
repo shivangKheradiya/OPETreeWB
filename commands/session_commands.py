@@ -10,7 +10,7 @@ Provides:
 
 import FreeCAD
 import FreeCADGui
-
+from OPETreeWB.core.cn_manager import CN
 
 # -------------------------------------------------
 # GLOBAL PROVIDER HOLDER (temporary but correct)
@@ -79,6 +79,7 @@ class CommitSessionCommand:
 
         try:
             provider.commit()
+            CN(None)  # ✅ clear current node
             FreeCAD.Console.PrintMessage("OPE session committed\n")
         except Exception as exc:
             FreeCAD.Console.PrintError(f"Failed to commit session: {exc}\n")
@@ -102,6 +103,7 @@ class AbortSessionCommand:
 
         try:
             provider.abort()
+            CN(None)  # ✅ clear current node
             FreeCAD.Console.PrintMessage("OPE session aborted\n")
         except Exception as exc:
             FreeCAD.Console.PrintError(f"Failed to abort session: {exc}\n")
