@@ -117,27 +117,23 @@ class AttributeViewer(QWidget):
         self.table.blockSignals(False)
 
     def _coerce_value(self, element_ref, attr_key, text_value):
-        """
-        Convert text input into correct Python type
-        based on existing attribute value.
-        """
-        try:
-            old_value = element_ref[attr_key]
-        except Exception:
+        provider = element_ref._provider
+        attr_id = provider.registry.get_id(attr_key)
+        data_type = provider.registry.get_type(attr_id)
+    
+        if data_type == "String":
             return text_value
-
-        # Boolean
-        if isinstance(old_value, bool):
+    
+        if data_type == "Boolean":
             return text_value.lower() in ("1", "true", "yes", "on")
-
-        # Number
-        if isinstance(old_value, int):
+    
+        if data_type == "BigInt":
             return int(text_value)
-
-        if isinstance(old_value, float):
+    
+        if data_type == "Number":
             return float(text_value)
-
-        # Array / others → string fallback
+    
+        # fallback
         return text_value
     
     
