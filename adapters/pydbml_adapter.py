@@ -25,30 +25,12 @@ class PyDBMLTreeAdapter:
     # ---------------------------------------------------------
     def get_label(self, element_ref) -> str:
         # Load raw Element via provider (SAFE)
-        element = self.provider.load_node(element_ref.id)
-
-        # Type
-        type_name = "Node"
-        try:
-            type_id = self.provider.registry.get_id("Type")
-            if type_id in element.attributes:
-                type_name = element.attributes[type_id].value
-        except Exception:
-            pass
-
-        # Name
-        name = None
-        try:
-            name_id = self.provider.registry.get_id("Name")
-            if name_id in element.attributes:
-                name = element.attributes[name_id].value
-        except Exception:
-            pass
+        element = self.provider.load_node_meta(element_ref.id)
 
         return format_node_label(
-            type_name=type_name,
-            name=name,
-            node_id=element_ref.id,
+            type_name=element.get("type") or "Node",
+            name=element.get("name"),
+            node_id=element["id"],
         )
 
     # ---------------------------------------------------------
@@ -65,6 +47,5 @@ class PyDBMLTreeAdapter:
 
         # Ask provider to give ElementRef (NEVER construct directly)
         return [
-            provider.get_element(row["node_id"])
-            for row in rows
+            provider.get_element(row["node_id"]) for row in rows
         ]

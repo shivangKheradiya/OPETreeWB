@@ -23,6 +23,8 @@ class OPETree(QtWidgets.QTreeWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        CN.attributeChanged.connect(self._on_attribute_changed)
+
         self.setHeaderHidden(True)
         self.setSelectionMode(QtWidgets.QTreeWidget.SingleSelection)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -147,3 +149,31 @@ class OPETree(QtWidgets.QTreeWidget):
         else:
             idx = self.indexOfTopLevelItem(item)
             self.takeTopLevelItem(idx)
+
+    def _on_attribute_changed(self, element_ref, attr_name):
+        """
+        If Name changes, update tree label immediately.
+        """
+        if attr_name != "Name":
+            return
+    
+        root = self.invisibleRootItem()
+    
+        def find_item(item):
+            ref = item.data(0, QtCore.Qt.UserRole)
+            if ref is element_ref:
+                return item
+    
+            for i in range(item.childCount()):
+                found = find_item(item.child(i))
+                if found:
+                    return found
+            return None
+    
+        for i in range(root.childCount()):
+            item = find_item(root.child(i))
+            if item:
+                # ✅ Recompute label lazily
+                new_label = self.adapter.get_label(element_ref)
+                item.setText(0, new_label)
+                return

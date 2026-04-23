@@ -28,7 +28,8 @@ class _CurrentNode(QtCore.QObject):
     """
 
     changed = QtCore.Signal(object)  # ElementRef | int | None
-
+    attributeChanged = QtCore.Signal(object, str)  # (ElementRef, attr_name)
+    
     def __init__(self):
         super().__init__()
         self._cn = None

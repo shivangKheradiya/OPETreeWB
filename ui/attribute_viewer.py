@@ -27,6 +27,7 @@ class AttributeViewer(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._row_to_attr = {}
+        self._building = False 
         self._build_ui()
 
         # Listen to CN changes
@@ -69,10 +70,13 @@ class AttributeViewer(QWidget):
         if element_ref is None:
             return
 
+        provider = element_ref._provider
+        provider.load_node(element_ref.id)
+        
+        self._building = True
         self.table.blockSignals(True)
         self._row_to_attr.clear()
 
-        provider = element_ref._provider
         # ✅ disable editing if no active session
         editable = provider._session_id is not None
         self.table.setEditTriggers(
@@ -104,6 +108,9 @@ class AttributeViewer(QWidget):
 
             # Attribute value (editable)
             val_item = QTableWidgetItem(str(value))
+            # ✅ Per-attribute editability (future-ready)
+            if not editable or attr_name in ("Type", "Owner"):
+                val_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
             self.table.setItem(row, 1, val_item)
 
             # ✅ Data ID (hidden column)
@@ -115,6 +122,7 @@ class AttributeViewer(QWidget):
             self._row_to_attr[row] = attr_name
 
         self.table.blockSignals(False)
+        self._building = False
 
     def _coerce_value(self, element_ref, attr_key, text_value):
         provider = element_ref._provider
@@ -162,6 +170,9 @@ class AttributeViewer(QWidget):
 
             # ✅ THIS is the real binding
             element_ref[attr_name] = value
+
+            # ✅ Notify others (tree) about attribute change
+            CN.attributeChanged.emit(element_ref, attr_name)
 
         except Exception as exc:
             QtWidgets.QMessageBox.critical(
