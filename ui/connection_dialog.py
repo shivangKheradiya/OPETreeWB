@@ -32,6 +32,8 @@ class ConnectionDialog(QtWidgets.QDialog):
             "DESI",
             "CATA",
             "ENGG",
+            "DICT",
+            "HIER",
         ])
 
         layout.addRow("API Base URL:", self.api_url_edit)

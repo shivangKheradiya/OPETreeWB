@@ -32,6 +32,8 @@ class OPETree(QtWidgets.QTreeWidget):
         self.itemSelectionChanged.connect(self._on_selection_changed)
         self.customContextMenuRequested.connect(self._open_context_menu)
 
+        CN.structureChanged.connect(self._on_structure_changed)
+
     # ---------------------------------------------------------
     # Tree item helpers
     # ---------------------------------------------------------
@@ -177,3 +179,11 @@ class OPETree(QtWidgets.QTreeWidget):
                 new_label = self.adapter.get_label(element_ref)
                 item.setText(0, new_label)
                 return
+            
+
+    def _on_structure_changed(self):
+        """
+        Rebuild tree when nodes are added / deleted.
+        """
+        self.clear_tree()
+        self._build_tree()

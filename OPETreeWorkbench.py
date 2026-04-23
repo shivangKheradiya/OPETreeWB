@@ -14,6 +14,7 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             CommitSessionCommand,
             AbortSessionCommand,
         )
+        from OPETreeWB.commands.create_root_node import CreateRootNodeCommand
         from OPETreeWB.commands.show_connection_ui import ShowConnectionUICommand
 
         FreeCADGui.addCommand("ShowOPEConnectionUI", ShowConnectionUICommand())
@@ -49,6 +50,11 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             ShowAttributeBrowserCommand()
         )
 
+        FreeCADGui.addCommand(
+            "CreateOPERootNode",
+            CreateRootNodeCommand()
+        )
+
         self.appendMenu(
             "OPE Tree",
             [
@@ -73,6 +79,20 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
         self.appendToolbar(
             "OPE",
             ["ShowOPEConnectionUI"]
+        )
+
+        self.appendMenu(
+            "OPE",
+            [
+                "CreateOPERootNode",
+            ]
+        )
+
+        self.appendToolbar(
+            "OPE",
+            [
+                "CreateOPERootNode",
+            ]
         )
 
     def Activated(self):

@@ -16,6 +16,7 @@ from OPETreeWB.commands.session_commands import set_active_provider
 
 from OPETreeWB.trees.ope_mock_tree import OPEMockTree
 from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
+from OPETreeWB.trees.tree_factory import create_tree
 
 
 class ShowOPETreeCommand:
@@ -73,7 +74,8 @@ class ShowOPETreeCommand:
         # 2️⃣ Tree construction (separate)
         # ------------------------------
         try:
-            tree = OPEDesiTree(provider, dock)
+            domain = APP_CONTEXT.domain  # "DESI", "DICT", etc.
+            tree = create_tree(domain, provider, dock)
         except Exception as exc:
             import traceback
             FreeCAD.Console.PrintError(
