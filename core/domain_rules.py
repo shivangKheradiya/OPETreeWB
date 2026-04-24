@@ -2,11 +2,11 @@
 
 DOMAIN_RULES = {
     "DESI": {
-        "RootType": "WORLD",
+        "RootType": "DESIWLD",
         "MaxRoots": None,
     },
     "DICT": {
-        "RootType": "DICT",
+        "RootType": "DICTWLD",
         "MaxRoots": None,  # unlimited
     },
 }

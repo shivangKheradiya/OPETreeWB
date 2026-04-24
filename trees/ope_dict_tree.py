@@ -20,36 +20,4 @@ class OPEDictTree(OPETree):
     """
 
     def __init__(self, provider, parent=None):
-        super().__init__(parent)
-
-        self.provider = provider
-        self.adapter = PyDBMLTreeAdapter(provider)
-
-        self._build_tree()
-
-    # ---------------------------------------------------------
-    # Tree construction
-    # ---------------------------------------------------------
-    def _build_tree(self):
-        """
-        Builds a flat dictionary tree.
-        """
-        self.clear_tree()
-
-        type_attr_id = self.provider.registry.get_id("Type")
-
-        # Find all dictionary nodes
-        rows = self.provider.search_by_attribute(
-            attribute_id=type_attr_id,
-            value="DICT",
-        )
-
-        # Collect unique node IDs
-        node_ids = sorted({row["node_id"] for row in rows})
-
-        for node_id in node_ids:
-            element_ref = ElementRef(self.provider, node_id)
-            label = self.adapter.get_label(element_ref)
-
-            item = self.create_item(label, element_ref)
-            self.addTopLevelItem(item)
+        super().__init__(provider,parent)
