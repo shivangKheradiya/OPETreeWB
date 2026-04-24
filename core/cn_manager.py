@@ -29,7 +29,7 @@ class _CurrentNode(QtCore.QObject):
 
     changed = QtCore.Signal(object)  # ElementRef | int | None
     attributeChanged = QtCore.Signal(object, str)  # (ElementRef, attr_name)
-    root_node_added = QtCore.Signal()
+    root_node_added = QtCore.Signal(object)
     
     def __init__(self):
         super().__init__()

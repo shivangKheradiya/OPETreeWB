@@ -194,12 +194,11 @@ class OPETree(QtWidgets.QTreeWidget):
                 return
             
 
-    def _on_root_node_added(self):
+    def _on_root_node_added(self, element_ref):
         """
-        Rebuild tree when nodes are added / deleted.
+        tree root node added.
         """
-        self.clear_tree()
-        self._add_new_root_node()
+        self._add_new_root_node(element_ref)
 
     # ---------------------------------------------------------
     # Tree construction
@@ -274,9 +273,15 @@ class OPETree(QtWidgets.QTreeWidget):
 
         return [ElementRef(provider, nid) for nid in root_ids]
     
-
-    # ---------------------------------------------------------
-    # Hooks (MANDATORY for subclasses)
-    # ---------------------------------------------------------
-    def get_root_nodes(self):
-        raise NotImplementedError
+    def _add_new_root_node(self, element_ref):
+        """
+        Incrementally add a root-level node to the tree.
+        No network reload.
+        """
+        label = self.adapter.get_label(element_ref)
+        item = self.create_item(label, element_ref)
+        self.addTopLevelItem(item)
+        item.setExpanded(True)
+        
+        # auto-select
+        self.setCurrentItem(item)

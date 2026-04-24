@@ -22,7 +22,7 @@ class CreateRootNodeCommand:
         try:
             ref = create_root_node(provider)
             # ✅ notify all tree views
-            CN.root_node_added.emit()
+            CN.root_node_added.emit(ref)
             FreeCAD.Console.PrintMessage(
                 f"Root node created: {ref.id}\n"
             )
