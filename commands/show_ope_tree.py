@@ -17,7 +17,7 @@ from OPETreeWB.commands.session_commands import set_active_provider
 from OPETreeWB.trees.ope_mock_tree import OPEMockTree
 from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
 from OPETreeWB.trees.tree_factory import create_tree
-
+from PyDBML import validate_dict_db
 
 class ShowOPETreeCommand:
     """
@@ -68,6 +68,7 @@ class ShowOPETreeCommand:
         provider.start_session()
         set_active_provider(provider)
 
+        validate_dict_db(provider, provider.dict_schema)
         FreeCAD.Console.PrintMessage("✅ Provider created and session started\n")
 
         # ------------------------------

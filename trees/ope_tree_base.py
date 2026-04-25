@@ -105,16 +105,17 @@ class OPETree(QtWidgets.QTreeWidget):
             parent_item.data(0, QtCore.Qt.UserRole)
             if parent_item else None
         )
-
-        provider = parent_ref._provider if parent_ref else None
-        if provider is None:
+    
+        if parent_ref is None:
             QtWidgets.QMessageBox.warning(
                 self,
                 "Create Node",
-                "No active provider / parent selected",
+                "No parent selected",
             )
             return
-
+    
+        provider = parent_ref._provider
+    
         # Ask user for type
         type_value, ok = QtWidgets.QInputDialog.getText(
             self,
@@ -123,15 +124,56 @@ class OPETree(QtWidgets.QTreeWidget):
         )
         if not ok or not type_value.strip():
             return
-
-        # Create via provider (Step 1 API)
+    
+        type_value = type_value.strip()
+    
+        # -------------------------------------------------
+        # ✅ DICT schema enforcement
+        # -------------------------------------------------
+        schema = getattr(provider, "dict_schema", None)
+    
+        if schema:
+            # ✅ RULE 0: Type must exist in schema
+            if type_value not in schema.element_types:
+                QtWidgets.QMessageBox.critical(
+                    self,
+                    "Invalid Element Type",
+                    f"Element type '{type_value}' is not defined in the DICT schema.\n\n"
+                    f"Allowed types:\n  - " +
+                    "\n  - ".join(sorted(schema.element_types.keys()))
+                )
+                return
+    
+            schema_et = schema.element_types[type_value]
+    
+            # ✅ RULE 1: AllowedParents
+            allowed_parents = (
+                schema_et
+                .get("Hierarchy", {})
+                .get("AllowedParents", [])
+            )
+    
+            parent_type = parent_ref["Type"]
+    
+            if allowed_parents and parent_type not in allowed_parents:
+                QtWidgets.QMessageBox.critical(
+                    self,
+                    "Invalid Hierarchy",
+                    f"Cannot create '{type_value}' under '{parent_type}'.\n\n"
+                    f"Allowed parents: {', '.join(allowed_parents)}"
+                )
+                return
+    
+        # -------------------------------------------------
+        # ✅ Create node (schema-safe)
+        # -------------------------------------------------
         child_ref = provider.create_node(
             parent_node_id=parent_ref.id,
-            type_value=type_value.strip(),
+            type_value=type_value,
         )
-
-        # Add to tree UI
-        label = f"{type_value} {child_ref.id}"
+    
+        # Add to UI incrementally
+        label = self.adapter.get_label(child_ref)
         child_item = self.create_item(label, child_ref)
         parent_item.addChild(child_item)
         parent_item.setExpanded(True)
