@@ -44,6 +44,8 @@ class OPETree(QtWidgets.QTreeWidget):
         self.customContextMenuRequested.connect(self._open_context_menu)
 
         CN.root_node_added.connect(self._on_root_node_added)
+        
+        self.itemExpanded.connect(self._on_item_expanded)
 
         self._build_tree()
 
@@ -327,3 +329,16 @@ class OPETree(QtWidgets.QTreeWidget):
         
         # auto-select
         self.setCurrentItem(item)
+
+    def _on_item_expanded(self, item):
+        """
+        Called when a tree node is expanded.
+        """
+        element_ref = item.data(0, QtCore.Qt.UserRole)
+        if element_ref is None:
+            return
+
+        provider = element_ref._provider
+
+        # ✅ New abstraction: let provider ensure children exist
+        provider.ensure_children_loaded(element_ref.id)

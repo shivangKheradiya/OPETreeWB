@@ -6,8 +6,12 @@ Factory for creating PyDBML providers from the AppContext.
 import socket
 import os
 from pathlib import Path
+from types import MethodType
 from OPETreeWB.core.app_context import APP_CONTEXT
-
+from OPE_DB_API.cache.engine import CacheEngine
+from OPE_DB_API.db.session import get_client_db_session
+from OPE_DB_API.db.engine import get_client_engine
+from OPE_DB_API.db.init_db import init_database
 
 def create_provider():
     """
@@ -38,6 +42,12 @@ def create_provider():
     )
 
     # -------------------------------------------------
+    # Ensure local cache DB exists
+    # -------------------------------------------------
+    engine = get_client_engine(APP_CONTEXT.project_code)
+    init_database(engine)
+
+    # -------------------------------------------------
     # Local-cache presence helpers (NO behavior change yet)
     # -------------------------------------------------
 
@@ -53,8 +63,8 @@ def create_provider():
         """
         return False
     
-    provider.has_children_cached = has_children_cached
-    provider.has_attributes_cached = has_attributes_cached
+    provider.has_children_cached = MethodType(has_children_cached, provider)
+    provider.has_attributes_cached = MethodType(has_attributes_cached, provider)
     
     def ensure_node_loaded(node_id: int):
         """
@@ -64,7 +74,20 @@ def create_provider():
         """
         if not provider.has_attributes_cached(node_id):
             provider.load_node(node_id)
-    
-    provider.ensure_node_loaded = ensure_node_loaded
-    
+
+    provider.ensure_node_loaded = MethodType(ensure_node_loaded, provider)
+
+    def ensure_children_loaded(node_id: int):
+        """
+        Ensure child nodes are available.
+
+        Current implementation:
+        - No-op because hierarchy is still server-backed and eager.
+        Future:
+        - Local-cache-first, server fallback.
+        """
+        return 
+
+    provider.ensure_children_loaded = MethodType(ensure_children_loaded, provider)
+
     return provider

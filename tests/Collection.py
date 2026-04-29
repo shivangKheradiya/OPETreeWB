@@ -44,4 +44,8 @@ if __name__ == "__main__":
     }
 
     collect_py_files(directory_to_scan, output_file, skip_folders)
+
+    skip_folders = {}
+    collect_py_files(r"C:\SKRepo\OPETreeWB\OPE_DB_API\OPE_DB_API", "OPE_DB_API.txt", skip_folders)
+    collect_py_files(r"C:\SKRepo\OPETreeWB\PyDBML\PyDBML", "PyDBML.txt", skip_folders)
     print("Done! Python files have been consolidated.")
