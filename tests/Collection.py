@@ -1,8 +1,19 @@
 import os
 
-def collect_py_files(root_dir, output_txt):
+def collect_py_files(root_dir, output_txt, skip_dirs=None):
+    if skip_dirs is None:
+        skip_dirs = set()
+
+    skip_dirs = {d.lower() for d in skip_dirs}
+
     with open(output_txt, "w", encoding="utf-8") as out_file:
         for foldername, subfolders, filenames in os.walk(root_dir):
+            # Remove skipped directories (prevents os.walk from entering them)
+            subfolders[:] = [
+                sf for sf in subfolders
+                if sf.lower() not in skip_dirs
+            ]
+
             for filename in filenames:
                 if filename.endswith(".py"):
                     file_path = os.path.join(foldername, filename)
@@ -24,8 +35,13 @@ def collect_py_files(root_dir, output_txt):
 
 
 if __name__ == "__main__":
-    directory_to_scan = "C:\\SKRepo\\OPETreeWB"
+    directory_to_scan = r"C:\SKRepo\OPETreeWB"
     output_file = "all_python_code.txt"
 
-    collect_py_files(directory_to_scan, output_file)
+    skip_folders = {
+        "OPE_DB_API",
+        "PyDBML",
+    }
+
+    collect_py_files(directory_to_scan, output_file, skip_folders)
     print("Done! Python files have been consolidated.")
