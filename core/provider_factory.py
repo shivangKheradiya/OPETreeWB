@@ -37,4 +37,34 @@ def create_provider():
         snowflake=SnowflakeIDGenerator(),
     )
 
+    # -------------------------------------------------
+    # Local-cache presence helpers (NO behavior change yet)
+    # -------------------------------------------------
+
+    def has_children_cached(node_id: int) -> bool:
+        """
+        Placeholder: return False until local cache is wired.
+        """
+        return False
+
+    def has_attributes_cached(node_id: int) -> bool:
+        """
+        Placeholder: return False until local cache is wired.
+        """
+        return False
+    
+    provider.has_children_cached = has_children_cached
+    provider.has_attributes_cached = has_attributes_cached
+    
+    def ensure_node_loaded(node_id: int):
+        """
+        Ensure node data is loaded.
+        Current implementation: server-backed.
+        Future: local-cache-first.
+        """
+        if not provider.has_attributes_cached(node_id):
+            provider.load_node(node_id)
+    
+    provider.ensure_node_loaded = ensure_node_loaded
+    
     return provider

@@ -15,7 +15,7 @@ from PySide.QtWidgets import (
 from PySide.QtCore import Qt
 
 from OPETreeWB.core.cn_manager import CN
-
+from OPETreeWB.core.app_context import APP_CONTEXT
 
 class AttributeViewer(QWidget):
     """
@@ -71,7 +71,10 @@ class AttributeViewer(QWidget):
             return
 
         provider = element_ref._provider
-        provider.load_node(element_ref.id)
+        node_id = element_ref.id
+
+        # STEP 2: local-cache check hook (still server-backed)
+        provider.ensure_node_loaded(node_id)
         
         self._building = True
         self.table.blockSignals(True)
