@@ -5,7 +5,7 @@ Connection and Project Selection Dialog.
 
 from PySide import QtWidgets
 from OPETreeWB.core.app_context import APP_CONTEXT
-
+from OPETreeWB.core.context_store import save_context, load_context
 
 class ConnectionDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
@@ -15,6 +15,8 @@ class ConnectionDialog(QtWidgets.QDialog):
         self.setModal(True)
         self.resize(420, 260)
 
+        load_context()
+        
         self._build_ui()
         self._load_existing_values()
 
@@ -39,6 +41,23 @@ class ConnectionDialog(QtWidgets.QDialog):
         layout.addRow("API Base URL:", self.api_url_edit)
         layout.addRow("Project Code:", self.project_code_edit)
         layout.addRow("Domain:", self.domain_combo)
+
+        layout.addRow(QtWidgets.QLabel("<b>Local Cache Database</b>"))
+        # -----------------------------
+        # Local DB (Client Cache)
+        # -----------------------------
+        self.local_db_host_edit = QtWidgets.QLineEdit()
+        self.local_db_port_edit = QtWidgets.QLineEdit()
+        self.local_db_name_edit = QtWidgets.QLineEdit()
+        self.local_db_user_edit = QtWidgets.QLineEdit()
+        self.local_db_password_edit = QtWidgets.QLineEdit()
+        self.local_db_password_edit.setEchoMode(QtWidgets.QLineEdit.Password)
+
+        layout.addRow("Local DB Host:", self.local_db_host_edit)
+        layout.addRow("Local DB Port:", self.local_db_port_edit)
+        layout.addRow("Local DB Name:", self.local_db_name_edit)
+        layout.addRow("Local DB User:", self.local_db_user_edit)
+        layout.addRow("Local DB Password:", self.local_db_password_edit)
 
         # Buttons
         buttons = QtWidgets.QDialogButtonBox(
@@ -84,6 +103,26 @@ class ConnectionDialog(QtWidgets.QDialog):
         if APP_CONTEXT.root_node_id is not None:
             self.root_node_id_edit.setText(str(APP_CONTEXT.root_node_id))
 
+        
+        # -----------------------------
+        # Local DB defaults
+        # -----------------------------
+        self.local_db_host_edit.setText(
+            APP_CONTEXT.local_db_host or "localhost"
+        )
+        self.local_db_port_edit.setText(
+            str(APP_CONTEXT.local_db_port or 5433)
+        )
+        self.local_db_name_edit.setText(
+            APP_CONTEXT.local_db_name or "xyz"
+        )
+        self.local_db_user_edit.setText(
+            APP_CONTEXT.local_db_user or "postgres"
+        )
+        self.local_db_password_edit.setText(
+            APP_CONTEXT.local_db_password or "postgres"
+        )
+
     def _on_accept(self):
         # Read values
         api_url = self.api_url_edit.text().strip()
@@ -95,4 +134,15 @@ class ConnectionDialog(QtWidgets.QDialog):
         APP_CONTEXT.project_code = project_code
         APP_CONTEXT.domain = domain
 
+        # -----------------------------
+        # Local DB settings
+        # -----------------------------
+        APP_CONTEXT.local_db_host = self.local_db_host_edit.text().strip()
+        APP_CONTEXT.local_db_port = int(self.local_db_port_edit.text())
+        APP_CONTEXT.local_db_name = self.local_db_name_edit.text().strip()
+        APP_CONTEXT.local_db_user = self.local_db_user_edit.text().strip()
+        APP_CONTEXT.local_db_password = self.local_db_password_edit.text()
+
+        save_context()   # ✅ store in temp
+        
         self.accept()
