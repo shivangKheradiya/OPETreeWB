@@ -4,7 +4,7 @@ OPEDesiTree
 
 DESI domain tree backed by PyDBML.
 """
-from PyDBML import ElementRef
+from PyDBML.core import ElementRef
 from OPETreeWB.trees.ope_tree_base import OPETree
 from OPETreeWB.adapters.pydbml_adapter import PyDBMLTreeAdapter
 

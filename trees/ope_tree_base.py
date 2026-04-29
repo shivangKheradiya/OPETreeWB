@@ -14,7 +14,7 @@ from PySide import QtCore, QtWidgets
 
 from OPETreeWB.core.cn_manager import CN
 from OPETreeWB.adapters.pydbml_adapter import PyDBMLTreeAdapter
-from PyDBML import ElementRef
+from PyDBML.core import ElementRef
 from OPETreeWB.core.domain_rules import DOMAIN_RULES
 from OPETreeWB.core.app_context import APP_CONTEXT
 

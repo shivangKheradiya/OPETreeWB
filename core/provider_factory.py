@@ -10,6 +10,7 @@ from types import MethodType
 from OPETreeWB.core.app_context import APP_CONTEXT
 from OPE_DB_API.cache.engine import CacheEngine
 from OPE_DB_API.db.session import get_client_db_session
+from OPE_DB_API.config import set_client_config_file
 from OPE_DB_API.db.engine import get_client_engine
 from OPE_DB_API.db.init_db import init_database
 
@@ -20,7 +21,9 @@ def create_provider():
     if not APP_CONTEXT.is_configured():
         raise RuntimeError("OPE connection is not configured")
     
-    from PyDBML import OpeApiProvider, SnowflakeIDGenerator, AttributeRegistry
+    from PyDBML.providers import OpeApiProvider
+    from PyDBML.identity import SnowflakeIDGenerator
+    from PyDBML.metadata import AttributeRegistry
     here = Path(__file__).resolve()
     wb_root = here.parents[1]  # OPETreeWB/
 
@@ -44,6 +47,7 @@ def create_provider():
     # -------------------------------------------------
     # Ensure local cache DB exists
     # -------------------------------------------------
+    set_client_config_file(r"C:\SKRepo\OPETreeWB\OPE_DB_API\defaults\config_client.toml")
     engine = get_client_engine(APP_CONTEXT.project_code)
     init_database(engine)
 

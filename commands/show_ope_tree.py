@@ -14,10 +14,8 @@ from OPETreeWB.core.app_context import APP_CONTEXT
 from OPETreeWB.core.provider_factory import create_provider
 from OPETreeWB.commands.session_commands import set_active_provider
 
-from OPETreeWB.trees.ope_mock_tree import OPEMockTree
-from OPETreeWB.trees.ope_desi_tree import OPEDesiTree
 from OPETreeWB.trees.tree_factory import create_tree
-from PyDBML import validate_dict_db
+from PyDBML.metadata.dict_schema_validator import validate_dict_db
 
 class ShowOPETreeCommand:
     """

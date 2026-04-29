@@ -9,7 +9,7 @@ This tree is FLAT (non-hierarchical).
 
 from OPETreeWB.trees.ope_tree_base import OPETree
 from OPETreeWB.adapters.pydbml_adapter import PyDBMLTreeAdapter
-from PyDBML import ElementRef
+from PyDBML.core import ElementRef
 
 
 class OPEDictTree(OPETree):
