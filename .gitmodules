@@ -1,3 +1,7 @@
 [submodule "PyDBML"]
 	path = PyDBML
 	url = https://github.com/shivangKheradiya/DBML.git
+[submodule "OPE_DB_API"]
+	path = OPE_DB_API
+	url = https://github.com/Open-Plant-Engineering/OPE_DB_API.git
+	branch = development
