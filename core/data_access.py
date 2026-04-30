@@ -3,6 +3,7 @@
 from OPE_DB_API.db.session import get_client_db_session
 from OPE_DB_API.registry.tables import LIVE_TABLE_REGISTRY
 from OPETreeWB.core.domain_rules import DOMAIN_RULES
+from OPE_DB_API.crud.work.read import read_current_work
 from sqlalchemy import cast
 from sqlalchemy.types import BigInteger
 
@@ -237,3 +238,55 @@ class OPEDataAccess:
                 )
                 .all()
             )
+        
+    def ensure_node_loaded(self, node_id: int) -> None:
+        """
+        Ensure full attributes for a single node are present locally.
+        Local-first:
+        - If cached locally → no-op
+        - Else → hydrate via provider.load_node()
+        """
+        if self._has_node_local(node_id):
+            return
+
+        self._hydrate_nodes({node_id})
+
+
+    def _has_node_local(self, node_id: int) -> bool:
+        """
+        True if at least one attribute row for node_id exists locally.
+        """
+        with get_client_db_session(self.code) as db:
+            model = LIVE_TABLE_REGISTRY[self.domain]
+            return (
+                db.query(model)
+                .filter(model.node_id == node_id)
+                .limit(1)
+                .count()
+                > 0
+            )
+        
+    def get_node_attributes_local(self, node_id: int):
+        """
+        Return ALL attributes for node_id from local DB.
+        """
+        with get_client_db_session(self.code) as db:
+            model = LIVE_TABLE_REGISTRY[self.domain]
+            return (
+                db.query(model)
+                .filter(model.node_id == node_id)
+                .all()
+            )
+
+    def get_node_attributes_working(self, node_id: int):
+        """
+        Return merged LIVE ⊕ OVERLAY attributes for a node.
+        """
+        with get_client_db_session(self.code) as db:
+            rows = read_current_work(
+                db,
+                domain=self.domain,
+                session_id=self.provider._session_id,
+            )
+
+        return [r for r in rows if r.node_id == node_id]

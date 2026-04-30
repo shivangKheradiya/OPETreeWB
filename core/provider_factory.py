@@ -81,17 +81,4 @@ def create_provider():
 
     provider.ensure_node_loaded = MethodType(ensure_node_loaded, provider)
 
-    def ensure_children_loaded(self, node_id: int):
-        """
-        Ensure child nodes are available.
-
-        Current implementation:
-        - No-op because hierarchy is still server-backed and eager.
-        Future:
-        - Local-cache-first, server fallback.
-        """
-        return 
-
-    provider.ensure_children_loaded = MethodType(ensure_children_loaded, provider)
-
     return provider

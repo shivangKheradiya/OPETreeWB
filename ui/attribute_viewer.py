@@ -16,6 +16,7 @@ from PySide.QtCore import Qt
 
 from OPETreeWB.core.cn_manager import CN
 from OPETreeWB.core.app_context import APP_CONTEXT
+from OPETreeWB.core.data_access import OPEDataAccess
 
 class AttributeViewer(QWidget):
     """
@@ -71,11 +72,15 @@ class AttributeViewer(QWidget):
             return
 
         provider = element_ref._provider
-        node_id = element_ref.id
+        node_id = int(element_ref.id)
 
-        # STEP 2: local-cache check hook (still server-backed)
-        provider.ensure_node_loaded(node_id)
-        
+        data_access = OPEDataAccess(provider)
+        data_access.ensure_node_loaded(node_id)
+
+        rows = data_access.get_node_attributes_local(node_id)
+        if not rows:
+            return
+
         self._building = True
         self.table.blockSignals(True)
         self._row_to_attr.clear()
@@ -98,31 +103,30 @@ class AttributeViewer(QWidget):
             self.table.blockSignals(False)
             return
         
-        for row, attr_id in enumerate(cache.keys()):
+        self.table.setRowCount(0)
+        for row_idx, row in enumerate(rows):
+            attr_id = row.attribute_id
+            value = row.value
+            data_id = row.data_id
+        
             attr_name = provider.registry.get_name(attr_id)
-            data_id, value = cache[attr_id]
-
-            self.table.insertRow(row)
-
-            # Attribute name (read-only)
+        
+            self.table.insertRow(row_idx)
+        
             key_item = QTableWidgetItem(attr_name)
             key_item.setFlags(key_item.flags() & ~Qt.ItemIsEditable)
-            self.table.setItem(row, 0, key_item)
-
-            # Attribute value (editable)
+            self.table.setItem(row_idx, 0, key_item)
+        
             val_item = QTableWidgetItem(str(value))
-            # ✅ Per-attribute editability (future-ready)
             if not editable or attr_name in ("Type", "Owner"):
                 val_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            self.table.setItem(row, 1, val_item)
-
-            # ✅ Data ID (hidden column)
+            self.table.setItem(row_idx, 1, val_item)
+        
             data_item = QTableWidgetItem(str(data_id))
             data_item.setFlags(data_item.flags() & ~Qt.ItemIsEditable)
-            self.table.setItem(row, 2, data_item)
-
-            # ✅ Map row → attribute name
-            self._row_to_attr[row] = attr_name
+            self.table.setItem(row_idx, 2, data_item)
+        
+            self._row_to_attr[row_idx] = attr_name
 
         self.table.blockSignals(False)
         self._building = False
