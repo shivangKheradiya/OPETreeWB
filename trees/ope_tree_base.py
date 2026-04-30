@@ -17,6 +17,7 @@ from OPETreeWB.adapters.pydbml_adapter import PyDBMLTreeAdapter
 from PyDBML.core import ElementRef
 from OPETreeWB.core.domain_rules import DOMAIN_RULES
 from OPETreeWB.core.app_context import APP_CONTEXT
+from OPETreeWB.core.data_access import OPEDataAccess
 
 class OPETree(QtWidgets.QTreeWidget):
     """
@@ -32,6 +33,7 @@ class OPETree(QtWidgets.QTreeWidget):
         super().__init__(parent)
         
         self.provider = provider
+        self.data_access = OPEDataAccess(provider)
         self.adapter = PyDBMLTreeAdapter(provider)
 
         CN.attributeChanged.connect(self._on_attribute_changed)
@@ -249,13 +251,22 @@ class OPETree(QtWidgets.QTreeWidget):
     # ---------------------------------------------------------
     def _build_tree(self):
         self.clear_tree()
+
+        # ✅ local-first root preparation
+        self.data_access.ensure_root_nodes_loaded()
+
         roots = self._discover_world_roots()
 
         for root_ref in roots:
-            root_item = self._build_item_recursive(root_ref)
-            self.addTopLevelItem(root_item)
-            root_item.setExpanded(True)
+            label = self.adapter.get_label(root_ref)
+            root_item = self.create_item(label, root_ref)
 
+            # mark expandable (children may exist)
+            root_item.setChildIndicatorPolicy(
+                QtWidgets.QTreeWidgetItem.ShowIndicator
+            )
+
+            self.addTopLevelItem(root_item)
 
     def _build_item_recursive(self, element_ref):
         """
