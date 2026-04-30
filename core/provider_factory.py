@@ -55,13 +55,13 @@ def create_provider():
     # Local-cache presence helpers (NO behavior change yet)
     # -------------------------------------------------
 
-    def has_children_cached(node_id: int) -> bool:
+    def has_children_cached(self, node_id: int) -> bool:
         """
         Placeholder: return False until local cache is wired.
         """
         return False
 
-    def has_attributes_cached(node_id: int) -> bool:
+    def has_attributes_cached(self, node_id: int) -> bool:
         """
         Placeholder: return False until local cache is wired.
         """
@@ -70,7 +70,7 @@ def create_provider():
     provider.has_children_cached = MethodType(has_children_cached, provider)
     provider.has_attributes_cached = MethodType(has_attributes_cached, provider)
     
-    def ensure_node_loaded(node_id: int):
+    def ensure_node_loaded(self, node_id: int):
         """
         Ensure node data is loaded.
         Current implementation: server-backed.
@@ -81,7 +81,7 @@ def create_provider():
 
     provider.ensure_node_loaded = MethodType(ensure_node_loaded, provider)
 
-    def ensure_children_loaded(node_id: int):
+    def ensure_children_loaded(self, node_id: int):
         """
         Ensure child nodes are available.
 
