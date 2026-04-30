@@ -3,16 +3,21 @@
 from OPE_DB_API.db.session import get_client_db_session
 from OPE_DB_API.registry.tables import LIVE_TABLE_REGISTRY
 from OPETreeWB.core.domain_rules import DOMAIN_RULES
-
+from sqlalchemy import cast
+from sqlalchemy.types import BigInteger
 
 class OPEDataAccess:
     """
     Local-first data access layer.
 
-    Rules:
+    Responsibilities (ONLY):
     - Read local DB first
-    - If missing, fetch via PyDBML Search API
-    - Persist results locally
+    - Hydrate local DB using Search API (minimum calls)
+    - Interpret node/root/child relationships locally
+
+    DOES NOT:
+    - Compare with server state
+    - Perform sync (history/snapshot)
     """
 
     def __init__(self, provider):
@@ -21,11 +26,20 @@ class OPEDataAccess:
         self.domain = provider.domain
         self.registry = provider.registry
 
-    # -----------------------------
+    # =========================================================
     # ROOT LEVEL
-    # -----------------------------
+    # =========================================================
 
-    def ensure_root_nodes_loaded(self):
+    def ensure_root_nodes_loaded(self) -> None:
+        """
+        Ensure root nodes are available locally.
+
+        Server calls:
+        - 1× search(Type == RootType)
+        - 1× search(Owner == ANY)
+
+        No per-node server calls.
+        """
         if self._has_root_nodes_local():
             return
 
@@ -33,105 +47,117 @@ class OPEDataAccess:
         type_attr = self.registry.get_id("Type")
         owner_attr = self.registry.get_id("Owner")
 
-        # 1️⃣ Fetch ALL nodes with this root type
+        # --- Server calls (STRICTLY ONCE EACH) ---
+
         type_rows = self.provider.search_by_attribute(
             attribute_id=type_attr,
             value=root_type,
         )
 
-        # 2️⃣ Fetch ALL owner attribute rows ONCE
         owner_rows = self.provider.search_by_attribute(
             attribute_id=owner_attr,
-            value=None,  # fetch all Owner attrs (value filtered locally)
+            value=None,  # fetch all Owner attributes
         )
 
-        # 3️⃣ Compute ownership locally
+        # --- Local interpretation ---
+
         owned_nodes = {
             r["node_id"]
             for r in owner_rows
             if r["value"] not in (None, 0)
         }
 
-        # 4️⃣ Roots = type nodes without Owner attribute
-        root_node_ids = [
-            r["node_id"]
-            for r in type_rows
+        root_rows = [
+            r for r in type_rows
             if r["node_id"] not in owned_nodes
         ]
 
-        self._persist_root_nodes(type_rows, root_node_ids)
-
+        self._persist_rows(root_rows)
 
     def _has_root_nodes_local(self) -> bool:
+        """
+        Return True if at least one root node exists locally.
+
+        Root node = node_id with NO Owner attribute row.
+        """
         owner_attr = self.registry.get_id("Owner")
 
         with get_client_db_session(self.code) as db:
             model = LIVE_TABLE_REGISTRY[self.domain]
 
-            all_nodes = {
-                r[0] for r in db.query(model.node_id).distinct().all()
-            }
-            if not all_nodes:
-                return False
+            exists = (
+                db.query(model.node_id)
+                .filter(
+                    ~db.query(model)
+                    .filter(
+                        model.attribute_id == owner_attr,
+                        model.node_id == model.node_id,
+                    )
+                    .exists()
+                )
+                .limit(1)
+                .first()
+            )
 
-            owned_nodes = {
-                r.node_id
-                for r in db.query(model)
-                .filter(model.attribute_id == owner_attr)
-                .all()
-                if r.value not in (None, 0)
-            }
-
-            roots = all_nodes - owned_nodes
-            return bool(roots)
-
-    def _persist_root_nodes(self, rows, root_node_ids):
-        with get_client_db_session(self.code) as db:
-            model = LIVE_TABLE_REGISTRY[self.domain]
-            for row in rows:
-                if row["node_id"] in root_node_ids:
-                    db.merge(model(**row))
-            db.commit()
+            return exists is not None
 
     def get_root_nodes_local(self):
+        """
+        Fetch root nodes from local DB.
+        """
         owner_attr = self.registry.get_id("Owner")
 
         with get_client_db_session(self.code) as db:
             model = LIVE_TABLE_REGISTRY[self.domain]
 
-            all_nodes = {
-                r[0] for r in db.query(model.node_id).distinct().all()
-            }
-
-            owned_nodes = {
-                r.node_id
-                for r in db.query(model)
-                .filter(model.attribute_id == owner_attr)
+            root_ids = [
+                r[0]
+                for r in db.query(model.node_id)
+                .filter(
+                    ~db.query(model)
+                    .filter(
+                        model.attribute_id == owner_attr,
+                        model.node_id == model.node_id,
+                    )
+                    .exists()
+                )
+                .distinct()
                 .all()
-                if r.value not in (None, 0)
-            }
-
-            root_ids = all_nodes - owned_nodes
+            ]
 
             return db.query(model).filter(
                 model.node_id.in_(root_ids)
-            ).all()
+                ).all()
 
-        
     # -----------------------------
     # CHILD LEVEL
     # -----------------------------
+    def ensure_children_loaded(self, parent_node_id: int) -> None:
+        """
+        Ensure immediate children of parent_node_id are available locally.
+
+        Server calls:
+        - 1× search(Owner == parent_node_id)
+
+        No loops, no extra calls.
+        """
+        if self._has_children_local(parent_node_id):
+            return
+
+        rows = self._fetch_children_from_server(parent_node_id)
+        self._persist_rows(rows)
+
     def _has_children_local(self, parent_node_id: int) -> bool:
         owner_attr = self.registry.get_id("Owner")
-    
+
         with get_client_db_session(self.code) as db:
             model = LIVE_TABLE_REGISTRY[self.domain]
-    
+
             return (
                 db.query(model)
                 .filter(
                     model.attribute_id == owner_attr,
-                    model.value == parent_node_id,
+                    cast(model.value, BigInteger) == parent_node_id,
                 )
                 .limit(1)
                 .count()
@@ -139,32 +165,29 @@ class OPEDataAccess:
             )
 
     def _fetch_children_from_server(self, parent_node_id: int):
-            """
-            Fetch immediate children of a node using Search API.
-            """
-            owner_attr = self.registry.get_id("Owner")
+        """
+        Fetch child nodes from server using ONE search call.
+        """
+        owner_attr = self.registry.get_id("Owner")
 
-            return self.provider.search_by_attribute(
-                attribute_id=owner_attr,
-                value=parent_node_id,
-            )
-    
-    def _persist_child_rows(self, rows):
+        return self.provider.search_by_attribute(
+            attribute_id=owner_attr,
+            value=parent_node_id,
+        )
+
+    # =========================================================
+    # COMMON
+    # =========================================================
+
+    def _persist_rows(self, rows) -> None:
         """
-        Persist child rows into local DB.
+        Persist Search API rows into local DB (upsert-safe).
         """
+        if not rows:
+            return
+
         with get_client_db_session(self.code) as db:
             model = LIVE_TABLE_REGISTRY[self.domain]
             for row in rows:
                 db.merge(model(**row))
             db.commit()
-
-    def ensure_children_loaded(self, parent_node_id: int):
-            """
-            Ensure immediate children of parent_node_id are present locally.
-            """
-            if self._has_children_local(parent_node_id):
-                return
-
-            rows = self._fetch_children_from_server(parent_node_id)
-            self._persist_child_rows(rows)
