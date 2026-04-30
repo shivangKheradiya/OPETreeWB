@@ -46,14 +46,14 @@ class OPEDataAccess:
         root_type = DOMAIN_RULES[self.domain]["RootType"]
         type_attr = self.registry.get_id("Type")
         owner_attr = self.registry.get_id("Owner")
-
-        # --- Server calls (STRICTLY ONCE EACH) ---
-
+    
+        # 1️⃣ Discover nodes of root type
         type_rows = self.provider.search_by_attribute(
             attribute_id=type_attr,
             value=root_type,
         )
-
+    
+        # 2️⃣ Discover all owned nodes
         owner_rows = self.provider.search_by_attribute(
             attribute_id=owner_attr,
             value=None,  # fetch all Owner attributes
@@ -66,13 +66,16 @@ class OPEDataAccess:
             for r in owner_rows
             if r["value"] not in (None, 0)
         }
-
-        root_rows = [
-            r for r in type_rows
+    
+        # 3️⃣ Root node IDs
+        root_node_ids = {
+            r["node_id"]
+            for r in type_rows
             if r["node_id"] not in owned_nodes
-        ]
-
-        self._persist_rows(root_rows)
+        }
+    
+        # ✅ 4️⃣ FULL hydration of root nodes
+        self._hydrate_nodes(root_node_ids)
 
     def _has_root_nodes_local(self) -> bool:
         """
@@ -191,3 +194,27 @@ class OPEDataAccess:
             for row in rows:
                 db.merge(model(**row))
             db.commit()
+
+    def _hydrate_nodes(self, node_ids: set[int]) -> None:
+        """
+        Fully hydrate nodes using load_node(), which is the only
+        API that returns complete node data (Type, Name, Owner, etc.).
+        """
+        if not node_ids:
+            return
+    
+        rows = []
+    
+        for node_id in node_ids:
+            element = self.provider.load_node(node_id)
+    
+            cached_attrs = self.provider._cache.get(node_id, {})
+            for attr_id, (data_id, value) in cached_attrs.items():
+                rows.append({
+                    "data_id": data_id,
+                    "node_id": node_id,
+                    "attribute_id": attr_id,
+                    "value": value,
+                })
+    
+        self._persist_rows(rows)
