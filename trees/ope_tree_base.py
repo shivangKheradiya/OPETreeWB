@@ -349,7 +349,24 @@ class OPETree(QtWidgets.QTreeWidget):
         if element_ref is None:
             return
 
-        provider = element_ref._provider
+        # Prevent duplicate loading
+        if item.childCount() > 0:
+            return
 
-        # ✅ New abstraction: let provider ensure children exist
-        provider.ensure_children_loaded(element_ref.id)
+        # ✅ Ensure children are hydrated into local DB
+        self.data_access.ensure_children_loaded(element_ref.id)
+
+        children = self.data_access.get_children_local(element_ref.id)
+
+        for child_row in children:
+            child_ref = ElementRef(self.provider, child_row.node_id)
+        
+            label = self.adapter.get_label(child_ref)
+            child_item = self.create_item(label, child_ref)
+        
+            # Mark as expandable (lazy)
+            child_item.setChildIndicatorPolicy(
+                QtWidgets.QTreeWidgetItem.ShowIndicator
+            )
+        
+            item.addChild(child_item)

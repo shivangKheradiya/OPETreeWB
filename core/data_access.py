@@ -147,8 +147,12 @@ class OPEDataAccess:
         if self._has_children_local(parent_node_id):
             return
 
-        rows = self._fetch_children_from_server(parent_node_id)
-        self._persist_rows(rows)
+        # 1️⃣ Discover child node IDs
+        owner_rows = self._fetch_children_from_server(parent_node_id)
+        child_node_ids = {row["node_id"] for row in owner_rows}
+
+        # ✅ 2️⃣ FULL hydration of child nodes
+        self._hydrate_nodes(child_node_ids)
 
     def _has_children_local(self, parent_node_id: int) -> bool:
         owner_attr = self.registry.get_id("Owner")
@@ -218,3 +222,18 @@ class OPEDataAccess:
                 })
     
         self._persist_rows(rows)
+
+    def get_children_local(self, parent_node_id: int):
+        owner_attr = self.registry.get_id("Owner")
+    
+        with get_client_db_session(self.code) as db:
+            model = LIVE_TABLE_REGISTRY[self.domain]
+    
+            return (
+                db.query(model)
+                .filter(
+                    model.attribute_id == owner_attr,
+                    cast(model.value, BigInteger) == parent_node_id,
+                )
+                .all()
+            )
