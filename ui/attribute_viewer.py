@@ -17,6 +17,11 @@ from PySide.QtCore import Qt
 from OPETreeWB.core.cn_manager import CN
 from OPETreeWB.core.app_context import APP_CONTEXT
 from OPETreeWB.core.data_access import OPEDataAccess
+from OPETreeWB.facades.attribute_facade import AttributeFacade
+
+USE_ATTRIBUTE_FACADE = True
+DEBUG_ATTRIBUTE_FACADE = True
+USE_WORKING_VIEW = True  # Toggle this to False to rollback
 
 class AttributeViewer(QWidget):
     """
@@ -75,9 +80,20 @@ class AttributeViewer(QWidget):
         node_id = int(element_ref.id)
 
         data_access = OPEDataAccess(provider)
-        data_access.ensure_node_loaded(node_id)
+        data_access = OPEDataAccess(provider)
 
-        rows = data_access.get_node_attributes_local(node_id)
+        if USE_ATTRIBUTE_FACADE:
+            facade = AttributeFacade(
+                provider,
+                data_access,
+                debug=DEBUG_ATTRIBUTE_FACADE,
+            )
+            rows = facade.get_attributes(node_id)
+        else:
+            # OLD PATH (baseline comparison)
+            data_access.ensure_node_loaded(node_id)
+            rows = data_access.get_node_attributes_local(node_id)
+
         if not rows:
             return
 
@@ -85,8 +101,11 @@ class AttributeViewer(QWidget):
         self.table.blockSignals(True)
         self._row_to_attr.clear()
 
-        # ✅ disable editing if no active session
-        editable = provider._session_id is not None
+        if USE_ATTRIBUTE_FACADE:
+            editable = facade.is_editable()
+        else:
+            editable = provider._session_id is not None
+
         self.table.setEditTriggers(
             QTableWidget.DoubleClicked | QTableWidget.EditKeyPressed
             if editable
@@ -105,9 +124,9 @@ class AttributeViewer(QWidget):
         
         self.table.setRowCount(0)
         for row_idx, row in enumerate(rows):
-            attr_id = row.attribute_id
-            value = row.value
-            data_id = row.data_id
+            attr_id = row["attribute_id"]
+            value = row["value"]
+            data_id = row["data_id"]
         
             attr_name = provider.registry.get_name(attr_id)
         
@@ -176,7 +195,10 @@ class AttributeViewer(QWidget):
             )
 
             # ✅ THIS is the real binding
-            element_ref[attr_name] = value
+            if USE_ATTRIBUTE_FACADE:
+                facade.update_attribute(element_ref, attr_name, value)
+            else:
+                element_ref[attr_name] = value
 
             # ✅ Notify others (tree) about attribute change
             CN.attributeChanged.emit(element_ref, attr_name)
