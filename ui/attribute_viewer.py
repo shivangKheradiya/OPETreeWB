@@ -114,14 +114,6 @@ class AttributeViewer(QWidget):
         )
 
         node_id = element_ref.id
-
-        # ✅ Access provider cache: { attr_id: (data_id, value) }
-        # cache = provider._cache.get(node_id, {})
-        cache = provider._cache.get(node_id)
-        if not cache:
-            # session ended or data not loaded
-            self.table.blockSignals(False)
-            return
         
         self.table.setRowCount(0)
         for row_idx, row in enumerate(rows):
@@ -146,7 +138,11 @@ class AttributeViewer(QWidget):
             data_item.setFlags(data_item.flags() & ~Qt.ItemIsEditable)
             self.table.setItem(row_idx, 2, data_item)
         
-            self._row_to_attr[row_idx] = attr_name
+            self._row_to_attr[row_idx] = {
+                "attribute_id": attr_id,
+                "data_id": data_id,
+                "attribute_name": attr_name,
+            }
 
         self.table.blockSignals(False)
         self._building = False
@@ -185,7 +181,8 @@ class AttributeViewer(QWidget):
         if element_ref is None:
             return
 
-        attr_name = self._row_to_attr[row]
+        row_info = self._row_to_attr[row]
+        attr_name = row_info["attribute_name"]
         new_text = item.text()
 
         try:
@@ -203,6 +200,7 @@ class AttributeViewer(QWidget):
 
             # ✅ Notify others (tree) about attribute change
             CN.attributeChanged.emit(element_ref, attr_name)
+            self._on_cn_changed(element_ref)
 
         except Exception as exc:
             import traceback
