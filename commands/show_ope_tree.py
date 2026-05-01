@@ -66,11 +66,11 @@ class ShowOPETreeCommand:
         provider.start_session()
         set_active_provider(provider)
 
-        from OPETreeWB.core.local_session import ensure_local_session
+        from OPETreeWB.data.local_session import ensure_local_session
         ensure_local_session(provider)
-        
+
         validate_dict_db(provider, provider.dict_schema)
-        
+
         FreeCAD.Console.PrintMessage("✅ Provider created and session started\n")
 
         # ------------------------------
