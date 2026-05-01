@@ -47,14 +47,55 @@ class AttributeFacade:
     # -----------------------------
     def update_attribute(self, element_ref, attr_name, value):
         """
-        Update attribute value.
+        Update attribute value in WORKING mode.
 
-        For now: delegate to existing ElementRef binding.
+        - Server update (authoritative)
+        - Local LIVE ensure
+        - Local OVERLAY write
         """
         self._log(
             f"update_attribute(node={element_ref.id}, attr={attr_name}, value={value})"
         )
+
+        # -------------------------------------------------
+        # 1️⃣ Server-side update (existing, keep it)
+        # -------------------------------------------------
         element_ref[attr_name] = value
+
+        # -------------------------------------------------
+        # 2️⃣ Ensure local LIVE row exists
+        # -------------------------------------------------
+        node_id = int(element_ref.id)
+        self.data_access.ensure_node_loaded(node_id)
+
+        # -------------------------------------------------
+        # 3️⃣ Write LOCAL overlay row
+        # -------------------------------------------------
+        from types import SimpleNamespace
+        from OPE_DB_API.crud.work.push import push_work
+        from OPE_DB_API.db.session import get_client_db_session
+
+        attr_id = self.provider.registry.get_id(attr_name)
+
+        # data_id comes from provider cache populated by load_node
+        data_id, _ = self.provider._cache[node_id][attr_id]
+
+        payload = SimpleNamespace(
+            data_id=data_id,
+            node_id=node_id,
+            attribute_id=attr_id,
+            operation_type=2,   # UPDATE
+            value=value,
+        )
+
+        with get_client_db_session(self.provider.code) as db:
+            push_work(
+                db,
+                domain=self.provider.domain,
+                session_id=self.provider._session_id,
+                payload=payload,
+            )
+            db.commit()
 
     # -----------------------------
     # META

@@ -11,6 +11,7 @@ from PySide.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
+    QMessageBox,
 )
 from PySide.QtCore import Qt
 
@@ -83,12 +84,12 @@ class AttributeViewer(QWidget):
         data_access = OPEDataAccess(provider)
 
         if USE_ATTRIBUTE_FACADE:
-            facade = AttributeFacade(
+            self.facade = AttributeFacade(
                 provider,
                 data_access,
                 debug=DEBUG_ATTRIBUTE_FACADE,
             )
-            rows = facade.get_attributes(node_id)
+            rows = self.facade.get_attributes(node_id)
         else:
             # OLD PATH (baseline comparison)
             data_access.ensure_node_loaded(node_id)
@@ -102,7 +103,7 @@ class AttributeViewer(QWidget):
         self._row_to_attr.clear()
 
         if USE_ATTRIBUTE_FACADE:
-            editable = facade.is_editable()
+            editable = self.facade.is_editable()
         else:
             editable = provider._session_id is not None
 
@@ -196,7 +197,7 @@ class AttributeViewer(QWidget):
 
             # ✅ THIS is the real binding
             if USE_ATTRIBUTE_FACADE:
-                facade.update_attribute(element_ref, attr_name, value)
+                self.facade.update_attribute(element_ref, attr_name, value)
             else:
                 element_ref[attr_name] = value
 
@@ -204,7 +205,9 @@ class AttributeViewer(QWidget):
             CN.attributeChanged.emit(element_ref, attr_name)
 
         except Exception as exc:
-            QtWidgets.QMessageBox.critical(
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(
                 self,
                 "Update failed",
                 str(exc),
