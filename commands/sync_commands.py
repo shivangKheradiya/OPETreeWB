@@ -7,6 +7,7 @@ from OPETreeWB.core.sync.snapshot_sync import apply_snapshot
 from OPETreeWB.core.cn_manager import CN
 from OPETreeWB.core.sync.sync_cursor import (
     get_or_initialize_global_last_synced_at,
+    update_last_synced_at_for_active_session,
 )
 from OPE_DB_API.db.session import get_client_db_session
 from OPETreeWB.core.sync.history_replay import replay_history_rows
@@ -116,6 +117,23 @@ class SyncHistoryCommand:
 
             FreeCAD.Console.PrintMessage(
                 f"✅ History applied to LIVE ({len(rows)} rows)\n"
+            )
+
+            if rows:
+                new_ts = max(
+                    row["committed_at"]
+                    for row in rows
+                    if row.get("committed_at") is not None
+                )
+
+                update_last_synced_at_for_active_session(
+                    code=provider.code,
+                    session_id=provider._session_id,
+                    new_ts=new_ts,
+                )
+
+            FreeCAD.Console.PrintMessage(
+                f"✅ new_ts is updated in Session Table\n"
             )
 
         except Exception as exc:

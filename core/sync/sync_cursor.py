@@ -55,3 +55,35 @@ def get_or_initialize_global_last_synced_at(
 
         # 3️⃣ Normal path
         return last_ts
+
+
+def update_last_synced_at_for_active_session(
+    *,
+    code: str,
+    session_id: int,
+    new_ts: datetime,
+) -> None:
+    """
+    Advance last_synced_at for the active session.
+
+    Must be called ONLY after:
+    - history fetch succeeded
+    - LIVE replay succeeded
+    """
+
+    with get_client_db_session(code) as db:
+        session = (
+            db.query(SessionMetadata)
+            .filter(SessionMetadata.session_id == session_id)
+            .one_or_none()
+        )
+
+        if session is None:
+            raise RuntimeError(
+                f"Active session {session_id} not found in local DB"
+            )
+
+        # ✅ Advance cursor monotonically
+        if session.last_synced_at is None or new_ts > session.last_synced_at:
+            session.last_synced_at = new_ts
+            db.commit()
