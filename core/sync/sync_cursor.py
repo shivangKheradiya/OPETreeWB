@@ -35,7 +35,7 @@ def get_or_initialize_global_last_synced_at(
 
         # 2️⃣ First-time sync: initialize baseline
         if last_ts is None:
-            now_ts = datetime.now(tzinfo=timezone.utc)
+            now_ts = datetime.now(timezone.utc)
 
             session = (
                 db.query(SessionMetadata)

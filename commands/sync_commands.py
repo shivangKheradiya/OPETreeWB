@@ -4,8 +4,10 @@ from OPETreeWB.commands.session_commands import get_active_provider
 from OPETreeWB.core.app_context import APP_CONTEXT
 
 from OPETreeWB.core.sync.snapshot_sync import apply_snapshot
-from OPETreeWB.core.sync.history_sync import apply_history
 from OPETreeWB.core.cn_manager import CN
+from OPETreeWB.core.sync.sync_cursor import (
+    get_or_initialize_global_last_synced_at,
+)
 
 class SyncSnapshotCommand:
     """
@@ -56,8 +58,12 @@ class SyncSnapshotCommand:
 
 class SyncHistoryCommand:
     """
-    Fetch committed history from server
-    and store it into local HISTORY tables.
+    Fetch committed history from server using session-based sync cursor.
+
+    Current behavior:
+    - Initializes last_synced_at on first sync
+    - Fetches history AFTER cursor timestamp
+    - Does NOT apply history to LIVE yet (safe testing stage)
     """
 
     def GetResources(self):
@@ -72,26 +78,33 @@ class SyncHistoryCommand:
     def Activated(self):
         provider = get_active_provider()
         if provider is None:
-            FreeCAD.Console.PrintError("No active provider\n")
+            FreeCAD.Console.PrintError("❌ No active provider\n")
+            return
+
+        if provider._session_id is None:
+            FreeCAD.Console.PrintError("❌ No active session\n")
             return
 
         try:
-            # ✅ 1. Determine cursor locally
-            from OPE_DB_API.db.session import get_client_db_session
-            from OPE_DB_API.cache.metadata import get_last_history_id
-
-            with get_client_db_session(provider.code) as db:
-                last_id = get_last_history_id(db, provider.domain) or 0
-
-            # ✅ 2. Fetch from server (PyDBML)
-            rows = provider.fetch_history(after_history_id=last_id)
-
-            # ✅ 3. Persist locally (OPETreeWB)
-            apply_history(provider, rows)
+            # ✅ 1. Resolve or initialize global history cursor
+            after_ts = get_or_initialize_global_last_synced_at(
+                code=provider.code,
+                active_session_id=provider._session_id,
+            )
 
             FreeCAD.Console.PrintMessage(
-                f"✅ History synced ({len(rows)} rows)\n"
+                f"ℹ️ History sync cursor = {after_ts.isoformat()}\n"
             )
+
+            # ✅ 2. Fetch history from server (timestamp-based)
+            rows = provider.fetch_history(after_ts=after_ts)
+
+            FreeCAD.Console.PrintMessage(
+                f"✅ History fetched ({len(rows)} rows)\n"
+            )
+
+            # 🔒 Phase 3+ will apply history to LIVE here
+            # apply_history(provider, rows)
 
         except Exception as exc:
             FreeCAD.Console.PrintError(
