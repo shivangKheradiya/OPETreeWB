@@ -56,6 +56,12 @@ class StartSessionCommand:
 
         try:
             provider.start_session()
+
+            from OPETreeWB.data.local_session import ensure_local_session
+            ensure_local_session(provider)
+
+            set_active_provider(provider=provider)
+
             FreeCAD.Console.PrintMessage("OPE session started\n")
         except Exception as exc:
             FreeCAD.Console.PrintError(f"Failed to start session: {exc}\n")
