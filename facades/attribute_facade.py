@@ -66,7 +66,6 @@ class AttributeFacade:
         # 2️⃣ Ensure local LIVE row exists
         # -------------------------------------------------
         node_id = int(element_ref.id)
-        self.data_access.ensure_node_loaded(node_id)
 
         # -------------------------------------------------
         # 3️⃣ Write LOCAL overlay row
