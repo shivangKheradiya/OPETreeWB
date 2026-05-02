@@ -18,6 +18,12 @@ from PyDBML.core import ElementRef
 from OPETreeWB.core.domain_rules import DOMAIN_RULES
 from OPETreeWB.core.app_context import APP_CONTEXT
 from OPETreeWB.core.data_access import OPEDataAccess
+from PySide.QtWidgets import (
+    QMessageBox,
+)
+
+from sqlalchemy import cast
+from sqlalchemy.types import BigInteger
 
 class OPETree(QtWidgets.QTreeWidget):
     """
@@ -240,15 +246,99 @@ class OPETree(QtWidgets.QTreeWidget):
             return
 
         provider = element_ref._provider
-        provider.delete_node(element_ref.id)
+        domain = provider.domain
+        session_id = provider._session_id
+        element_node_id = int(element_ref.id)
 
-        # Remove from UI
-        parent = item.parent()
-        if parent:
-            parent.removeChild(item)
-        else:
-            idx = self.indexOfTopLevelItem(item)
-            self.takeTopLevelItem(idx)
+        try:
+            # --------------------------------------------------
+            # 2️⃣ Delete on SERVER (WORKING overlay)
+            # --------------------------------------------------
+            provider.delete_node(element_ref.id)
+            from OPE_DB_API.registry.tables import LIVE_TABLE_REGISTRY
+
+            live_model = LIVE_TABLE_REGISTRY[domain]
+
+            # --------------------------------------------------
+            # 3️⃣ Mirror DELETE rows into LOCAL WORKING
+            # --------------------------------------------------
+            from OPE_DB_API.db.session import get_client_db_session
+            from OPE_DB_API.crud.work.push import push_work
+            from OPE_DB_API.schemas.work import WorkPushRequest
+            with get_client_db_session(provider.code) as db:
+                # --------------------------------------------------
+                # 1️⃣ Find ALL nodes to delete (local WORKING)
+                # --------------------------------------------------
+                nodes_to_delete = set()
+
+                def collect(node_id):
+                    if node_id in nodes_to_delete:
+                        return
+                    nodes_to_delete.add(node_id)
+
+                    children = (
+                        db.query(live_model.node_id)
+                        .filter(
+                            live_model.attribute_id == provider.registry.get_id("Owner"),
+                            cast(live_model.value, BigInteger) == node_id,
+                        )
+                        .all()
+                    )
+                    for (child_id,) in children:
+                        collect(child_id)
+
+                collect(element_node_id)
+
+                # --------------------------------------------------
+                # 2️⃣ Fetch all WORKING rows for those nodes
+                # --------------------------------------------------
+                rows = (
+                    db.query(
+                        live_model.data_id,
+                        live_model.node_id,
+                        live_model.attribute_id,
+                    )
+                    .filter(live_model.node_id.in_(nodes_to_delete))
+                    .all()
+                )
+
+                # --------------------------------------------------
+                # 3️⃣ Stage DELETE for every row
+                # --------------------------------------------------
+                for data_id, node_id, attribute_id in rows:
+                    payload = WorkPushRequest(
+                        data_id=data_id,
+                        node_id=node_id,
+                        attribute_id=attribute_id,
+                        operation_type=3,  # DELETE
+                        value=None,
+                    )
+
+                    push_work(
+                        db=db,
+                        domain=domain,
+                        session_id=session_id,
+                        payload=payload,
+                    )
+
+                db.commit()
+
+            # Remove from UI
+            parent = item.parent()
+            if parent:
+                parent.removeChild(item)
+            else:
+                idx = self.indexOfTopLevelItem(item)
+                self.takeTopLevelItem(idx)
+
+        except Exception as exc:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.critical(
+                self,
+                "Update failed",
+                str(exc),
+            )
 
     def _on_attribute_changed(self, element_ref, attr_name):
         """
