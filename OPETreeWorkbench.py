@@ -17,6 +17,13 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
         from OPETreeWB.commands.create_root_node import CreateRootNodeCommand
         from OPETreeWB.commands.show_connection_ui import ShowConnectionUICommand
 
+        from OPETreeWB.commands.sync_commands import (
+            SyncSnapshotCommand,
+            SyncHistoryCommand,
+        )
+        FreeCADGui.addCommand("SyncOPESnapshot", SyncSnapshotCommand())
+        FreeCADGui.addCommand("SyncOPEHistory", SyncHistoryCommand())
+
         FreeCADGui.addCommand("ShowOPEConnectionUI", ShowConnectionUICommand())
         FreeCADGui.addCommand("StartOPESession", StartSessionCommand())
         FreeCADGui.addCommand("CommitOPESession", CommitSessionCommand())
@@ -92,6 +99,22 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             "OPE",
             [
                 "CreateOPERootNode",
+            ]
+        )
+        
+        self.appendMenu(
+            "OPE Sync",
+            [
+                "SyncOPESnapshot",
+                "SyncOPEHistory",
+            ]
+        )
+
+        self.appendToolbar(
+            "OPE Sync",
+            [
+                "SyncOPESnapshot",
+                "SyncOPEHistory",
             ]
         )
 
