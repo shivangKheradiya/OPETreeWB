@@ -113,12 +113,14 @@ class SyncHistoryCommand:
                     history_rows=rows,
                 )
                 db.commit()
-            
+
             FreeCAD.Console.PrintMessage(
                 f"✅ History applied to LIVE ({len(rows)} rows)\n"
             )
 
         except Exception as exc:
+            import traceback
+            traceback.print_exc()
             FreeCAD.Console.PrintError(
                 f"❌ History sync failed: {exc}\n"
             )

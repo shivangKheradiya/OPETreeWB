@@ -26,31 +26,27 @@ def replay_history_rows(
         op = row["operation_type"]
         data_id = row["data_id"]
 
-        if op == 1:  # CREATE
-            exists = (
-                db.query(live_model)
-                .filter(live_model.data_id == data_id)
-                .one_or_none()
-            )
-            if exists is None:
-                db.add(live_model(**row["new_value"]))
+        live_row = (
+            db.query(live_model)
+            .filter(live_model.data_id == data_id)
+            .one_or_none()
+        )
 
-        elif op == 2:  # UPDATE
-            exists = (
-                db.query(live_model)
-                .filter(live_model.data_id == data_id)
-                .one_or_none()
-            )
-            if exists:
-                for k, v in row["new_value"].items():
-                    setattr(exists, k, v)
-
-        elif op == 3:  # DELETE
-            (
-                db.query(live_model)
-                .filter(live_model.data_id == data_id)
-                .delete(synchronize_session=False)
-            )
+        if live_row is None:
+            if op == 1:  # CREATE
+                db.add(
+                    live_model(
+                        data_id=data_id,
+                        node_id=row["node_id"],
+                        attribute_id=row["attribute_id"],
+                        value=row["new_value"],
+                    )
+                )
+        elif live_row is not None:
+            if op == 2:  # UPDATE
+                live_row.value = row["new_value"]
+            elif op == 3:  # DELETE
+                db.delete(live_row)
 
         else:
             raise RuntimeError(f"Unknown operation_type: {op}")
