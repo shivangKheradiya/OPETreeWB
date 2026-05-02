@@ -176,6 +176,45 @@ class OPETree(QtWidgets.QTreeWidget):
             type_value=type_value,
         )
     
+        # -------------------------------------------------
+        # ✅ MIRROR SERVER WORKING → LOCAL WORKING
+        # -------------------------------------------------
+        child_node_id = int(child_ref.id)
+        node_cache = provider._cache.get(child_node_id)
+        if not node_cache:
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Create Node Error",
+                "Provider cache missing after node creation."
+            )
+            return
+    
+        domain = provider.domain
+        session_id = provider._session_id
+        
+        from OPE_DB_API.db.session import get_client_db_session
+        from OPE_DB_API.crud.work.push import push_work
+        from OPE_DB_API.schemas.work import WorkPushRequest
+        
+        with get_client_db_session(provider.code) as db:
+            for attribute_id, (data_id, value) in node_cache.items():
+                payload = WorkPushRequest(
+                    data_id=data_id,
+                    node_id=child_node_id,
+                    attribute_id=attribute_id,
+                    operation_type=1,  # CREATE
+                    value=value,
+                )
+    
+                push_work(
+                    db=db,
+                    domain=domain,
+                    session_id=session_id,
+                    payload=payload,
+                )
+    
+            db.commit()
+    
         # Add to UI incrementally
         label = self.adapter.get_label(child_ref)
         child_item = self.create_item(label, child_ref)
