@@ -8,6 +8,8 @@ from OPETreeWB.core.cn_manager import CN
 from OPETreeWB.core.sync.sync_cursor import (
     get_or_initialize_global_last_synced_at,
 )
+from OPE_DB_API.db.session import get_client_db_session
+from OPETreeWB.core.sync.history_replay import replay_history_rows
 
 class SyncSnapshotCommand:
     """
@@ -103,8 +105,18 @@ class SyncHistoryCommand:
                 f"✅ History fetched ({len(rows)} rows)\n"
             )
 
-            # 🔒 Phase 3+ will apply history to LIVE here
-            # apply_history(provider, rows)
+            # ✅ 3. Apply history to LIVE tables (inside transaction)
+            with get_client_db_session(provider.code) as db:
+                replay_history_rows(
+                    db=db,
+                    domain=provider.domain,
+                    history_rows=rows,
+                )
+                db.commit()
+            
+            FreeCAD.Console.PrintMessage(
+                f"✅ History applied to LIVE ({len(rows)} rows)\n"
+            )
 
         except Exception as exc:
             FreeCAD.Console.PrintError(
