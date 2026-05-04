@@ -35,3 +35,16 @@ Validate static domain configuration rules.
 Domain (pure logic, no FreeCAD UI)
 
 ***
+
+### T0002.py
+
+**Purpose:**  
+Validate unified node label formatting.
+
+**What is validated:**
+- Type + Name formatting
+- Fallback to Node ID
+- Fallback to default type when missing
+
+**Layer:**
+Domain
