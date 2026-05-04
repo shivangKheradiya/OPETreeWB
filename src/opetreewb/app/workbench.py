@@ -24,14 +24,8 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
         )
 
         from opetreewb.commands.session_commands import (
-            StartSessionCommand,
             CommitSessionCommand,
             AbortSessionCommand,
-        )
-
-        FreeCADGui.addCommand(
-            "StartOPESession", 
-            StartSessionCommand(),
         )
 
         FreeCADGui.addCommand(
@@ -116,7 +110,6 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
         self.appendMenu(
             "OPE Session",
             [
-                "StartOPESession",
                 "CommitOPESession",
                 "AbortOPESession",
             ]
@@ -125,7 +118,6 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
         self.appendToolbar(
             "OPE Session",
             [
-                "StartOPESession",
                 "CommitOPESession",
                 "AbortOPESession",
             ]

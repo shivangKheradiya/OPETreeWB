@@ -4,26 +4,32 @@ import FreeCADGui
 from opetreewb.infrastructure import SESSION_CONTEXT
 
 
-class StartSessionCommand:
-    def GetResources(self):
-        return {
-            "MenuText": "Start OPE Session",
-            "ToolTip": "Start a working session",
-        }
+def StartSession():
+    provider = SESSION_CONTEXT.get_provider()
 
-    def IsActive(self):
-        provider = SESSION_CONTEXT.get_provider()
-        return provider is not None
+    try:
+        FreeCAD.Console.PrintMessage("✅ OPE session started\n")
+    except Exception as exc:
+        FreeCAD.Console.PrintError(
+            f"Failed to start session: {exc}\n"
+        )
 
-    def Activated(self):
-        provider = SESSION_CONTEXT.get_provider()
+def CommitSession():
+    provider = SESSION_CONTEXT.get_provider()
+    try:
+        FreeCAD.Console.PrintMessage("✅ OPE session committed\n")
+    except Exception as exc:
+        FreeCAD.Console.PrintError(
+            f"❌ Failed to commit session: {exc}\n"
+        )
 
-        try:
-            FreeCAD.Console.PrintMessage("OPE session started\n")
-        except Exception as exc:
-            FreeCAD.Console.PrintError(
-                f"Failed to start session: {exc}\n"
-            )
+def AbortSession():
+    provider = SESSION_CONTEXT.get_provider()
+
+    try:
+        FreeCAD.Console.PrintMessage("✅ OPE session aborted\n")
+    except Exception as exc:
+        FreeCAD.Console.PrintError(f"❌ Failed to abort session: {exc}\n")
 
 
 class CommitSessionCommand:
@@ -34,19 +40,11 @@ class CommitSessionCommand:
         }
 
     def IsActive(self):
-        provider = SESSION_CONTEXT.get_provider()
-        return provider is not None
+        return SESSION_CONTEXT.IsSessionLive()
 
     def Activated(self):
-        provider = SESSION_CONTEXT.get_provider()
-
-        try:
-            FreeCAD.Console.PrintMessage("✅ OPE session committed\n")
-        except Exception as exc:
-            FreeCAD.Console.PrintError(
-                f"❌ Failed to commit session: {exc}\n"
-            )
-
+        CommitSession()
+        StartSession()
 
 class AbortSessionCommand:
     def GetResources(self):
@@ -56,13 +54,7 @@ class AbortSessionCommand:
         }
 
     def IsActive(self):
-        provider = SESSION_CONTEXT.get_provider()
-        return provider is not None
+        return SESSION_CONTEXT.IsSessionLive()
 
     def Activated(self):
-        provider = SESSION_CONTEXT.get_provider()
-
-        try:
-            FreeCAD.Console.PrintMessage("OPE session aborted\n")
-        except Exception as exc:
-            FreeCAD.Console.PrintError(f"Failed to abort session: {exc}\n")
+        AbortSession()

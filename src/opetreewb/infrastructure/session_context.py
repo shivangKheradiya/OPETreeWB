@@ -43,3 +43,6 @@ class SessionContext:
 
     def has_provider(self) -> bool:
         return self._provider is not None
+    
+    def IsSessionLive(self) -> bool:
+        return True
