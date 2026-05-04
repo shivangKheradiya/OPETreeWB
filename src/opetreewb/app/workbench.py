@@ -23,6 +23,15 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             OpenConnectionCommand(),
         )
 
+        from opetreewb.commands.open_ope_tree_command import (
+            OpenOPETreeCommand,
+        )
+
+        FreeCADGui.addCommand(
+            "OpenOPETreeCommand",
+            OpenOPETreeCommand(),
+        )
+
         from opetreewb.commands.open_attribute_browser_command import (
             OpenAttributeBrowserCommand,
         )
@@ -54,12 +63,18 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
 
         self.appendMenu(
             "OPE_Viewers",
-            ["OpenOPEAttributeBrowser"],
+            [
+                "OpenOPETreeCommand",
+                "OpenOPEAttributeBrowser",
+            ],
         )
 
         self.appendToolbar(
             "OPE_Viewers",
-            ["OpenOPEAttributeBrowser"],
+            [
+                "OpenOPETreeCommand",
+                "OpenOPEAttributeBrowser",
+            ],
         )
         
         self.appendMenu(

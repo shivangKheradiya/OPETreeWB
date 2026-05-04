@@ -1,5 +1,5 @@
 """
-AttributeViewerViewModel (UI only)
+AttributeViewerViewModel
 
 - Supplies attribute data
 - Validates edits
@@ -17,7 +17,8 @@ class AttributeViewerViewModel(QtCore.QObject):
     data_changed = QtCore.Signal()
     error = QtCore.Signal(str)
     message = QtCore.Signal(str)
-
+    attribute_value_changed = QtCore.Signal(int, str)
+    
     def __init__(self):
         super().__init__()
         self.model = AttributeTableModel()
@@ -45,8 +46,40 @@ class AttributeViewerViewModel(QtCore.QObject):
             )
             return
 
+        old_value = row.value
+        if new_value == old_value:
+            return  # no change
+
+        # ✅ Update model
         row.value = new_value
+
+        # ✅ Emit change signal (THIS is what you asked for)
+        self.attribute_value_changed.emit(
+            row.data_id,
+            new_value,
+        )
+
         self.message.emit(
             f"Attribute '{row.attribute}' updated to '{new_value}'"
         )
+        self.data_changed.emit()
+
+    def _on_node_selected(self, node):
+        import FreeCAD
+
+        FreeCAD.Console.PrintMessage(
+            f"[AttributeViewerVM] Node received: {node.label}\n"
+        )
+
+        self.model.clear()
+
+        for attr_name, attr_value in node.attributes.items():
+            self.model.rows.append(
+                AttributeRow(
+                    attribute=attr_name,
+                    value=str(attr_value.value),   # ✅ FIX: unwrap value
+                    data_id=attr_value.data_id,    # ✅ correct data_id
+                )
+            )
+
         self.data_changed.emit()

@@ -11,14 +11,13 @@ from PySide.QtWidgets import (
 )
 from PySide.QtCore import Qt
 
-from opetreewb.ui.attribute_viewmodel import (
-    AttributeViewerViewModel,
-)
+from opetreewb.ui.attribute_viewmodel import AttributeViewerViewModel
+from opetreewb.ui.tree_selection_bus import TREE_SELECTION
 
 
 class AttributeViewer(QWidget):
     """
-    UI-only Attribute Viewer.
+    Dockable Attribute Viewer.
     """
 
     def __init__(self, parent=None):
@@ -26,12 +25,17 @@ class AttributeViewer(QWidget):
 
         self.vm = AttributeViewerViewModel()
         self.vm.data_changed.connect(self._refresh)
-        self.vm.error.connect(self._report_error)
-        self.vm.message.connect(self._report_message)
 
         self._building = False
         self._build_ui()
-        self._refresh()
+
+        # Selection bus
+        TREE_SELECTION.selectionChanged.connect(
+            self.vm._on_node_selected
+        )
+        
+        self.table.itemChanged.connect(self._on_item_changed)
+        self.vm.attribute_value_changed.connect(self._on_attribute_value_changed)
 
     # -------------------------------------------------
     # UI setup
@@ -47,9 +51,6 @@ class AttributeViewer(QWidget):
             QTableWidget.DoubleClicked |
             QTableWidget.EditKeyPressed
         )
-        self.table.itemChanged.connect(
-            self._on_item_changed
-        )
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.table)
@@ -64,44 +65,38 @@ class AttributeViewer(QWidget):
         rows = self.vm.get_rows()
         self.table.setRowCount(len(rows))
 
-        for row_idx, row in enumerate(rows):
-            self._set_item(row_idx, 0, row.attribute, False)
-            self._set_item(row_idx, 1, row.value, True)
-            self._set_item(row_idx, 2, row.data_id, False)
+        for r, row in enumerate(rows):
+            self._set_item(r, 0, row.attribute, editable=False)
+            self._set_item(r, 1, row.value, editable=True)
+            self._set_item(r, 2, row.data_id, editable=False)
+
+        FreeCAD.Console.PrintMessage(
+            f"[AttributeViewer] Showing {len(rows)} attributes\n"
+        )
 
         self.table.blockSignals(False)
         self._building = False
 
     def _set_item(self, row, col, text, editable):
-        item = QTableWidgetItem(text)
+        item = QTableWidgetItem(str(text))
         if not editable:
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.table.setItem(row, col, item)
 
-    # -------------------------------------------------
-    # Events
-    # -------------------------------------------------
     def _on_item_changed(self, item):
         if self._building:
             return
 
+        # Only Value column (column index 1)
         if item.column() != 1:
             return
 
-        self.vm.update_value(
-            item.row(),
-            item.text(),
-        )
+        row_index = item.row()
+        new_value = item.text()
 
-    # -------------------------------------------------
-    # Report View messages
-    # -------------------------------------------------
-    def _report_error(self, msg: str):
-        FreeCAD.Console.PrintError(
-            f"[AttributeViewer] ERROR: {msg}\n"
-        )
+        self.vm.update_value(row_index, new_value)
 
-    def _report_message(self, msg: str):
+    def _on_attribute_value_changed(self, data_id: int, new_value: str):
         FreeCAD.Console.PrintMessage(
-            f"[AttributeViewer] {msg}\n"
+            f"[AttributeViewer] Attribute changed: data_id={data_id}, value={new_value}\n"
         )
