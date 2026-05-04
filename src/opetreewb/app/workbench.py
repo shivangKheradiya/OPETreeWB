@@ -10,21 +10,17 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
     ToolTip = "OPE Tree Explorer for DBML-based domains"
 
     def Initialize(self):
-        from opetreewb.commands.run_tests_command import RunOPETestsCommand
+        self._register_commands()
+        self._setup_ui()
+
+    def _register_commands(self):
+        from opetreewb.commands.open_connection_command import (
+            OpenConnectionCommand,
+        )
 
         FreeCADGui.addCommand(
-            "RunOPETests",
-            RunOPETestsCommand()
-        )
-
-        self.appendMenu(
-            "OPE Developer",
-            ["RunOPETests"]
-        )
-
-        self.appendToolbar(
-            "OPE Developer",
-            ["RunOPETests"]
+            "OpenOPEConnection",
+            OpenConnectionCommand(),
         )
 
         from opetreewb.commands.open_test_runner_command import (
@@ -36,6 +32,17 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             OpenTestRunnerCommand(),
         )
 
+    def _setup_ui(self):
+        self.appendMenu(
+            "OPE",
+            ["OpenOPEConnection"],
+        )
+
+        self.appendToolbar(
+            "OPE",
+            ["OpenOPEConnection"],
+        )        
+        
         self.appendMenu(
             "OPE Developer",
             ["OpenOPETestRunner"],
@@ -45,7 +52,7 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             "OPE Developer",
             ["OpenOPETestRunner"],
         )
-        
+
     def Activated(self):
         pass
 
