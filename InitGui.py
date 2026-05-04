@@ -9,7 +9,7 @@ import FreeCAD
 WB_ROOT = Path(FreeCAD.getHomePath()) / "Mod" / "OPETreeWB"
 SRC_PATH = WB_ROOT / "src"
 
-if str(SRC_PATH) not in sys.path:
+if SRC_PATH.exists() and str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 # -------------------------------------------------
