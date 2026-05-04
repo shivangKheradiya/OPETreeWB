@@ -10,10 +10,10 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
     ToolTip = "OPE Tree Explorer for DBML-based domains"
 
     def Initialize(self):
-        self._register_commands()
-        self._setup_ui()
+        self._register_ope_commands()
+        self._setup_ope_ui()
 
-    def _register_commands(self):
+    def _register_ope_commands(self):
         from opetreewb.commands.open_connection_command import (
             OpenConnectionCommand,
         )
@@ -21,6 +21,27 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
         FreeCADGui.addCommand(
             "OpenOPEConnection",
             OpenConnectionCommand(),
+        )
+
+        from opetreewb.commands.session_commands import (
+            StartSessionCommand,
+            CommitSessionCommand,
+            AbortSessionCommand,
+        )
+
+        FreeCADGui.addCommand(
+            "StartOPESession", 
+            StartSessionCommand(),
+        )
+
+        FreeCADGui.addCommand(
+            "CommitOPESession", 
+            CommitSessionCommand(),
+        )
+
+        FreeCADGui.addCommand(
+            "AbortOPESession", 
+            AbortSessionCommand(),
         )
 
         from opetreewb.commands.open_ope_tree_command import (
@@ -50,7 +71,22 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             OpenTestRunnerCommand(),
         )
 
-    def _setup_ui(self):
+        from opetreewb.commands.sync_commands import (
+            SyncSnapshotCommand,
+            SyncHistoryCommand,
+        )
+
+        FreeCADGui.addCommand(
+            "SyncOPESnapshot", 
+            SyncSnapshotCommand(),
+        )
+
+        FreeCADGui.addCommand(
+            "SyncOPEHistory", 
+            SyncHistoryCommand(),
+        )
+
+    def _setup_ope_ui(self):
         self.appendMenu(
             "OPE",
             ["OpenOPEConnection"],
@@ -75,8 +111,42 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
                 "OpenOPETreeCommand",
                 "OpenOPEAttributeBrowser",
             ],
+        )
+
+        self.appendMenu(
+            "OPE Session",
+            [
+                "StartOPESession",
+                "CommitOPESession",
+                "AbortOPESession",
+            ]
+        )
+
+        self.appendToolbar(
+            "OPE Session",
+            [
+                "StartOPESession",
+                "CommitOPESession",
+                "AbortOPESession",
+            ]
         )
         
+        self.appendMenu(
+            "OPE Sync",
+            [
+                "SyncOPESnapshot",
+                "SyncOPEHistory",
+            ]
+        )
+
+        self.appendToolbar(
+            "OPE Sync",
+            [
+                "SyncOPESnapshot",
+                "SyncOPEHistory",
+            ]
+        )
+
         self.appendMenu(
             "OPE_Developer",
             ["OpenOPETestRunner"],
