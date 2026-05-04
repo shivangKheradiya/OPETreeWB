@@ -8,9 +8,17 @@ import FreeCAD
 # -------------------------------------------------
 WB_ROOT = Path(FreeCAD.getHomePath()) / "Mod" / "OPETreeWB"
 SRC_PATH = WB_ROOT / "src"
+VENDOR_PATH = WB_ROOT / "vendor"
+OPE_DB_API_PATH = VENDOR_PATH / "OPE_DB_API"
 
-if SRC_PATH.exists() and str(SRC_PATH) not in sys.path:
-    sys.path.insert(0, str(SRC_PATH))
+paths = [
+    SRC_PATH,
+    OPE_DB_API_PATH,
+]
+
+for p in paths:
+    if p.exists() and str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
 # -------------------------------------------------
 # Register the workbench
