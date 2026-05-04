@@ -48,3 +48,14 @@ Validate unified node label formatting.
 
 **Layer:**
 Domain
+
+### T0003.py
+**Purpose:**  
+Ensure domain rules are treated as invariant configuration.
+
+**What is validated:**
+- Domain rules are not meant to be mutated at runtime
+- Violations are detectable during development
+
+**Layer:**  
+Domain
