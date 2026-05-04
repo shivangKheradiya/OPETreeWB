@@ -20,6 +20,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
         self.itemSelectionChanged.connect(self._on_selection_changed)
+        self.itemExpanded.connect(self._on_item_expanded)
 
         self._build_tree()
 
@@ -36,9 +37,13 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
     def _build_item(self, node: TreeNodeModel):
         item = QtWidgets.QTreeWidgetItem([node.label])
         item.setData(0, QtCore.Qt.UserRole, node)
+        item.setChildIndicatorPolicy(
+            QtWidgets.QTreeWidgetItem.ShowIndicator
+        )
 
-        for child in node.children:
-            item.addChild(self._build_item(child))
+        # No Need To Load All children now
+        # for child in node.children:
+        #     item.addChild(self._build_item(child))
 
         return item
 
@@ -57,3 +62,24 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         )
 
         self.vm.select_node(node)
+
+    def _on_item_expanded(self, item):
+        node = item.data(0, QtCore.Qt.UserRole)
+        if node is None:
+            return
+    
+        FreeCAD.Console.PrintMessage(
+            f"[OPE Tree] Expanding node {node.label}\n"
+        )
+    
+        self.vm.load_children(node)
+        
+        # ✅ IMPORTANT: clear existing UI children to prevent duplicates
+        item.takeChildren()
+
+        # Populate children into UI
+        for child in node.children:
+            child_item = self._build_item(child)
+            item.addChild(child_item)
+    
+        node.children_loaded = True
