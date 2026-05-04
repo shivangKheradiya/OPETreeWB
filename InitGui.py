@@ -10,10 +10,12 @@ WB_ROOT = Path(FreeCAD.getHomePath()) / "Mod" / "OPETreeWB"
 SRC_PATH = WB_ROOT / "src"
 VENDOR_PATH = WB_ROOT / "vendor"
 OPE_DB_API_PATH = VENDOR_PATH / "OPE_DB_API"
+PYDBML_PARENT = VENDOR_PATH / "PyDBML"
 
 paths = [
     SRC_PATH,
     OPE_DB_API_PATH,
+    PYDBML_PARENT,
 ]
 
 for p in paths:

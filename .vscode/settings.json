@@ -1,6 +1,7 @@
 {
   "python.analysis.extraPaths": [
     "./src",
-    "./vendor/OPE_DB_API"
+    "./vendor/OPE_DB_API",
+    "./vendor/PyDBML",
   ]
 }
