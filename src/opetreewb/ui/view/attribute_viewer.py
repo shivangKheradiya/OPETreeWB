@@ -11,7 +11,7 @@ from PySide.QtWidgets import (
 )
 from PySide.QtCore import Qt
 
-from opetreewb.ui.attribute_viewmodel import AttributeViewerViewModel
+from opetreewb.ui.viewmodels.attribute_viewmodel import AttributeViewerViewModel
 from opetreewb.ui.tree_selection_bus import TREE_SELECTION
 
 

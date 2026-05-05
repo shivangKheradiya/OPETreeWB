@@ -2,7 +2,7 @@
 UI-only helpers for tree node labels.
 """
 
-from opetreewb.ui.tree_model import AttributeValue
+from opetreewb.ui.model.tree_model import AttributeValue
 
 
 def build_node_label(node) -> str:

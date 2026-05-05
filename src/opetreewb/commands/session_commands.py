@@ -2,7 +2,7 @@ import FreeCAD
 import FreeCADGui
 
 from opetreewb.infrastructure import SESSION_CONTEXT
-
+from opetreewb.domain.session_service import SessionService
 
 def StartSession():
     provider = SESSION_CONTEXT.get_provider()

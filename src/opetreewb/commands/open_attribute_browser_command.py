@@ -6,7 +6,7 @@ import FreeCADGui
 from PySide.QtWidgets import QDockWidget
 from PySide.QtCore import Qt
 
-from opetreewb.ui.attribute_viewer import AttributeViewer
+from opetreewb.ui.view.attribute_viewer import AttributeViewer
 
 
 class OpenAttributeBrowserCommand:

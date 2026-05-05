@@ -1,6 +1,6 @@
 import FreeCADGui
 
-from opetreewb.ui.test_runner_dialog import TestRunnerDialog
+from opetreewb.ui.view.test_runner_dialog import TestRunnerDialog
 
 
 class OpenTestRunnerCommand:

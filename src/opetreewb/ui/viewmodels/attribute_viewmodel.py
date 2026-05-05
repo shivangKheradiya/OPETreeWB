@@ -7,7 +7,7 @@ AttributeViewerViewModel
 """
 
 from PySide import QtCore
-from opetreewb.ui.attribute_model import (
+from opetreewb.ui.model.attribute_model import (
     AttributeTableModel,
     AttributeRow,
 )

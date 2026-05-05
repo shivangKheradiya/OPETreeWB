@@ -2,7 +2,7 @@ import FreeCADGui
 from PySide.QtWidgets import QDockWidget
 from PySide.QtCore import Qt
 
-from opetreewb.ui.ope_tree_viewer import OPETreeViewer
+from opetreewb.ui.view.ope_tree_viewer import OPETreeViewer
 
 
 class OpenOPETreeCommand:

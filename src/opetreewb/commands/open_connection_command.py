@@ -4,7 +4,7 @@ FreeCAD command to open the OPE Connection dialog (UI only).
 
 import FreeCADGui
 
-from opetreewb.ui.connection_dialog import ConnectionDialog
+from opetreewb.ui.view.connection_dialog import ConnectionDialog
 
 
 class OpenConnectionCommand:

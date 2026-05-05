@@ -7,7 +7,7 @@ ConnectionViewModel (UI only)
 """
 
 from PySide import QtCore
-from opetreewb.ui.connection_model import ConnectionFormModel
+from opetreewb.ui.model.connection_model import ConnectionFormModel
 
 
 class ConnectionViewModel(QtCore.QObject):
