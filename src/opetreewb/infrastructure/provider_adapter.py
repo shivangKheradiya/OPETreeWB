@@ -3,7 +3,7 @@ from opetreewb.infrastructure.infra_errors import (
     ProviderUnavailableError,
     BackendOperationError,
 )
-from opetreewb.domain.transaction_result import TransactionResult
+from opetreewb.domain.transection.transaction_result import TransactionResult
 
 class ProviderAdapter:
     """

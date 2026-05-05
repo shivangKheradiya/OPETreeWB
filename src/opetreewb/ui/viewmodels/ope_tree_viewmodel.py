@@ -2,7 +2,7 @@ from PySide import QtCore
 from opetreewb.ui.model.tree_model import TreeModel, TreeNodeModel
 from opetreewb.ui.tree_selection_bus import TREE_SELECTION
 from opetreewb.ui.model.tree_model import AttributeValue
-from opetreewb.domain.tree_service import TreeService
+from opetreewb.domain.services.tree_service import TreeService
 
 class OPETreeViewModel(QtCore.QObject):
 

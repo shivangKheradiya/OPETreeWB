@@ -1,5 +1,5 @@
 """
-Attribute Viewer (UI-only, MVVM).
+Attribute Viewer (UI-only, MVVM, CN-driven).
 """
 
 import FreeCAD
@@ -12,7 +12,7 @@ from PySide.QtWidgets import (
 from PySide.QtCore import Qt
 
 from opetreewb.ui.viewmodels.attribute_viewmodel import AttributeViewerViewModel
-from opetreewb.ui.tree_selection_bus import TREE_SELECTION
+from opetreewb.domain import CN
 
 
 class AttributeViewer(QWidget):
@@ -25,17 +25,17 @@ class AttributeViewer(QWidget):
 
         self.vm = AttributeViewerViewModel()
         self.vm.data_changed.connect(self._refresh)
+        self.vm.attribute_value_changed.connect(
+            self._on_attribute_value_changed
+        )
+
+        # CN is the single source of truth
+        CN.changed.connect(self._on_cn_changed)
 
         self._building = False
         self._build_ui()
 
-        # Selection bus
-        TREE_SELECTION.selectionChanged.connect(
-            self.vm._on_node_selected
-        )
-        
-        self.table.itemChanged.connect(self._on_item_changed)
-        self.vm.attribute_value_changed.connect(self._on_attribute_value_changed)
+        self.table.itemChanged.connect(self._on_table_item_changed)
 
     # -------------------------------------------------
     # UI setup
@@ -54,6 +54,13 @@ class AttributeViewer(QWidget):
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.table)
+
+    # -------------------------------------------------
+    # CN handling
+    # -------------------------------------------------
+    def _on_cn_changed(self, node):
+        # Delegate node → attributes transformation to VM
+        self.vm.set_current_node(node)
 
     # -------------------------------------------------
     # Rendering
@@ -83,17 +90,20 @@ class AttributeViewer(QWidget):
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.table.setItem(row, col, item)
 
-    def _on_item_changed(self, item):
+    # -------------------------------------------------
+    # Editing
+    # -------------------------------------------------
+    def _on_table_item_changed(self, item):
         if self._building:
             return
 
-        # Only Value column (column index 1)
         if item.column() != 1:
             return
 
         row_index = item.row()
         new_value = item.text()
 
+        # View → ViewModel → CN → AttributeService
         self.vm.update_value(row_index, new_value)
 
     def _on_attribute_value_changed(self, data_id: int, new_value: str):

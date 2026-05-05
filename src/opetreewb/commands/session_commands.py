@@ -2,7 +2,7 @@ import FreeCAD
 import FreeCADGui
 
 from opetreewb.infrastructure import SESSION_CONTEXT
-from opetreewb.domain.session_service import SessionService
+from opetreewb.domain.services.session_service import SessionService
 
 class CommitSessionCommand:
     def GetResources(self):

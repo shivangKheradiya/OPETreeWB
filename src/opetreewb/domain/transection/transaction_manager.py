@@ -1,5 +1,5 @@
 from opetreewb.messaging.reporter import Reporter
-from opetreewb.domain.transaction_result import TransactionResult
+from opetreewb.domain.transection.transaction_result import TransactionResult
 
 
 class TransactionManager:

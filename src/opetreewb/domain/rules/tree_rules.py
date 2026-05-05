@@ -1,4 +1,4 @@
-from opetreewb.domain.rules import RuleResult
+from opetreewb.domain.rules.rules import RuleResult
 
 
 class TreeRules:

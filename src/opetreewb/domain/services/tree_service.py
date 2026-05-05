@@ -1,7 +1,7 @@
 # domain/tree_service.py
 from opetreewb.messaging.reporter import Reporter
-from opetreewb.domain.tree_rules import TreeRules
-from opetreewb.domain.transaction_manager import TransactionManager
+from opetreewb.domain.rules.tree_rules import TreeRules
+from opetreewb.domain.transection.transaction_manager import TransactionManager
 from opetreewb.infrastructure.dummy_provider_adapter import DummyProviderAdapter
 
 class TreeService:

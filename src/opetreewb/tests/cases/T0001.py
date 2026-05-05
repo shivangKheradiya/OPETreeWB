@@ -1,5 +1,5 @@
 import FreeCAD
-from opetreewb.domain.domain_rules import DOMAIN_RULES
+from opetreewb.domain.rules.domain_rules import DOMAIN_RULES
 
 TEST_ID = "T0001"
 

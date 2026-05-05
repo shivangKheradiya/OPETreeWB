@@ -4,8 +4,7 @@ from PySide import QtWidgets, QtCore
 from opetreewb.ui.viewmodels.ope_tree_viewmodel import OPETreeViewModel
 from opetreewb.ui.model.tree_model import TreeNodeModel
 from opetreewb.ui.tree_label_utils import build_node_label
-
-from opetreewb.ui.tree_selection_bus import TREE_SELECTION
+from opetreewb.domain import CN
 
 class OPETreeViewer(QtWidgets.QTreeWidget):
     """
@@ -69,6 +68,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         )
 
         self.vm.select_node(node)
+        CN.set(node)
 
     def _on_item_expanded(self, item):
         node = item.data(0, QtCore.Qt.UserRole)

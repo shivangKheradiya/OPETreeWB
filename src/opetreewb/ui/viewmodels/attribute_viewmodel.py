@@ -3,7 +3,7 @@ AttributeViewerViewModel
 
 - Supplies attribute data
 - Validates edits
-- Emits messages for UI
+- Delegates mutations through CN
 """
 
 from PySide import QtCore
@@ -11,7 +11,7 @@ from opetreewb.ui.model.attribute_model import (
     AttributeTableModel,
     AttributeRow,
 )
-from opetreewb.domain.attribute_service import AttributeService
+from opetreewb.domain import CN
 
 
 class AttributeViewerViewModel(QtCore.QObject):
@@ -19,11 +19,34 @@ class AttributeViewerViewModel(QtCore.QObject):
     error = QtCore.Signal(str)
     message = QtCore.Signal(str)
     attribute_value_changed = QtCore.Signal(int, str)
-    
+
     def __init__(self):
         super().__init__()
         self.model = AttributeTableModel()
-        self.attribute_service = AttributeService()
+        self._current_node = None
+
+    # -----------------------------------------
+    # CN-driven input
+    # -----------------------------------------
+    def set_current_node(self, node):
+        """Called when CN changes."""
+        self._current_node = node
+        self.model.clear()
+
+        if node is None:
+            self.data_changed.emit()
+            return
+
+        for attr_name, attr_value in node.attributes.items():
+            self.model.rows.append(
+                AttributeRow(
+                    attribute=attr_name,
+                    value=str(attr_value.value),
+                    data_id=attr_value.data_id,
+                )
+            )
+
+        self.data_changed.emit()
 
     # -----------------------------------------
     # Data access
@@ -32,7 +55,7 @@ class AttributeViewerViewModel(QtCore.QObject):
         return self.model.rows
 
     # -----------------------------------------
-    # Handle edits (UI-only)
+    # Handle edits (delegate to CN)
     # -----------------------------------------
     def update_value(self, row_index: int, new_value: str):
         if row_index >= len(self.model.rows):
@@ -41,7 +64,7 @@ class AttributeViewerViewModel(QtCore.QObject):
 
         row = self.model.rows[row_index]
 
-        # UI-only validation
+        # UI‑level validation
         if row.attribute in ("Type", "Owner"):
             self.error.emit(
                 f"'{row.attribute}' is read-only"
@@ -50,12 +73,14 @@ class AttributeViewerViewModel(QtCore.QObject):
 
         old_value = row.value
         if new_value == old_value:
-            return  # no change
+            return
 
-        # ✅ Update model
+        # ✅ Delegate mutation to CN
+        CN.set_attr(row.attribute, new_value)
+
+        # ✅ Keep UI model in sync
         row.value = new_value
 
-        # ✅ Emit change signal (THIS is what you asked for)
         self.attribute_value_changed.emit(
             row.data_id,
             new_value,
@@ -64,24 +89,4 @@ class AttributeViewerViewModel(QtCore.QObject):
         self.message.emit(
             f"Attribute '{row.attribute}' updated to '{new_value}'"
         )
-        self.data_changed.emit()
-
-    def _on_node_selected(self, node):
-        import FreeCAD
-
-        FreeCAD.Console.PrintMessage(
-            f"[AttributeViewerVM] Node received: {node.label}\n"
-        )
-
-        self.model.clear()
-
-        for attr_name, attr_value in node.attributes.items():
-            self.model.rows.append(
-                AttributeRow(
-                    attribute=attr_name,
-                    value=str(attr_value.value),   # ✅ FIX: unwrap value
-                    data_id=attr_value.data_id,    # ✅ correct data_id
-                )
-            )
-
         self.data_changed.emit()

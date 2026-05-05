@@ -1,6 +1,6 @@
 from opetreewb.messaging.reporter import Reporter
-from opetreewb.domain.attribute_rules import AttributeRules
-from opetreewb.domain.transaction_manager import TransactionManager
+from opetreewb.domain.rules.attribute_rules import AttributeRules
+from opetreewb.domain.transection.transaction_manager import TransactionManager
 from opetreewb.infrastructure.provider_adapter import ProviderAdapter
 from opetreewb.infrastructure.dummy_provider_adapter import DummyProviderAdapter
 
