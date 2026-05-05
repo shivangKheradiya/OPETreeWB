@@ -3,7 +3,7 @@ from opetreewb.infrastructure.infra_errors import (
     ProviderUnavailableError,
     BackendOperationError,
 )
-
+from opetreewb.domain.transaction_result import TransactionResult
 
 class ProviderAdapter:
     """
@@ -48,13 +48,14 @@ class ProviderAdapter:
             f"parent_id={parent_node_id}, type={element_type}, name={name})"
         )
         # TODO: self._provider.create_node(...)
-        return None
+        return TransactionResult(True, "200 OK")
 
     def delete_node(self, node_id):
         Reporter.info(
             f"[ProviderAdapter] delete_node(node_id={node_id})"
         )
         # TODO: self._provider.delete_node(node_id)
+        return TransactionResult(True, "200 OK")
 
     def load_children(self, parent_node_id):
         Reporter.info(
@@ -80,3 +81,4 @@ class ProviderAdapter:
             f"data_id={data_id}, value={value})"
         )
         # TODO: self._provider.update_attribute(...)
+        return TransactionResult(True, "200 OK")
