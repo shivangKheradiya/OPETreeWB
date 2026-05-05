@@ -23,36 +23,83 @@ class TreeModel:
         self.roots = [
             TreeNodeModel(
                 node_id=1,
-                label="WORLD_1",
+                label="SITE PLANT1",
                 attributes={
-                    "Name": AttributeValue(101, "WORLD_1"),
-                    "Type": AttributeValue(102, "WORLD"),
-                    "Owner": AttributeValue(103, ""),
-                    "Status": AttributeValue(104, "Active"),
+                    "Type": AttributeValue(1001, "SITE"),
+                    "Name": AttributeValue(1002, "PLANT1"),
                 },
                 children=[
                     TreeNodeModel(
-                        node_id=2,
-                        label="PART_A",
+                        node_id=10,
+                        label="ZONE ZONE_A",
                         attributes={
-                            "Name": AttributeValue(201, "PART_A"),
-                            "Type": AttributeValue(202, "PART"),
-                            "Owner": AttributeValue(203, "WORLD_1"),
-                            "Weight": AttributeValue(204, "12.5"),
+                            "Type": AttributeValue(1010, "ZONE"),
+                            "Name": AttributeValue(1011, "ZONE_A"),
                         },
-                        children=[],
-                    ),
-                    TreeNodeModel(
-                        node_id=3,
-                        label="PART_B",
-                        attributes={
-                            "Name": AttributeValue(301, "PART_B"),
-                            "Type": AttributeValue(302, "PART"),
-                            "Owner": AttributeValue(303, "WORLD_1"),
-                            "Color": AttributeValue(304, "Red"),
-                        },
-                        children=[],
-                    ),
+                        children=[
+                            TreeNodeModel(
+                                node_id=100,
+                                label="PIPELINE P-100",
+                                attributes={
+                                    "Type": AttributeValue(1100, "PIPELINE"),
+                                    "Name": AttributeValue(1101, "P-100"),
+                                    "Fluid": AttributeValue(1102, "STEAM"),
+                                    "Spec": AttributeValue(1103, "CS150"),
+                                },
+                                children=[
+                                    TreeNodeModel(
+                                        node_id=1001,
+                                        label="PIPE 6IN",
+                                        attributes={
+                                            "Type": AttributeValue(1200, "PIPE"),
+                                            "Diameter": AttributeValue(1201, "6"),
+                                            "Length": AttributeValue(1202, "1200"),
+                                        },
+                                        children=[],
+                                    ),
+                                    TreeNodeModel(
+                                        node_id=1002,
+                                        label="ELBOW 90DEG",
+                                        attributes={
+                                            "Type": AttributeValue(1300, "ELBOW"),
+                                            "Angle": AttributeValue(1301, "90"),
+                                            "Radius": AttributeValue(1302, "LR"),
+                                        },
+                                        children=[],
+                                    ),
+                                    TreeNodeModel(
+                                        node_id=1003,
+                                        label="FLANGE RF",
+                                        attributes={
+                                            "Type": AttributeValue(1400, "FLANGE"),
+                                            "Rating": AttributeValue(1401, "150#"),
+                                        },
+                                        children=[],
+                                    ),
+                                ],
+                            ),
+                            TreeNodeModel(
+                                node_id=200,
+                                label="STRUCTURE STR-01",
+                                attributes={
+                                    "Type": AttributeValue(1500, "STRUCTURE"),
+                                    "Name": AttributeValue(1501, "STR-01"),
+                                },
+                                children=[
+                                    TreeNodeModel(
+                                        node_id=2001,
+                                        label="BEAM IPE300",
+                                        attributes={
+                                            "Type": AttributeValue(1600, "BEAM"),
+                                            "Section": AttributeValue(1601, "IPE300"),
+                                            "Length": AttributeValue(1602, "6000"),
+                                        },
+                                        children=[],
+                                    )
+                                ],
+                            ),
+                        ],
+                    )
                 ],
             )
         ]

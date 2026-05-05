@@ -23,7 +23,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         self.customContextMenuRequested.connect(self._open_context_menu)
 
         self.itemSelectionChanged.connect(self._on_selection_changed)
-        self.itemExpanded.connect(self._on_item_expanded)
+        # self.itemExpanded.connect(self._on_item_expanded)
 
         self._build_tree()
 
@@ -48,8 +48,11 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         )
 
         # No Need To Load All children now
-        # for child in node.children:
-        #     item.addChild(self._build_item(child))
+
+        # ✅ Recursively add children NOW (no lazy loading)
+        for child in node.children:
+            child_item = self._build_item(child)
+            item.addChild(child_item)
 
         return item
 
@@ -71,23 +74,24 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         CN.set(node)
 
     def _on_item_expanded(self, item):
-        node = item.data(0, QtCore.Qt.UserRole)
-        if node is None:
-            return
-    
-        FreeCAD.Console.PrintMessage(
-            f"[OPE Tree] Expanding node {node.label}\n"
-        )
-    
-        self.vm.load_children(node)
-        
-        # ✅ IMPORTANT: clear existing UI children to prevent duplicates
-        item.takeChildren()
-
-        # Populate children into UI
-        for child in node.children:
-            child_item = self._build_item(child)
-            item.addChild(child_item)
+        pass
+        #node = item.data(0, QtCore.Qt.UserRole)
+        #if node is None:
+        #    return
+        #
+        #FreeCAD.Console.PrintMessage(
+        #    f"[OPE Tree] Expanding node {node.label}\n"
+        #)
+        #
+        #self.vm.load_children(node)
+        #
+        ## ✅ IMPORTANT: clear existing UI children to prevent duplicates
+        #item.takeChildren()
+        #
+        ## Populate children into UI
+        #for child in node.children:
+        #    child_item = self._build_item(child)
+        #    item.addChild(child_item)
 
     def _open_context_menu(self, pos):
         item = self.itemAt(pos)

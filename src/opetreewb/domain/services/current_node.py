@@ -119,7 +119,7 @@ class CurrentNode(QObject):
         Reporter.info(
             f"[CN] set_attr({name}={value})"
         )
-        self._attr_service.update_value(
+        self._attr_service.update_attribute(
             name,
             attr.data_id,
             value,
