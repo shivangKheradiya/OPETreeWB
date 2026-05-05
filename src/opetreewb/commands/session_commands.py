@@ -12,6 +12,7 @@ class CommitSessionCommand:
         }
 
     def IsActive(self):
+        return True
         return SessionService().is_session_active()
 
     def Activated(self):
@@ -27,6 +28,7 @@ class AbortSessionCommand:
         }
 
     def IsActive(self):
+        return True
         return SessionService().is_session_active()
 
     def Activated(self):

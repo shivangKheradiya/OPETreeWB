@@ -11,6 +11,7 @@ from opetreewb.ui.model.attribute_model import (
     AttributeTableModel,
     AttributeRow,
 )
+from opetreewb.domain.attribute_service import AttributeService
 
 
 class AttributeViewerViewModel(QtCore.QObject):
@@ -22,6 +23,7 @@ class AttributeViewerViewModel(QtCore.QObject):
     def __init__(self):
         super().__init__()
         self.model = AttributeTableModel()
+        self.attribute_service = AttributeService()
 
     # -----------------------------------------
     # Data access

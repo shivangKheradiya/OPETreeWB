@@ -1,5 +1,5 @@
 from opetreewb.messaging.reporter import Reporter
-
+from opetreewb.domain.attribute_rules import AttributeRules
 
 class AttributeService:
     """
@@ -13,9 +13,22 @@ class AttributeService:
         # TODO: return attributes from legacy provider
         return []
 
-    def update_attribute(self, data_id, value):
-        Reporter.info(
-            f"[AttributeService] update_attribute "
-            f"(data_id={data_id}, value={value})"
+    def update_attribute(self, attribute_name, data_id, new_value):
+        result = AttributeRules.can_update(
+            attribute_name,
+            data_id,
+            new_value,
         )
-        # TODO: wire to attribute update logic
+
+        if not result.allowed:
+            Reporter.error(
+                f"[AttributeService] Update denied: {result.reason}"
+            )
+            return
+
+        Reporter.success(
+            f"[AttributeService] Update allowed "
+            f"(data_id={data_id}, value={new_value})"
+        )
+
+        # TODO: backend integration here
