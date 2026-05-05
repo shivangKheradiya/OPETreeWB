@@ -69,7 +69,7 @@ class AttributeViewerViewModel(QtCore.QObject):
             self.error.emit(
                 f"'{row.attribute}' is read-only"
             )
-            return
+            return False
 
         old_value = row.value
         if new_value == old_value:

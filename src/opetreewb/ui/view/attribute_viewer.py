@@ -24,6 +24,8 @@ class AttributeViewer(QWidget):
         super().__init__(parent)
 
         self.vm = AttributeViewerViewModel()
+
+        self.vm.error.connect(self._on_error)
         self.vm.data_changed.connect(self._refresh)
         self.vm.attribute_value_changed.connect(
             self._on_attribute_value_changed
@@ -103,10 +105,20 @@ class AttributeViewer(QWidget):
         row_index = item.row()
         new_value = item.text()
 
+        old_value = self.vm.get_rows()[row_index].value
+        
         # View → ViewModel → CN → AttributeService
-        self.vm.update_value(row_index, new_value)
+        ok = self.vm.update_value(row_index, new_value)
+        if not ok:
+            # revert UI
+            self._building = True
+            item.setText(old_value)
+            self._building = False
 
     def _on_attribute_value_changed(self, data_id: int, new_value: str):
         FreeCAD.Console.PrintMessage(
             f"[AttributeViewer] Attribute changed: data_id={data_id}, value={new_value}\n"
         )
+
+    def _on_error(self, msg: str):
+        FreeCAD.Console.PrintError(f"❌ {msg}\n")
