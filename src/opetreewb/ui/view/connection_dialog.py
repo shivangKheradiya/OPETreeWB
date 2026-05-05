@@ -7,7 +7,7 @@ Connection and Project Selection Dialog (UI only).
 from PySide import QtWidgets
 import FreeCAD
 
-from opetreewb.ui.connection_viewmodel import ConnectionViewModel
+from opetreewb.ui.viewmodels.connection_viewmodel import ConnectionViewModel
 
 
 class ConnectionDialog(QtWidgets.QDialog):

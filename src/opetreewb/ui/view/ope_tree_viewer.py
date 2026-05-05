@@ -1,7 +1,7 @@
 import FreeCAD
 from PySide import QtWidgets, QtCore
 
-from opetreewb.ui.ope_tree_viewmodel import OPETreeViewModel
+from opetreewb.ui.viewmodels.ope_tree_viewmodel import OPETreeViewModel
 from opetreewb.ui.model.tree_model import TreeNodeModel
 from opetreewb.ui.tree_label_utils import build_node_label
 
