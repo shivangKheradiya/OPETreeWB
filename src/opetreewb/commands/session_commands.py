@@ -4,34 +4,6 @@ import FreeCADGui
 from opetreewb.infrastructure import SESSION_CONTEXT
 from opetreewb.domain.session_service import SessionService
 
-def StartSession():
-    provider = SESSION_CONTEXT.get_provider()
-
-    try:
-        FreeCAD.Console.PrintMessage("✅ OPE session started\n")
-    except Exception as exc:
-        FreeCAD.Console.PrintError(
-            f"Failed to start session: {exc}\n"
-        )
-
-def CommitSession():
-    provider = SESSION_CONTEXT.get_provider()
-    try:
-        FreeCAD.Console.PrintMessage("✅ OPE session committed\n")
-    except Exception as exc:
-        FreeCAD.Console.PrintError(
-            f"❌ Failed to commit session: {exc}\n"
-        )
-
-def AbortSession():
-    provider = SESSION_CONTEXT.get_provider()
-
-    try:
-        FreeCAD.Console.PrintMessage("✅ OPE session aborted\n")
-    except Exception as exc:
-        FreeCAD.Console.PrintError(f"❌ Failed to abort session: {exc}\n")
-
-
 class CommitSessionCommand:
     def GetResources(self):
         return {
@@ -40,11 +12,12 @@ class CommitSessionCommand:
         }
 
     def IsActive(self):
-        return SESSION_CONTEXT.IsSessionLive()
+        return SessionService().is_session_active()
 
     def Activated(self):
-        CommitSession()
-        StartSession()
+        service = SessionService()
+        service.commit()
+        service.start()
 
 class AbortSessionCommand:
     def GetResources(self):
@@ -54,7 +27,8 @@ class AbortSessionCommand:
         }
 
     def IsActive(self):
-        return SESSION_CONTEXT.IsSessionLive()
+        return SessionService().is_session_active()
 
     def Activated(self):
-        AbortSession()
+        service = SessionService()
+        service.abort()

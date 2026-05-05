@@ -1,21 +1,25 @@
+# domain/tree_service.py
 from opetreewb.messaging.reporter import Reporter
 
 
 class TreeService:
     """
-    Handles node creation, deletion, and tree structure.
+    Tree structure contract.
     """
 
-    def create_node(self, parent_id, element_type, name):
+    def load_children(self, parent_node_id):
         Reporter.info(
-            f"[TreeService] create_node called "
-            f"(parent_id={parent_id}, type={element_type}, name={name})"
+            f"[TreeService] load_children(parent_node_id={parent_node_id})"
         )
-        # TODO: wire to legacy provider.create_node()
-        return None
+        return []
+
+    def create_node(self, parent_node_id, element_type, name):
+        Reporter.info(
+            f"[TreeService] create_node("
+            f"parent_id={parent_node_id}, type={element_type}, name={name})"
+        )
 
     def delete_node(self, node_id):
         Reporter.info(
-            f"[TreeService] delete_node called (node_id={node_id})"
+            f"[TreeService] delete_node(node_id={node_id})"
         )
-        # TODO: wire to legacy provider.delete_node()
