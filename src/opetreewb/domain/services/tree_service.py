@@ -36,7 +36,7 @@ class TreeService:
 
         def local_op():
             Reporter.info(
-                f"[LOCAL] create_node applied under {parent_node_id}"
+                f"[LOCAL] create_node applied under {parent_node_id.node_id}"
             )
             # UI / in-memory model already updated
 
@@ -60,17 +60,17 @@ class TreeService:
             return
 
         def server_op():
-            return self.provider.delete_node_server(node_id)
+            return self.provider.delete_node_server(node_id.node_id)
 
         def local_op():
             Reporter.info(
-                f"[LOCAL] delete_node applied (node_id={node_id})"
+                f"[LOCAL] delete_node applied (node_id={node_id.node_id})"
             )
 
-        self.tx.run(server_op, local_op, "Delete Node")
+        result = self.tx.run(server_op, local_op, "Delete Node")
 
         Reporter.success(
             f"[TreeService] Delete allowed (node_id={node_id.node_id})"
         )
 
-        # TODO: backend integration here
+        return result.success

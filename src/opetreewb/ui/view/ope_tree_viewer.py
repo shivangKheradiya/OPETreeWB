@@ -150,22 +150,14 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
             )
             return
 
-        # ✅ Delegate model mutation to ViewModel
-        new_node = self.vm.create_child_node(
-            parent_node,
-            element_type,
-            name,
-        )
+        # Ensure CN context is correct
+        CN.set(parent_node)
 
-        # ✅ UI update only
-        child_item = self._build_item(new_node)
-        parent_item.addChild(child_item)
-        parent_item.setExpanded(True)
-
-        self.setCurrentItem(child_item)
+        # ✅ Create via CN (TX-safe)
+        CN.create_child(element_type, name)
 
         FreeCAD.Console.PrintMessage(
-            f"✅ Created node: {element_type} {name or new_node.node_id}\n"
+            f"✅ Create node request sent: {element_type} {name}\n"
         )
 
     def _delete_node(self, item):
@@ -183,23 +175,10 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         if confirm != QtWidgets.QMessageBox.Yes:
             return
 
-        parent_item = item.parent()
-        parent_node = (
-            parent_item.data(0, QtCore.Qt.UserRole)
-            if parent_item else None
-        )
-
-        # ✅ Delegate model mutation to ViewModel
-        self.vm.delete_node(parent_node, node)
-
-        # ✅ UI update only
-        if parent_item:
-            parent_item.removeChild(item)
-            self.setCurrentItem(parent_item)
-        else:
-            index = self.indexOfTopLevelItem(item)
-            self.takeTopLevelItem(index)
+        # ✅ SINGLE source of truth
+        CN.set(node)
+        CN.delete()
 
         FreeCAD.Console.PrintMessage(
-            f"✅ Deleted node: {item.text(0)}\n"
+            f"✅ Delete request sent: {item.text(0)}\n"
         )

@@ -97,10 +97,11 @@ class CurrentNode(QObject):
 
         node = self._node
         Reporter.info("[CN] delete current node")
-        self._tree_service.delete_node(None, node)
+        self._tree_service.delete_node(node)
 
         self.deleted.emit(node)
         self.clear()
+        return True
 
     # -------------------------
     # Attribute operations

@@ -10,7 +10,7 @@ class DummyProviderAdapter:
 
     def create_node_server(self, parent_node_id, element_type, name):
         Reporter.info(
-            f"[DUMMY SERVER] create_node(parent={parent_node_id}, type={element_type})"
+            f"[DUMMY SERVER] create_node(parent={parent_node_id.node_id}, type={element_type})"
         )
         return TransactionResult(True, "200 OK")
 
