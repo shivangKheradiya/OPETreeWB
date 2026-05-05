@@ -4,7 +4,7 @@ from opetreewb.domain.label_utils import format_node_label
 TEST_ID = "T0002"
 
 def run():
-    FreeCAD.Console.PrintMessage("[{TEST_ID}] START\n")
+    FreeCAD.Console.PrintMessage(f"[{TEST_ID}] START\n")
 
     # Type + Name
     assert format_node_label(
@@ -34,4 +34,4 @@ def run():
         node_id=None,
     ) == "Assembly"
 
-    FreeCAD.Console.PrintMessage("[{TEST_ID}] PASSED ✅\n")
+    FreeCAD.Console.PrintMessage(f"[{TEST_ID}] PASSED ✅\n")
