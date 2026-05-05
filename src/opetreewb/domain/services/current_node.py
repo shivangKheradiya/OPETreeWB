@@ -115,15 +115,20 @@ class CurrentNode(QObject):
         if not attr:
             Reporter.error(f"[CN] Attribute '{name}' does not exist")
             return
-
-        Reporter.info(
-            f"[CN] set_attr({name}={value})"
-        )
-        self._attr_service.update_attribute(
+        
+        ok = self._attr_service.update_attribute(
             name,
             attr.data_id,
             value,
         )
+
+        if not ok:
+            return False
+        
+        Reporter.info(
+            f"[CN] set_attr({name}={value})"
+        )
+        
         self.attribute_changed.emit(name, value)
 
     def get_attr(self, name):

@@ -76,7 +76,9 @@ class AttributeViewerViewModel(QtCore.QObject):
             return
 
         # ✅ Delegate mutation to CN
-        CN.set_attr(row.attribute, new_value)
+        ok = CN.set_attr(row.attribute, new_value)
+        if not ok:
+            return False
 
         # ✅ Keep UI model in sync
         row.value = new_value

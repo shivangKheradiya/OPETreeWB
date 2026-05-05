@@ -44,11 +44,13 @@ class AttributeService:
                 f"[LOCAL] attribute updated (data_id={data_id})"
             )
 
-        self.tx.run(server_op, local_op, "Update Attribute")
+        result = self.tx.run(server_op, local_op, "Update Attribute")
+        
+        if not result.success:
+            # IMPORTANT: stop here
+            return False
 
         Reporter.success(
             f"[AttributeService] Update allowed "
             f"(data_id={data_id}, value={new_value})"
         )
-
-        # TODO: backend integration here

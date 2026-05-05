@@ -112,7 +112,7 @@ class AttributeViewer(QWidget):
         if not ok:
             # revert UI
             self._building = True
-            item.setText(old_value)
+            self._refresh()
             self._building = False
 
     def _on_attribute_value_changed(self, data_id: int, new_value: str):
