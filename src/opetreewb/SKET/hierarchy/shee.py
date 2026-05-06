@@ -15,6 +15,16 @@ class Shee(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-            "SheetNumber": {"default": "", "editable": True},
-            "Scale": {"default": "1:1", "editable": True},
+            "SheetNumber": {
+                "default": "",
+                "datatype": "int",
+                "editable": True,
+                "kind": "user",
+            },
+            "Scale": {
+                "default": "",
+                "datatype": "string",
+                "editable": False,
+                "kind": "system",
+            },
         }

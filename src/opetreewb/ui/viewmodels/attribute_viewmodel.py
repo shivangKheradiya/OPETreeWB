@@ -71,6 +71,7 @@ class AttributeViewerViewModel(QtCore.QObject):
                     attribute=attr_name,
                     value=value,
                     data_id=data_id,
+                    meta=meta,
                 )
             )
 

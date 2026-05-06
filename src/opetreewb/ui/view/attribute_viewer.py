@@ -75,8 +75,13 @@ class AttributeViewer(QWidget):
         self.table.setRowCount(len(rows))
 
         for r, row in enumerate(rows):
+            meta = row.meta
+
+            editable = meta.get("editable", True)
+            datatype = meta.get("datatype", "string")
+
             self._set_item(r, 0, row.attribute, editable=False)
-            self._set_item(r, 1, row.value, editable=True)
+            self._set_item(r, 1, row.value, editable=editable)
             self._set_item(r, 2, row.data_id, editable=False)
 
         FreeCAD.Console.PrintMessage(
@@ -105,7 +110,26 @@ class AttributeViewer(QWidget):
         row_index = item.row()
         new_value = item.text()
 
-        old_value = self.vm.get_rows()[row_index].value
+        row = self.vm.get_rows()[row_index]
+        meta = row.meta
+        datatype = meta.get("datatype", "string")
+
+        # ✅ validate input
+        if datatype == "int":
+            try:
+                int(new_value)
+            except ValueError:
+                self._on_error("Value must be an integer")
+                self._refresh()
+                return
+
+        elif datatype == "float":
+            try:
+                float(new_value)
+            except ValueError:
+                self._on_error("Value must be a float")
+                self._refresh()
+                return
         
         # View → ViewModel → CN → AttributeService
         ok = self.vm.update_value(row_index, new_value)

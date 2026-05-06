@@ -10,10 +10,11 @@ from typing import List
 
 @dataclass
 class AttributeRow:
-    def __init__(self, attribute, value, data_id):
+    def __init__(self, attribute, value, data_id, meta):
         self.attribute = attribute
         self.value = value
         self.data_id = data_id
+        self.meta = meta
 
 
 class AttributeTableModel:

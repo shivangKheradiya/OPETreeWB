@@ -17,7 +17,22 @@ class ElementSchema:
 # ✅ Common helper
 def base_attributes(type_name):
     return {
-        "Name": {"default": "", "editable": True},
-        "Type": {"default": type_name, "editable": False},
-        "Owner": {"default": "", "editable": False},
+        "Name": {
+            "default": "",
+            "datatype": "string",
+            "editable": True,
+            "kind": "user",
+        },        
+        "Type": {
+            "default": "SHEE",
+            "datatype": "string",
+            "editable": False,
+            "kind": "system",
+        },
+        "Owner": {
+            "default": "",
+            "datatype": "string",
+            "editable": False,
+            "kind": "system",
+        },
     }
