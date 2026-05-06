@@ -76,7 +76,9 @@ class AttributeViewerViewModel(QtCore.QObject):
             return
 
         # ✅ Delegate mutation to CN
-        ok = CN.set_attr(row.attribute, new_value)
+        data_id = row.data_id if hasattr(row, "data_id") else None
+
+        ok = CN.set_attr(row.attribute, new_value, data_id)
         if not ok:
             return False
 

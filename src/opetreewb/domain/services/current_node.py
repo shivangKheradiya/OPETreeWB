@@ -123,7 +123,7 @@ class CurrentNode(QObject):
     # Attribute operations
     # -------------------------
 
-    def set_attr(self, name, value):
+    def set_attr(self, name, value, data_id=None):
         if not self._node:
             Reporter.error("[CN] No current node")
             return
@@ -134,8 +134,9 @@ class CurrentNode(QObject):
             return
         
         ok = self._attr_service.update_attribute(
+            self._node,
             name,
-            attr.data_id,
+            data_id,
             value,
         )
 
