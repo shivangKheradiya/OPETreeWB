@@ -12,6 +12,7 @@ from opetreewb.ui.model.attribute_model import (
     AttributeRow,
 )
 from opetreewb.domain import CN
+from opetreewb.domain.schema.schema_loader import get_schema
 
 
 class AttributeViewerViewModel(QtCore.QObject):
@@ -37,12 +38,39 @@ class AttributeViewerViewModel(QtCore.QObject):
             self.data_changed.emit()
             return
 
-        for attr_name, attr_value in node.attributes.items():
+        schema = get_schema(node.attributes["Type"].value)
+        schema_attrs = schema.attributes() if schema else {}
+
+        # ✅ Merge schema + node attributes
+        for attr_name, meta in schema_attrs.items():
+            # -------------------------
+            # Existing attribute ✅
+            # -------------------------
+            if attr_name in node.attributes:
+                attr = node.attributes[attr_name]
+
+                value = attr.value
+                data_id = attr.data_id
+
+            # -------------------------
+            # Missing attribute ✅
+            # -------------------------
+            else:
+                data_id = None
+
+                # ✅ System attribute → show default
+                if meta.get("editable", True) is False:
+                    value = meta.get("default", "")
+
+                # ✅ User attribute → show empty
+                else:
+                    value = ""
+
             self.model.rows.append(
                 AttributeRow(
                     attribute=attr_name,
-                    value=str(attr_value.value),
-                    data_id=attr_value.data_id,
+                    value=value,
+                    data_id=data_id,
                 )
             )
 
