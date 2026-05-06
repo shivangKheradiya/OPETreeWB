@@ -1,5 +1,8 @@
-from opetreewb.domain.rules.rules import RuleResult
+#OPETreeWB\src\opetreewb\domain\rules\tree_rules.py
 
+from opetreewb.domain.rules.rules import RuleResult
+from opetreewb.domain.schema.schema_loader import get_schema
+from opetreewb.messaging.reporter import Reporter
 
 class TreeRules:
     """
@@ -15,11 +18,30 @@ class TreeRules:
         if not element_type:
             return RuleResult.deny("Element type is required")
 
-        # Future rules (placeholder)
-        # - schema hierarchy
-        # - session state
-        # - permissions
+        schema = get_schema(parent_node.type)
+        
+        if not schema:
+            Reporter.error(
+                f"[TreeRules] No schema found for {parent_node.type}"
+            )
 
+            return RuleResult.deny(
+                f"No schema found for {parent_node.type}"
+            )
+
+        allowed = schema.allowed_children()
+
+        if element_type not in allowed:
+            Reporter.error(
+                f"[TreeRules] {element_type} not allowed under {parent_node.type}"
+            )
+            return RuleResult.deny(
+                f"{element_type} not allowed under {parent_node.type}"
+            )
+        
+        Reporter.info(
+            f"[TreeRules] {element_type} allowed under {parent_node.type}"
+        )
         return RuleResult.ok()
 
     @staticmethod

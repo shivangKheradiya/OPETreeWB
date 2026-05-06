@@ -28,13 +28,13 @@ class TreeService:
         if not result.allowed:
             Reporter.info(
                 f"[TreeService] create_node("
-                f"parent_id={parent_node_id}, type={element_type}, name={name})"
+                f"parent_id={parent_node_id.node_id}, type={element_type}, name={name})"
             )
             return None
         
         def server_op():
             return self.provider.create_node_server(
-                parent_node_id, element_type, name
+                parent_node_id.node_id, element_type, name
             )
 
         def local_op():

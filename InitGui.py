@@ -23,6 +23,12 @@ for p in paths:
         sys.path.insert(0, str(p))
 
 # -------------------------------------------------
+# Register Plugins
+# -------------------------------------------------
+from opetreewb.domain.plugin.plugin_loader import register_sys_path, register_plugin_path
+register_plugin_path("opetreewb.SKET")
+
+# -------------------------------------------------
 # Register the workbench
 # -------------------------------------------------
 from opetreewb.app.workbench import OPETreeWorkbench
