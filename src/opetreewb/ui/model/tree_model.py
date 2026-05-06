@@ -13,11 +13,6 @@ class TreeNodeModel:
     label: str
     attributes: Dict[str, AttributeValue]
     children: List["TreeNodeModel"]
-    
-    @property
-    def type(self):
-        attr = self.attributes.get("Type")
-        return attr.value if attr else None
 
 class TreeModel:
     """

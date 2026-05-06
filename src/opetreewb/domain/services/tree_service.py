@@ -34,7 +34,7 @@ class TreeService:
         
         def server_op():
             return self.provider.create_node_server(
-                parent_node_id.node_id, element_type, name
+                parent_node_id, element_type, name
             )
 
         def local_op():

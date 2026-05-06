@@ -18,29 +18,30 @@ class TreeRules:
         if not element_type:
             return RuleResult.deny("Element type is required")
 
-        schema = get_schema(parent_node.type)
+        elmType = parent_node.attributes["Type"].value
+        schema = get_schema(elmType)
         
         if not schema:
             Reporter.error(
-                f"[TreeRules] No schema found for {parent_node.type}"
+                f"[TreeRules] No schema found for {elmType}"
             )
 
             return RuleResult.deny(
-                f"No schema found for {parent_node.type}"
+                f"No schema found for {elmType}"
             )
 
         allowed = schema.allowed_children()
 
         if element_type not in allowed:
             Reporter.error(
-                f"[TreeRules] {element_type} not allowed under {parent_node.type}"
+                f"[TreeRules] {element_type} not allowed under {elmType}"
             )
             return RuleResult.deny(
-                f"{element_type} not allowed under {parent_node.type}"
+                f"{element_type} not allowed under {elmType}"
             )
         
         Reporter.info(
-            f"[TreeRules] {element_type} allowed under {parent_node.type}"
+            f"[TreeRules] {element_type} allowed under {elmType}"
         )
         return RuleResult.ok()
 
