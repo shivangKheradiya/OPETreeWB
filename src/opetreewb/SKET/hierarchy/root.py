@@ -1,3 +1,3 @@
 ROOTS = [
-    "SITE",
+    "DEPT",
 ]
