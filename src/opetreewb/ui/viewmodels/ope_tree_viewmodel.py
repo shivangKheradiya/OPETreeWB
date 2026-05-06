@@ -1,6 +1,6 @@
 from PySide import QtCore
 from opetreewb.ui.model.tree_model import TreeModel, TreeNodeModel
-from opetreewb.ui.tree_selection_bus import TREE_SELECTION
+from opetreewb.ui.store.tree_store import TREE_STORE
 from opetreewb.ui.model.tree_model import AttributeValue
 from opetreewb.domain.services.tree_service import TreeService
 
@@ -10,14 +10,11 @@ class OPETreeViewModel(QtCore.QObject):
 
     def __init__(self):
         super().__init__()
-        self.model = TreeModel()
+        self.model = TREE_STORE
         self.tree_service = TreeService()
 
     def get_roots(self):
         return self.model.roots
-
-    def select_node(self, node: TreeNodeModel):
-        TREE_SELECTION.selectionChanged.emit(node)
 
     def load_children(self, node: TreeNodeModel):
         """

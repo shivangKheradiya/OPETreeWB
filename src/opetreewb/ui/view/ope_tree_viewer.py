@@ -24,6 +24,9 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
 
         self.itemSelectionChanged.connect(self._on_selection_changed)
         # self.itemExpanded.connect(self._on_item_expanded)
+     
+        CN.structure_changed.connect(self._on_structure_changed)
+        CN.deleted.connect(self._on_structure_changed)
 
         self._build_tree()
 
@@ -60,6 +63,11 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
     # Selection
     # -------------------------------------------------
     def _on_selection_changed(self):
+
+        # ✅ Prevent recursion during tree rebuild
+        if self.signalsBlocked():
+            return
+
         items = self.selectedItems()
         if not items:
             return
@@ -70,7 +78,6 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
             f"[OPE Tree] Selected node: {node.label}\n"
         )
 
-        self.vm.select_node(node)
         CN.set(node)
 
     def _on_item_expanded(self, item):
@@ -165,10 +172,12 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         if node is None:
             return
 
+        lable = item.text(0)
+
         confirm = QtWidgets.QMessageBox.question(
             self,
             "Delete Node",
-            f"Delete node '{item.text(0)}' and all its children?",
+            f"Delete node '{lable}' and all its children?",
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
         )
 
@@ -180,5 +189,42 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         CN.delete()
 
         FreeCAD.Console.PrintMessage(
-            f"✅ Delete request sent: {item.text(0)}\n"
+            f"✅ Delete request sent: {lable}\n"
         )
+
+    def _on_structure_changed(self):
+        self._rebuild_tree_preserve_selection()
+
+    def _on_cn_deleted(self, node):
+        self._refresh_tree()
+
+    def _rebuild_tree_preserve_selection(self):
+        selected_id = CN.node.node_id if CN.node else None
+
+        # Block signals to prevent recursion
+        self.blockSignals(True)
+
+        self._build_tree()
+
+        if selected_id is not None:
+            item = self._find_item_by_node_id(selected_id)
+        if item:
+            self.setCurrentItem(item)
+
+        self.blockSignals(False)
+
+    def _find_item_by_node_id(self, node_id):
+        def traverse(item):
+            if item.data(0, QtCore.Qt.UserRole).node_id == node_id:
+                return item
+            for i in range(item.childCount()):
+                result = traverse(item.child(i))
+                if result:
+                    return result
+            return None
+
+        for i in range(self.topLevelItemCount()):
+            result = traverse(self.topLevelItem(i))
+            if result:
+                return result
+        return None

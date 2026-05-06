@@ -12,7 +12,8 @@ class CurrentNode(QObject):
     changed = Signal(object)               # node
     deleted = Signal(object)               # node
     attribute_changed = Signal(str, object)  # name, value
-
+    structure_changed = Signal()
+    
     def __init__(self):
         super().__init__()
         self._node = None
@@ -84,11 +85,20 @@ class CurrentNode(QObject):
         Reporter.info(
             f"[CN] create_child(type={element_type}, name={name})"
         )
-        self._tree_service.create_node(
+
+        ok = self._tree_service.create_node(
             self._node,
             element_type,
             name,
         )
+
+        if not ok:
+            return False
+
+        # ✅ Structural change
+        self.structure_changed.emit()
+
+        return True
 
     def delete(self):
         if not self._node:
@@ -97,10 +107,16 @@ class CurrentNode(QObject):
 
         node = self._node
         Reporter.info("[CN] delete current node")
-        self._tree_service.delete_node(node)
 
+        ok = self._tree_service.delete_node(node)
+
+        if not ok:
+            return False
+        
+        self.structure_changed.emit()
         self.deleted.emit(node)
         self.clear()
+
         return True
 
     # -------------------------
@@ -131,6 +147,8 @@ class CurrentNode(QObject):
         )
         
         self.attribute_changed.emit(name, value)
+
+        return True
 
     def get_attr(self, name):
         if not self._node:
