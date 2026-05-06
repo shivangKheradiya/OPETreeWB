@@ -80,6 +80,13 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             SyncHistoryCommand(),
         )
 
+        from opetreewb.commands.open_3d_space_command import Open3DSpaceCommand
+
+        FreeCADGui.addCommand(
+            "OpenOPE3DSpace",
+            Open3DSpaceCommand(),
+        )
+
     def _setup_ope_ui(self):
         self.appendMenu(
             "OPE",
@@ -137,6 +144,16 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
                 "SyncOPESnapshot",
                 "SyncOPEHistory",
             ]
+        )
+
+        self.appendMenu(
+            "OPE_3D",
+            ["OpenOPE3DSpace"],
+        )
+        
+        self.appendToolbar(
+            "OPE_3D",
+            ["OpenOPE3DSpace"],
         )
 
         self.appendMenu(

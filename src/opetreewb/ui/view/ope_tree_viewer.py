@@ -109,6 +109,11 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
 
         create_action = menu.addAction("Create Child Node")
         delete_action = menu.addAction("Delete Node")
+        
+        menu.addSeparator()
+        
+        addCN_action = menu.addAction("Add CN")
+        remCN_action = menu.addAction("rem CN")
 
         action = menu.exec_(self.viewport().mapToGlobal(pos))
         if action == create_action:
@@ -117,6 +122,11 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         elif action == delete_action:
             self._delete_node(item)
 
+        elif action == addCN_action:
+            self._addIn3D_node(item)
+
+        elif action == remCN_action:
+            self._remFrom3D_node(item)
 
     def _create_child_node(self, parent_item):
         parent_node = parent_item.data(0, QtCore.Qt.UserRole)
@@ -228,3 +238,21 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
             if result:
                 return result
         return None
+
+    def _addIn3D_node(self, item):
+        node = item.data(0, QtCore.Qt.UserRole)
+        if not node:
+            return
+
+        FreeCAD.Console.PrintMessage(
+            f"✅ Add CN Command Will Run\n"
+        )
+
+    def _remFrom3D_node(self, item):
+        node = item.data(0, QtCore.Qt.UserRole)
+        if not node:
+            return
+        
+        FreeCAD.Console.PrintMessage(
+            f"✅ REM CN Command Will Run\n"
+        )
