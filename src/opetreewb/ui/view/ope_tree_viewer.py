@@ -133,15 +133,28 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         if parent_node is None:
             return
 
+        CN.set(parent_node)
+        
+        allowed_types = CN.allowed_child_types()
+        if not allowed_types:
+            QtWidgets.QMessageBox.information(
+                self,
+                "Not Allowed",
+                "This element cannot have children."
+            )
+            return
+        
         dlg = QtWidgets.QDialog(self)
         dlg.setWindowTitle("Create Node")
 
         layout = QtWidgets.QFormLayout(dlg)
 
-        type_edit = QtWidgets.QLineEdit()
+        type_combo = QtWidgets.QComboBox()
         name_edit = QtWidgets.QLineEdit()
 
-        layout.addRow("Element Type:", type_edit)
+        type_combo.addItems(allowed_types)
+
+        layout.addRow("Element Type:", type_combo)
         layout.addRow("Name (optional):", name_edit)
 
         buttons = QtWidgets.QDialogButtonBox(
@@ -156,7 +169,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         if dlg.exec_() != QtWidgets.QDialog.Accepted:
             return
 
-        element_type = type_edit.text().strip().upper()
+        element_type = type_combo.currentText()
         name = name_edit.text().strip()
 
         if not element_type:

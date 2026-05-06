@@ -155,3 +155,16 @@ class CurrentNode(QObject):
             return None
         attr = self._node.attributes.get(name)
         return attr.value if attr else None
+
+    def allowed_child_types(self):
+        if not self._node:
+            return []
+    
+        from opetreewb.domain.schema.schema_loader import get_schema
+    
+        schema = get_schema(self.type)
+    
+        if not schema:
+            return []
+    
+        return schema.allowed_children()
