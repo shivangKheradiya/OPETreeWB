@@ -186,6 +186,21 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         # ✅ Create via CN (TX-safe)
         CN.create_child(element_type, name)
 
+        # get newly created node (last child in model)
+        new_node = parent_node.children[-1]
+
+        # build UI item
+        child_item = self._build_item(new_node)
+
+        # attach to UI tree
+        parent_item.addChild(child_item)
+
+        # expand parent (very important)
+        parent_item.setExpanded(True)
+
+        # select new node
+        self.setCurrentItem(child_item)
+
         FreeCAD.Console.PrintMessage(
             f"✅ Create node request sent: {element_type} {name}\n"
         )
@@ -194,6 +209,8 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         node = item.data(0, QtCore.Qt.UserRole)
         if node is None:
             return
+        
+        parent_item = item.parent()
 
         lable = item.text(0)
 
@@ -211,46 +228,19 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         CN.set(node)
         CN.delete()
 
+        if parent_item:
+            parent_item.removeChild(item)
+            self.setCurrentItem(parent_item)
+        else:
+            index = self.indexOfTopLevelItem(item)
+            self.takeTopLevelItem(index)
+
         FreeCAD.Console.PrintMessage(
             f"✅ Delete request sent: {lable}\n"
         )
 
     def _on_structure_changed(self):
-        self._rebuild_tree_preserve_selection()
-
-    def _on_cn_deleted(self, node):
-        self._refresh_tree()
-
-    def _rebuild_tree_preserve_selection(self):
-        selected_id = CN.node.node_id if CN.node else None
-
-        # Block signals to prevent recursion
-        self.blockSignals(True)
-
-        self._build_tree()
-
-        if selected_id is not None:
-            item = self._find_item_by_node_id(selected_id)
-        if item:
-            self.setCurrentItem(item)
-
-        self.blockSignals(False)
-
-    def _find_item_by_node_id(self, node_id):
-        def traverse(item):
-            if item.data(0, QtCore.Qt.UserRole).node_id == node_id:
-                return item
-            for i in range(item.childCount()):
-                result = traverse(item.child(i))
-                if result:
-                    return result
-            return None
-
-        for i in range(self.topLevelItemCount()):
-            result = traverse(self.topLevelItem(i))
-            if result:
-                return result
-        return None
+        pass
 
     def _addIn3D_node(self, item):
         node = item.data(0, QtCore.Qt.UserRole)
