@@ -115,7 +115,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         menu.addSeparator()
         
         addCN_action = menu.addAction("Add CN")
-        remCN_action = menu.addAction("rem CN")
+        remCN_action = menu.addAction("Rem CN")
 
         action = menu.exec_(self.viewport().mapToGlobal(pos))
         if action == create_action:

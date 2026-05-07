@@ -11,7 +11,7 @@ class OpenOPETreeCommand:
 
     def GetResources(self):
         return {
-            "MenuText": "OPE Tree",
+            "MenuText": "OPE Tree Explorer",
             "ToolTip": "Open OPE Tree Viewer",
         }
 

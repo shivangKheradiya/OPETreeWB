@@ -6,7 +6,7 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
     OPETree FreeCAD Workbench (clean rewrite).
     """
 
-    MenuText = "OPE Tree"
+    MenuText = "OPE Tree Explorer"
     ToolTip = "OPE Tree Explorer for DBML-based domains"
 
     def Initialize(self):

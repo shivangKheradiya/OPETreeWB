@@ -108,6 +108,13 @@ class CurrentNode(QObject):
         node = self._node
         Reporter.info("[CN] delete current node")
 
+        # ✅ 1. Remove geometry FIRST
+        try:
+            from opetreewb.domain.services.geometry_service import GEOMETRY_SERVICE
+            GEOMETRY_SERVICE.remove(node)
+        except Exception as e:
+            Reporter.error(f"[CN] Geometry remove failed: {e}")
+    
         ok = self._tree_service.delete_node(node)
 
         if not ok:
