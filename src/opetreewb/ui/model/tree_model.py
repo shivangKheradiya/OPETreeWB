@@ -78,9 +78,13 @@ class TreeModel:
         
                                                     TreeNodeModel(
                                                         node_id=2101,
-                                                        label="STRA LINE",
+                                                        label="STRA",
                                                         attributes={
                                                             "Type": AttributeValue(1320, "STRA"),
+                                                            "StartX": AttributeValue(1321, "0"),
+                                                            "StartY": AttributeValue(1322, "0"),
+                                                            "EndX": AttributeValue(1323, "10"),
+                                                            "EndY": AttributeValue(1324, "0"),
                                                         },
                                                         children=[]
                                                     ),

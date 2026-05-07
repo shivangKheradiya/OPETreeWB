@@ -148,6 +148,15 @@ class CurrentNode(QObject):
         )
         
         self.attribute_changed.emit(name, value)
+        # ✅ Trigger geometry update
+        try:
+            from opetreewb.domain.services.geometry_service import GEOMETRY_SERVICE
+            GEOMETRY_SERVICE.update(self._node)
+
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            pass
 
         return True
 

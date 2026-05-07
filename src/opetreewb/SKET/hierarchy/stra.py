@@ -12,6 +12,29 @@ class Stra(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-            "Start": {"default": "", "editable": True},
-            "End": {"default": "", "editable": True},
+            # ✅ GEOMETRY ATTRIBUTES
+            "StartX": {
+                "default": "0",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+            },
+            "StartY": {
+                "default": "0",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+            },
+            "EndX": {
+                "default": "10",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+            },
+            "EndY": {
+                "default": "0",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+            },
         }

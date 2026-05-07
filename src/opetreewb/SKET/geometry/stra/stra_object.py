@@ -11,6 +11,10 @@ class StraObject:
         obj.addProperty("App::PropertyFloat", "EndY", "Geometry")
 
     def execute(self, obj):
+        import FreeCAD
+        FreeCAD.Console.PrintMessage(
+            f"[STRA_EXECUTE] Executing geometry for node {self.node.node_id}\n"
+        )
 
         node = self.node
 

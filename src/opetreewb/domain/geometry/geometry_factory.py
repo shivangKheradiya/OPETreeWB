@@ -4,12 +4,18 @@ Geometry Factory
 Maps node TYPE → geometry implementation
 """
 
+import FreeCAD
+
 def create_geometry(node, doc):
     """
     Create FreeCAD geometry object for a given node
     """
 
-    type_name = node.type
+    FreeCAD.Console.PrintMessage(
+        "[Factory] Creating geometry for type={}\n".format(node.attributes.get("Type").value)
+    )
+
+    type_name = node.attributes.get("Type").value
 
     # -------------------------------------------------
     # LINE (STRA)

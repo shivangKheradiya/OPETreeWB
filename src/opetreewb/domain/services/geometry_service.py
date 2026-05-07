@@ -20,21 +20,39 @@ class GeometryService:
     # -------------------------------------------------
     def build(self, node):
 
+        FreeCAD.Console.PrintMessage(
+            f"[GeometryService] Building geometry for node: {getattr(node, 'label', None)}\n"
+        )
+
         doc = FreeCAD.ActiveDocument
         if doc is None:
             doc = FreeCAD.newDocument("OPE_3D_TEMP")
 
         self._build_recursive(node, doc)
 
+        FreeCAD.Console.PrintMessage(
+            "[GeometryService] Recompute triggered\n"
+        )
+
         doc.recompute()
 
     def _build_recursive(self, node, doc):
 
+        FreeCAD.Console.PrintMessage(
+            f"[GeometryService] Visiting node: {node.label} (type={getattr(node, 'type', None)})\n"
+        )
+
         obj = create_geometry(node, doc)
 
         if obj:
-            # ✅ store mapping
+            FreeCAD.Console.PrintMessage(
+                f"[GeometryService] Geometry created for node_id={node.node_id}\n"
+            )
             self.registry[node.node_id] = obj
+        else:
+            FreeCAD.Console.PrintMessage(
+                f"[GeometryService] No geometry for type={getattr(node, 'type', None)}\n"
+            )
 
         # ✅ process children (hierarchical geometry)
         for child in node.children:
@@ -73,14 +91,29 @@ class GeometryService:
     # UPDATE GEOMETRY
     # -------------------------------------------------
     def update(self, node):
+        FreeCAD.Console.PrintMessage(
+            f"[GeometryService] Update called for node_id={node.node_id}\n"
+        )
+
+        FreeCAD.Console.PrintMessage(
+            f"[GeometryService] Registry keys: {list(self.registry.keys())}\n"
+        )
 
         obj = self.registry.get(node.node_id)
 
         if not obj:
+            FreeCAD.Console.PrintMessage(
+                "[GeometryService] ❌ Object NOT found in registry\n"
+            )
             return
 
-        # ✅ trigger recompute → execute() → ViewProvider update
+        FreeCAD.Console.PrintMessage(
+            "[GeometryService] ✅ Object found → recompute\n"
+        )
         try:
+            obj.touch()
             FreeCAD.ActiveDocument.recompute()
         except Exception:
             pass
+
+GEOMETRY_SERVICE = GeometryService()

@@ -25,7 +25,12 @@ class ViewProviderStra:
         self.root.addChild(self.lines)
 
     def update(self, obj):
+        import FreeCAD
 
+        FreeCAD.Console.PrintMessage(
+            "[STRA_VIEW] Updating line geometry\n"
+        )
+        
         pts = [
             coin.SbVec3f(obj.StartX, obj.StartY, 0),
             coin.SbVec3f(obj.EndX, obj.EndY, 0),

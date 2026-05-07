@@ -5,6 +5,8 @@ from opetreewb.ui.viewmodels.ope_tree_viewmodel import OPETreeViewModel
 from opetreewb.ui.model.tree_model import TreeNodeModel
 from opetreewb.ui.tree_label_utils import build_node_label
 from opetreewb.domain import CN
+from opetreewb.domain.services.geometry_service import GEOMETRY_SERVICE
+
 
 class OPETreeViewer(QtWidgets.QTreeWidget):
     """
@@ -247,15 +249,27 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         if not node:
             return
 
+        from opetreewb.domain import CN
+        CN.set(node)
+
+        # ✅ Build geometry
+        GEOMETRY_SERVICE.build(CN.node)
+
         FreeCAD.Console.PrintMessage(
-            f"✅ Add CN Command Will Run\n"
+            f"✅ Geometry built for: {node.label}\n"
         )
 
     def _remFrom3D_node(self, item):
         node = item.data(0, QtCore.Qt.UserRole)
         if not node:
             return
-        
+
+        from opetreewb.domain import CN
+        CN.set(node)
+
+        # ✅ Remove geometry
+        GEOMETRY_SERVICE.remove(CN.node)
+
         FreeCAD.Console.PrintMessage(
-            f"✅ REM CN Command Will Run\n"
+            f"✅ Geometry removed for: {node.label}\n"
         )
