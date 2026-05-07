@@ -42,6 +42,15 @@ class GeometryService:
             f"[GeometryService] Visiting node: {node.label} (type={getattr(node, 'type', None)})\n"
         )
 
+        node_id = node.node_id
+        existing_obj = self.registry.get(node_id)
+
+        if existing_obj:
+            FreeCAD.Console.PrintMessage(
+                f"[GeometryService] ✅ Already exists → skipping creation (node_id={node_id})\n"
+            )
+            return
+
         obj = create_geometry(node, doc)
 
         if obj:
