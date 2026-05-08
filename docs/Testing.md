@@ -268,3 +268,182 @@ Test passes if:
 - Prepares system for next workflow tests  
 
 ---
+
+### T0006.py
+
+**Purpose:**  
+Validate attribute staging into session overlay using work/push.
+
+**What is validated:**
+
+*   Attribute changes are staged correctly using API
+*   Operation follows CREATE semantics (operation_type = 1)
+*   Staged data is visible in working (overlay) state
+*   No commit is triggered
+*   No exceptions occur during execution
+
+**Layer:**  
+Integration
+
+
+#### Objective
+
+Verify that work/push:
+- stages attribute changes into overlay
+- makes changes visible in working state (live ⊕ overlay)
+- does not persist data to live table yet
+
+#### Scope
+
+Validates integration of:
+
+- api/client.py
+- api/attribute_api.py
+- api/query_api.py
+
+#### Preconditions
+
+- ✅ T0004 must be executed first (active session exists)  
+- ✅ OPE_DB_API server is running  
+- ✅ PostgreSQL database is available  
+
+#### Execution Summary
+
+The test performs:
+
+1. Generate a test node_id and attribute_id  
+2. Push attribute using API (CREATE operation)  
+3. Query working state using search API  
+4. Verify staged data exists in response  
+
+#### Expected Results
+
+✅ Attribute row is staged in overlay  
+✅ data_id is generated correctly  
+✅ Staged data appears in working state  
+✅ No exceptions are raised  
+✅ Data is NOT committed to live table  
+
+#### Backend Validation
+
+Verify:
+
+- Row exists in `<domain>_data_overlay`  
+- operation_type = 1  
+- session_id matches active session  
+- No entry in `<domain>_data` yet  
+
+#### Success Criteria
+
+Test passes if:
+
+- Overlay contains staged data  
+- Query returns expected row  
+- No runtime errors occur  
+
+
+#### Failure Scenarios
+
+| Failure | Possible Cause |
+|--------|---------------|
+| data not found in working state | push failed or wrong filter |
+| RuntimeError | invalid attribute_id |
+| HTTP 409 | session not active |
+| HTTP 400 | payload mismatch |
+| connection refused | API server not running |
+
+
+#### Notes
+
+- This is the first **workflow-level test (overlay)**
+- Validates **intent staging, not persistence**
+- Foundation for commit/discard testing
+
+----
+
+### T0007.py
+
+**Purpose:**  
+Validate commit of staged overlay changes into live data.
+
+**What is validated:**
+
+*   Overlay data is applied to live table
+*   History entries are created
+*   Overlay is cleared automatically
+*   No exceptions occur during execution
+
+**Layer:**  
+Integration
+
+#### Objective
+
+Verify that work/save:
+- commits staged changes atomically
+- moves overlay data to live storage
+- records changes in history table
+- closes session at backend level
+
+#### Scope
+
+Validates integration of:
+
+- api/client.py
+- api/query_api.py
+
+#### Preconditions
+
+- ✅ T0004 executed (session active)  
+- ✅ T0006 executed (data staged in overlay)  
+- ✅ OPE_DB_API server is running  
+
+#### Execution Summary
+
+The test performs:
+
+1. Call work/commit, API  
+2. Commit staged overlay changes  
+3. Validate successful API response  
+
+#### Expected Results
+
+✅ Overlay data is applied to `<domain>_data`  
+✅ Entries created in `<domain>_data_history`  
+✅ Overlay table is cleared  
+✅ No exceptions are raised  
+
+#### Backend Validation
+
+Verify:
+
+- Data exists in `<domain>_data`  
+- Overlay table `<domain>_data_overlay` is empty for session  
+- History table contains new entries  
+- Session is closed or marked inactive  
+
+#### Success Criteria
+
+Test passes if:
+
+- Commit succeeds  
+- Data is persisted in live table  
+- Overlay is cleared  
+- No runtime errors occur  
+
+#### Failure Scenarios
+
+| Failure | Possible Cause |
+|--------|---------------|
+| data not in live table | commit failed |
+| overlay not cleared | save logic incomplete |
+| HTTP 409 | session not active |
+| HTTP 400 | invalid payload |
+| connection refused | API server not running |
+
+#### Notes
+
+- This is the **commit step in workflow**  
+- Converts intent (overlay) → truth (live data)  
+- Enables next session cycle  
+
+---
