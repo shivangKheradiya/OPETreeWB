@@ -5,7 +5,7 @@ what each test validates.
 
 All tests are executed **inside FreeCAD**.
 
----
+----
 
 ## How to Run Tests
 
@@ -173,7 +173,7 @@ Test passes if:
 - It does **NOT validate overlay/workflow operations**  
 - It is the **entry point for all T00X API tests**  
 
----
+----
 
 ### T0005.py
 
@@ -267,7 +267,7 @@ Test passes if:
 - Validates **session lifecycle completion**  
 - Prepares system for next workflow tests  
 
----
+----
 
 ### T0006.py
 
@@ -446,7 +446,7 @@ Test passes if:
 - Converts intent (overlay) → truth (live data)  
 - Enables next session cycle  
 
----
+----
 
 ### T0008.py
 
@@ -531,7 +531,7 @@ Test passes if:
 - Opposite of T0007 (commit)
 - Ensures safe undo of staged changes
 
----
+----
 
 ### T0009.py
 
@@ -548,4 +548,111 @@ Validate attribute API operations (CREATE / UPDATE / DELETE).
 **Layer:**  
 Integration
 
----
+----
+
+### T0010.py
+
+**Purpose:**  
+Validate node creation using schema-defined attribute IDs and sparse storage model.
+
+**What is validated:**
+
+*   Node is created with only mandatory base attributes (Name, Type, Owner)
+*   Attribute IDs match schema-defined values (1, 2, 3)
+*   Identity rule is satisfied (Name.data_id == node_id)
+*   Attribute values are correctly assigned (Type, Owner)
+*   No unexpected attributes are stored
+
+**Layer:**  
+Integration
+
+#### Objective
+
+Verify that node creation:
+- uses schema-defined attribute IDs
+- stores only required attributes (sparse model)
+- correctly assigns values for Type and Owner
+- enforces identity rule
+
+#### Scope
+
+Validates integration of:
+
+- api/node_api.py
+- api/query_api.py
+- hierarchy schema (base_attributes)
+
+#### Preconditions
+
+- ✅ T0004 executed (active session exists)  
+- ✅ OPE_DB_API server is running  
+- ✅ PostgreSQL database is available  
+
+#### Input Configuration
+
+| Parameter | Value |
+|----------|------|
+| parent_node_id | 1000 |
+| type | STRA |
+| name | default ("") |
+
+#### Execution Summary
+
+The test performs:
+
+1. Create a node using NodeAPI  
+2. Query node attributes using search API  
+3. Validate total attribute count (must be 3)  
+4. Validate each attribute:
+   - Name → identity rule
+   - Type → correct value
+   - Owner → correct parent mapping  
+
+#### Expected Results
+
+✅ Exactly 3 attributes are stored (Name, Type, Owner)  
+✅ Name attribute uses data_id == node_id  
+✅ Type attribute value equals "STRA"  
+✅ Owner attribute value equals 1000  
+✅ No additional attributes are stored
+
+#### Backend Validation
+
+Verify:
+
+- 3 rows exist in `<domain>_data_overlay`  
+- attribute_id values:
+  - 1 → Name  
+  - 2 → Type  
+  - 3 → Owner  
+- data_id of Name row == node_id  
+- No other attribute rows exist  
+
+#### Success Criteria
+
+Test passes if:
+
+- Node has exactly 3 attributes  
+- All attribute IDs match schema  
+- Identity rule is satisfied  
+- No runtime errors occur  
+
+#### Failure Scenarios
+
+| Failure | Possible Cause |
+|--------|---------------|
+| attribute count ≠ 3 | schema logic incorrect |
+| identity rule fails | wrong data_id assignment |
+| Type mismatch | incorrect value logic |
+| Owner mismatch | parent mapping error |
+| unexpected attribute_id | schema mapping bug |
+| HTTP error | session/API issue |
+
+#### Notes
+
+- This test confirms **sparse storage model**  
+- Default schema attributes are NOT stored  
+- Schema acts as fallback during rendering  
+- This is the baseline for all node-based workflows  
+
+----
