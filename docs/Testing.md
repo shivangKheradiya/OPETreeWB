@@ -656,3 +656,86 @@ Test passes if:
 - This is the baseline for all node-based workflows  
 
 ----
+
+### T0011.py
+
+**Purpose:**  
+Validate node deletion and attribute cleanup.
+
+**What is validated:**
+
+*   Node deletion removes all associated attribute rows
+*   Node is no longer retrievable via API
+*   No residual data exists after deletion
+*   No exceptions occur during execution
+
+**Layer:**  
+Integration
+
+#### Objective
+
+Verify that node deletion:
+- removes all attributes of a node
+- ensures no orphan data remains
+- reflects correctly in query results
+
+#### Scope
+
+Validates integration of:
+
+- api/node_api.py
+- api/query_api.py
+
+#### Preconditions
+
+- ✅ T0004 executed (active session exists)  
+- ✅ OPE_DB_API server is running  
+- ✅ PostgreSQL database is available  
+
+#### Execution Summary
+
+The test performs:
+
+1. Create a node  
+2. Delete the node using NodeAPI  
+3. Query for node  
+4. Verify node no longer exists  
+
+#### Expected Results
+
+✅ No records exist for node_id after deletion  
+✅ All attribute rows are removed  
+✅ No exceptions are raised  
+
+#### Backend Validation
+
+Verify:
+
+- No rows exist in `<domain>_data_overlay` for node_id  
+- After commit → no rows in `<domain>_data` either  
+- No orphan rows present  
+
+#### Success Criteria
+
+Test passes if:
+
+- Node is fully removed  
+- Query returns empty result  
+- No runtime errors occur  
+
+#### Failure Scenarios
+
+| Failure | Possible Cause |
+|--------|---------------|
+| node still exists | delete incomplete |
+| partial attributes remain | cascade failure |
+| HTTP error | session/API issue |
+| stale overlay data | discard/save mismatch |
+
+#### Notes
+
+- This test validates **delete cascade behavior**  
+- Ensures **data integrity after removal**  
+- Critical for maintaining clean graph structure  
+
+----
