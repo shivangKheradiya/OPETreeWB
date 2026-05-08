@@ -447,3 +447,89 @@ Test passes if:
 - Enables next session cycle  
 
 ---
+
+### T0008.py
+
+**Purpose:**  
+Validate rollback of staged overlay changes using work/discard.
+
+**What is validated:**
+
+*   Overlay data is removed successfully
+*   No changes are committed to live data
+*   Session remains usable or reset depending on API behavior
+*   No exceptions occur during execution
+
+**Layer:**  
+Integration
+
+#### Objective
+
+Verify that work/discard:
+- removes all staged changes in overlay
+- prevents any persistence to live tables
+- resets session state for clean workflow continuation
+
+#### Scope
+
+Validates integration of:
+
+- api/client.py
+- api/query_api.py
+
+#### Preconditions
+
+- ✅ T0004 executed (session active)  
+- ✅ T0006 executed (data staged in overlay)  
+- ✅ OPE_DB_API server is running  
+
+#### Execution Summary
+
+The test performs:
+
+1. Call work/discard API  
+2. Remove staged overlay changes  
+3. Validate working state remains accessible  
+4. Confirm no staged data remains  
+
+#### Expected Results
+
+✅ Overlay table (`<domain>_data_overlay`) is cleared  
+✅ No changes appear in live table  
+✅ Session can proceed without residual state  
+✅ No exceptions are raised  
+
+#### Backend Validation
+
+Verify:
+
+- Overlay table is empty for the active session  
+- Live table (`<domain>_data`) remains unchanged  
+- No new history entries are created  
+
+#### Success Criteria
+
+Test passes if:
+
+- Overlay is cleared successfully  
+- No unintended persistence occurs  
+- System remains stable for next operations  
+
+#### Failure Scenarios
+
+| Failure | Possible Cause |
+|--------|---------------|
+| overlay still contains data | discard failed |
+| data appears in live table | incorrect commit behavior |
+| HTTP 409 | session not active |
+| HTTP 400 | incorrect API call |
+| connection refused | API server not running |
+
+#### Notes
+
+- This is the **rollback branch of workflow**  
+- Opposite of T0007 (commit)
+- Ensures safe undo of staged changes
+
+---
+
