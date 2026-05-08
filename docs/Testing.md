@@ -533,3 +533,19 @@ Test passes if:
 
 ---
 
+### T0009.py
+
+**Purpose:**  
+Validate attribute API operations (CREATE / UPDATE / DELETE).
+
+**What is validated:**
+
+*   Attribute creation via work/push
+*   Attribute update via work/push
+*   Attribute deletion via work/push
+*   No exceptions during operations
+
+**Layer:**  
+Integration
+
+---
