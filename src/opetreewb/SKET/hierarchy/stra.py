@@ -18,23 +18,27 @@ class Stra(ElementSchema):
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
+                "id": 4,
             },
             "StartY": {
                 "default": "0",
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
+                "id": 5,
             },
             "EndX": {
                 "default": "10",
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
+                "id": 6,
             },
             "EndY": {
                 "default": "0",
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
+                "id": 7,
             },
         }
