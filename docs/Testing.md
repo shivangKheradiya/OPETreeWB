@@ -1044,3 +1044,93 @@ Test passes if:
 
 ----
 
+### T0015.py
+
+**Purpose:**  
+Validate local commit operation (overlay → live).
+
+**What is validated:**
+
+*   Overlay changes are applied to live table
+*   History entries are created
+*   Overlay is cleared after commit
+*   Session is closed
+*   No exceptions occur during execution
+
+**Layer:**  
+Integration
+
+#### Objective
+
+Verify that local commit:
+- moves overlay data to live table
+- creates history entries
+- clears overlay table
+- closes session
+
+#### Scope
+
+Validates integration of:
+
+- local/attribute_local.py
+- local/query_local.py
+- local/client.py
+- OPE_DB_API.crud.commit.commit
+
+#### Preconditions
+
+- ✅ T0004 executed (API session)
+- ✅ T0012 executed (local session)
+- ✅ T0014 executed (overlay data available)
+- ✅ Local PostgreSQL available
+
+#### Execution Summary
+
+The test performs:
+
+1. Execute overlay push (T0015)  
+2. Call `commit_session()`  
+3. Validate overlay is cleared  
+4. Validate live table updated
+
+#### Expected Results
+
+✅ Data moved from overlay → live table  
+✅ Overlay table is empty  
+✅ Session is closed  
+✅ No exceptions occur
+
+#### Backend Validation
+
+Verify:
+
+- No rows remain in `<domain>_data_overlay`  
+- Rows exist in `<domain>_data`  
+- History entries created
+
+#### Success Criteria
+
+Test passes if:
+
+- Overlay is cleared  
+- Live table contains committed rows  
+- No runtime errors occur
+
+#### Failure Scenarios
+
+| Failure | Possible Cause |
+|--------|---------------|
+| overlay not cleared | commit logic failed |
+| live data missing | insert failed |
+| exception thrown | invalid overlay state |
+| session still active | close_session not executed |
+
+#### Notes
+
+- Mirrors API commit behavior (T0007)  
+- Uses same backend logic (commit_session)  
+- Ensures local DB behaves exactly like server  
+- Critical for local-first architecture
+
+----
+
