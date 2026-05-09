@@ -37,12 +37,10 @@ def run():
     try:
         # ✅ Configure context (if not already)
         if not OPE_DB_CONTEXT.code:
-            OPE_DB_CONTEXT.configure(
-                code="XYZ",
-                domain="SKET",
-                username="Shivang",
-                hostname="PCS",
-            )
+            OPE_DB_CONTEXT.code="XYZ"
+            OPE_DB_CONTEXT.domain="SKET"
+            OPE_DB_CONTEXT.username="Shivang"
+            OPE_DB_CONTEXT.hostname="PCS"
 
         id_gen = SnowflakeIDGenerator()
 

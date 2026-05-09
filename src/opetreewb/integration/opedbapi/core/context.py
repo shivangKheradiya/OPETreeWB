@@ -29,24 +29,6 @@ class OpeDBContext:
         self._timeout = 60
 
     # -------------------------------------------------
-    # SETUP
-    # -------------------------------------------------
-    def configure(self, 
-        *, 
-        code: str, 
-        domain: str, 
-        username: Optional[str] = None, 
-        hostname:str=None,
-        api_url=None,
-    ):
-
-        self._code = code.upper()
-        self._domain = domain
-        self._username = username
-        self._hostname = hostname
-        self._api_url = api_url
-
-    # -------------------------------------------------
     # SESSION CONTROL
     # -------------------------------------------------
     def start_session(self, session_id: int):

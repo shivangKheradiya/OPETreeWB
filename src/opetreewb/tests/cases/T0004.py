@@ -37,12 +37,10 @@ def run():
     OPE_DB_CONTEXT._api_url = "http://127.0.0.1:8000"
 
     # ✅ Step 2 — Configure context
-    OPE_DB_CONTEXT.configure(
-        code="XYZ",
-        domain="SKET",
-        username="Shivang",
-        hostname="PCS",
-    )
+    OPE_DB_CONTEXT.code="XYZ"
+    OPE_DB_CONTEXT.domain="SKET"
+    OPE_DB_CONTEXT.username="Shivang"
+    OPE_DB_CONTEXT.hostname="PCS"
 
     FreeCAD.Console.PrintMessage("Context configured:\n")
     FreeCAD.Console.PrintMessage("  Code:{}\n".format(OPE_DB_CONTEXT.code))

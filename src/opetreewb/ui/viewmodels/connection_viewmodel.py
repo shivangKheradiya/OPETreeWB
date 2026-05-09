@@ -6,7 +6,7 @@ from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from OPE_DB_API.config.loader import set_client_config_file
 
 from pathlib import Path
-
+import toml
 
 class ConnectionViewModel(QtCore.QObject):
     error = QtCore.Signal(str)
@@ -65,12 +65,10 @@ class ConnectionViewModel(QtCore.QObject):
 
         try:
             # ✅ ✅ ✅ STEP 1 — Configure GLOBAL CONTEXT
-            OPE_DB_CONTEXT.configure(
-                code=self.model.project_code,
-                domain=self.model.domain,
-                username="FreeCADUser",
-                hostname="FREECAD",
-            )
+            OPE_DB_CONTEXT.code=self.model.project_code,
+            OPE_DB_CONTEXT.domain=self.model.domain,
+            OPE_DB_CONTEXT.username=local_db_user,
+            OPE_DB_CONTEXT.hostname=local_db_host
 
             # ✅ ✅ ✅ STEP 2 — Configure API Base URL
             OPE_DB_CONTEXT._api_url = self.model.api_url.rstrip("/")
@@ -92,7 +90,6 @@ class ConnectionViewModel(QtCore.QObject):
             # ✅ write temp config file
             config_path = Path.home() / ".opetreewb_client_config.toml"
 
-            import toml
             with open(config_path, "w") as f:
                 toml.dump(client_config, f)
 
