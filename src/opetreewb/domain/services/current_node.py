@@ -6,7 +6,7 @@ from opetreewb.domain.services.attribute_service import AttributeService
 
 class CurrentNode(QObject):
     """
-    CN – Current Node (like !!CE in AVEVA PML)
+    CN - Current Node (like !!CE in AVEVA PML)
     """
 
     changed = Signal(object)               # node
