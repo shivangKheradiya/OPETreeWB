@@ -8,7 +8,9 @@ from PySide import QtWidgets
 import FreeCAD
 
 from opetreewb.ui.viewmodels.connection_viewmodel import ConnectionViewModel
-from opetreewb.domain.stores.stores import SESSION_SERVICE
+from opetreewb.domain.services.service_container import ServiceContainer
+from opetreewb.app.app_context import AppContext
+
 
 class ConnectionDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
@@ -114,9 +116,24 @@ class ConnectionDialog(QtWidgets.QDialog):
         FreeCAD.Console.PrintMessage(
             "[ConnectionDialog] Connection parameters accepted:\n"
         )
+        
+        AppContext.container = ServiceContainer()
 
-        SESSION_SERVICE.start()
-     
+        # =================================================
+        # ✅ START SESSION
+        # =================================================
+        FreeCAD.Console.PrintMessage(
+            "[ConnectionDialog] Starting session...\n"
+        )
+        
+        success = AppContext.container.session_service.start()
+
+        if not success:
+            FreeCAD.Console.PrintError(
+                "[ConnectionDialog] Session start FAILED ❌\n"
+            )
+            return
+
         FreeCAD.Console.PrintMessage(
             "[ConnectionDialog] Session started ✅\n"
         )

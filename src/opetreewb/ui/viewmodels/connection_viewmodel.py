@@ -65,13 +65,12 @@ class ConnectionViewModel(QtCore.QObject):
 
         try:
             # ✅ ✅ ✅ STEP 1 — Configure GLOBAL CONTEXT
-            OPE_DB_CONTEXT.code = self.model.project_code,
-            OPE_DB_CONTEXT.domain = self.model.domain,
-            OPE_DB_CONTEXT.username = local_db_user,
-            OPE_DB_CONTEXT.hostname = local_db_host
-
-            # ✅ ✅ ✅ STEP 2 — Configure API Base URL
-            OPE_DB_CONTEXT.api_url = self.model.api_url.rstrip("/")
+            ctx = OPE_DB_CONTEXT
+            ctx.code = self.model.project_code
+            ctx.domain = self.model.domain
+            ctx.username = local_db_user
+            ctx.hostname = local_db_host
+            ctx.api_url = self.model.api_url.rstrip("/")
 
             # ✅ ✅ ✅ STEP 3 — Configure local DB (dynamic config)
             client_config = {

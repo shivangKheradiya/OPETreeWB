@@ -2,14 +2,14 @@ from opetreewb.messaging.reporter import Reporter
 from opetreewb.domain.session_state import SessionState
 from opetreewb.domain.transection.transaction_manager import TransactionManager
 from opetreewb.domain.rules.session_rules import SessionRules
-
+from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
 
 class SessionService:
     """
     Manages OPE session lifecycle (explicit API + LOCAL control).
     """
 
-    def __init__(self, opeclient=None):
+    def __init__(self, opeclient:OpeDBClient=None):
 
         self.opeclient = opeclient
         self.tx = TransactionManager()
