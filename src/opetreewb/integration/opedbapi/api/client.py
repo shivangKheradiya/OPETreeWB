@@ -1,7 +1,6 @@
 import requests
 from typing import Optional, Dict, Any
 
-from opetreewb.integration.opedbapi.core.config import OPE_DB_CONFIG
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 
 
@@ -20,7 +19,7 @@ class OpeApiClient:
     # INTERNAL: URL BUILDING
     # -------------------------------------------------
     def _base_url(self) -> str:
-        return OPE_DB_CONFIG.base_url.rstrip("/")
+        return OPE_DB_CONTEXT.base_url.rstrip("/")
 
     def _prefix(self) -> str:
         return f"{self._base_url()}/{OPE_DB_CONTEXT.code}/{OPE_DB_CONTEXT.domain}"
@@ -43,7 +42,7 @@ class OpeApiClient:
         response = requests.get(
             url,
             params=params,
-            timeout=OPE_DB_CONFIG.timeout,
+            timeout=OPE_DB_CONTEXT.timeout,
         )
 
         self._handle_response(response)
@@ -64,7 +63,7 @@ class OpeApiClient:
             url,
             json=json,
             params=params,
-            timeout=OPE_DB_CONFIG.timeout,
+            timeout=OPE_DB_CONTEXT.timeout,
         )
 
         self._handle_response(response)
