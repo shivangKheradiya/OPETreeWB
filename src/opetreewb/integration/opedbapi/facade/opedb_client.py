@@ -1,14 +1,21 @@
+from sqlalchemy.orm import Session
+
 from opetreewb.integration.opedbapi.api.session_api import SessionAPI
 from opetreewb.integration.opedbapi.api.node_api import NodeAPI
 from opetreewb.integration.opedbapi.api.attribute_api import AttributeAPI
 from opetreewb.integration.opedbapi.api.query_api import QueryAPI
+from opetreewb.integration.opedbapi.api.client import OpeApiClient
 
 from opetreewb.integration.opedbapi.local.session_local import SessionLocal
 from opetreewb.integration.opedbapi.local.attribute_local import AttributeLocal
 from opetreewb.integration.opedbapi.local.query_local import QueryLocal
+from opetreewb.integration.opedbapi.local.client import LocalClient
 
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.messaging.reporter import Reporter
 
+from OPE_DB_API.crud.commit.commit import commit_session
+from OPE_DB_API.crud.session.abort import abort_session
 
 class OpeDBClient:
     """
@@ -25,11 +32,13 @@ class OpeDBClient:
         self.api_node = NodeAPI(id_generator=id_gen)
         self.api_attr = AttributeAPI(id_generator=id_gen)
         self.api_query = QueryAPI()
+        self.api_client = OpeApiClient()
 
         # ✅ LOCAL
         self.local_session = SessionLocal()
         self.local_attr = AttributeLocal(id_gen)
         self.local_query = QueryLocal()
+        self.local_client = LocalClient()
 
         Reporter.success("[OpeDBClient] Ready")
 
@@ -81,21 +90,18 @@ class OpeDBClient:
     def commit_session_api(self):
         Reporter.info("[OpeDBClient][API] commit_session_api")
         try:
-            return self.api_query.commit() if hasattr(self.api_query, "commit") else None
+            result = self.api_client.post(
+                "work/commit",
+                use_session=True
+            )
+            Reporter.success("[OpeDBClient][API] commit applied")
         except Exception as e:
             Reporter.error(f"[OpeDBClient][API] commit failed → {e}")
             raise
 
     def commit_session_local(self):
         Reporter.info("[OpeDBClient][LOCAL] commit_session_local")
-
-        from sqlalchemy.orm import Session
-        from opetreewb.integration.opedbapi.local.client import LocalClient
-        from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
-        from OPE_DB_API.crud.commit.commit import commit_session
-
-        db: Session = LocalClient().get_session()
-
+        db: Session = self.local_client.get_session()
         try:
             commit_session(
                 db,
@@ -114,7 +120,11 @@ class OpeDBClient:
     def abort_session_api(self):
         Reporter.info("[OpeDBClient][API] abort_session_api")
         try:
-            return self.api_query.abort() if hasattr(self.api_query, "abort") else None
+            result = self.api_client.post(
+                "work/discard",
+                use_session=True
+            )
+            Reporter.success("[OpeDBClient][API] abort applied")
         except Exception as e:
             Reporter.error(f"[OpeDBClient][API] abort failed → {e}")
             raise
@@ -122,12 +132,7 @@ class OpeDBClient:
     def abort_session_local(self):
         Reporter.info("[OpeDBClient][LOCAL] abort_session_local")
 
-        from sqlalchemy.orm import Session
-        from opetreewb.integration.opedbapi.local.client import LocalClient
-        from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
-        from OPE_DB_API.crud.session.abort import abort_session
-
-        db: Session = LocalClient().get_session()
+        db: Session = self.local_client.get_session()
 
         try:
             abort_session(

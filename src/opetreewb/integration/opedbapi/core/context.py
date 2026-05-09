@@ -23,7 +23,7 @@ class OpeDBContext:
         self._session_id: Optional[int] = None
 
         self._local_db_username: Optional[str] = None
-        self._local_db_hostname: Optional[str] = socket.gethostname()
+        self._local_db_hostname: Optional[str] = None
         self._hostname: Optional[str] = socket.gethostname()
         self._username: Optional[str] = os.getlogin()
         self._api_url: Optional[str] = None
@@ -93,7 +93,7 @@ class OpeDBContext:
         return self._local_db_hostname
 
     @local_db_hostname.setter
-    def hostname(self, value: str):
+    def local_db_hostname(self, value: str):
         self._local_db_hostname = value
 
     @property

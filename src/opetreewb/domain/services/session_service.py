@@ -93,24 +93,25 @@ class SessionService:
             Reporter.info("[SERVER] Calling API commit_session")
 
             try:
-                return self.opeclient.commit_session_api()
-
+                result = self.opeclient.commit_session_api()
+                return TransactionResult(success=True, message=result)
             except Exception as e:
                 Reporter.error(f"[SERVER] commit_session_api failed → {e}")
                 raise
 
         # -------------------------
-        def local_op(_):
+        def local_op():
 
             Reporter.info("[LOCAL] Calling local commit_session")
 
             try:
-                self.opeclient.commit_session_local()
+                result = self.opeclient.commit_session_local()
 
                 self._state = SessionState.COMMITTED
 
                 Reporter.info("[LOCAL] Session committed")
-
+                return TransactionResult(success=True, message=result)
+            
             except Exception as e:
                 Reporter.error(f"[LOCAL] commit_session_local failed → {e}")
                 raise
@@ -144,24 +145,24 @@ class SessionService:
             Reporter.warning("[SERVER] Calling API abort_session")
 
             try:
-                return self.opeclient.abort_session_api()
-
+                result = self.opeclient.abort_session_api()
+                return TransactionResult(success=True, message=result)
             except Exception as e:
                 Reporter.error(f"[SERVER] abort_session_api failed → {e}")
                 raise
 
         # -------------------------
-        def local_op(_):
+        def local_op():
 
             Reporter.info("[LOCAL] Calling local abort_session")
 
             try:
-                self.opeclient.abort_session_local()
+                result = self.opeclient.abort_session_local()
 
                 self._state = SessionState.ABORTED
 
                 Reporter.info("[LOCAL] Session aborted")
-
+                return TransactionResult(success=True, message=result)
             except Exception as e:
                 Reporter.error(f"[LOCAL] abort_session_local failed → {e}")
                 raise
