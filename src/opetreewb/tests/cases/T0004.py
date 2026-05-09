@@ -34,7 +34,7 @@ def run():
     FreeCAD.Console.PrintMessage(f"[{TEST_ID}] START\n")
 
     # ✅ Step 1 — Configure API
-    OPE_DB_CONTEXT._base_url = "http://127.0.0.1:8000"
+    OPE_DB_CONTEXT._api_url = "http://127.0.0.1:8000"
 
     # ✅ Step 2 — Configure context
     OPE_DB_CONTEXT.configure(

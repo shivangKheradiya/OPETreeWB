@@ -19,7 +19,7 @@ class OpeApiClient:
     # INTERNAL: URL BUILDING
     # -------------------------------------------------
     def _base_url(self) -> str:
-        return OPE_DB_CONTEXT.base_url.rstrip("/")
+        return OPE_DB_CONTEXT.api_url.rstrip("/")
 
     def _prefix(self) -> str:
         return f"{self._base_url()}/{OPE_DB_CONTEXT.code}/{OPE_DB_CONTEXT.domain}"

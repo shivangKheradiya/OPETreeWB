@@ -73,7 +73,7 @@ class ConnectionViewModel(QtCore.QObject):
             )
 
             # ✅ ✅ ✅ STEP 2 — Configure API Base URL
-            OPE_DB_CONTEXT._base_url = self.model.api_url.rstrip("/")
+            OPE_DB_CONTEXT._api_url = self.model.api_url.rstrip("/")
 
             # ✅ ✅ ✅ STEP 3 — Configure local DB (dynamic config)
             client_config = {

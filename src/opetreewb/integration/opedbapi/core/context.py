@@ -24,7 +24,7 @@ class OpeDBContext:
 
         self._username: Optional[str] = None
         self._hostname: Optional[str] = socket.gethostname()
-        self._base_url = Optional[str] = None
+        self._api_url = Optional[str] = None
         self._mode = "api"
         self._timeout = 60
 
@@ -37,14 +37,14 @@ class OpeDBContext:
         domain: str, 
         username: Optional[str] = None, 
         hostname:str=None,
-        base_url=None,
+        api_url=None,
     ):
 
         self._code = code.upper()
         self._domain = domain
         self._username = username
         self._hostname = hostname
-        self._base_url = base_url
+        self._api_url = api_url
 
     # -------------------------------------------------
     # SESSION CONTROL
@@ -89,10 +89,10 @@ class OpeDBContext:
         return self._session_id is not None
     
     @property
-    def base_url(self) -> str:
-        if not self._base_url:
+    def api_url(self) -> str:
+        if not self._api_url:
             raise RuntimeError("Base URL is not configured")
-        return self._base_url
+        return self._api_url
 
     @property
     def mode(self) -> str:
