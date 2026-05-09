@@ -68,8 +68,8 @@ class ConnectionViewModel(QtCore.QObject):
             ctx = OPE_DB_CONTEXT
             ctx.code = self.model.project_code
             ctx.domain = self.model.domain
-            ctx.username = local_db_user
-            ctx.hostname = local_db_host
+            ctx.local_db_username = local_db_user
+            ctx.local_db_hostname = local_db_host
             ctx.api_url = self.model.api_url.rstrip("/")
 
             # ✅ ✅ ✅ STEP 3 — Configure local DB (dynamic config)

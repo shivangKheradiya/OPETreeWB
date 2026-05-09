@@ -1,5 +1,5 @@
 from typing import Optional
-import socket
+import socket, os
 
 
 class OpeDBContext:
@@ -22,8 +22,10 @@ class OpeDBContext:
         self._domain: Optional[str] = None
         self._session_id: Optional[int] = None
 
-        self._username: Optional[str] = None
+        self._local_db_username: Optional[str] = None
+        self._local_db_hostname: Optional[str] = socket.gethostname()
         self._hostname: Optional[str] = socket.gethostname()
+        self._username: Optional[str] = os.getlogin()
         self._api_url: Optional[str] = None
         self._mode = "api"
         self._timeout = 60
@@ -71,12 +73,28 @@ class OpeDBContext:
         self._session_id = value
 
     @property
+    def local_db_username(self) -> Optional[str]:
+        return self._local_db_username
+
+    @local_db_username.setter
+    def local_db_username(self, value: str):
+        self._local_db_username = value
+
+    @property
     def username(self) -> Optional[str]:
         return self._username
 
     @username.setter
     def username(self, value: str):
         self._username = value
+
+    @property
+    def local_db_hostname(self) -> str:
+        return self._local_db_hostname
+
+    @local_db_hostname.setter
+    def hostname(self, value: str):
+        self._local_db_hostname = value
 
     @property
     def hostname(self) -> str:
