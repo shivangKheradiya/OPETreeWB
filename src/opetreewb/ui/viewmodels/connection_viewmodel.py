@@ -89,13 +89,16 @@ class ConnectionViewModel(QtCore.QObject):
             }
 
             # ✅ write temp config file
-            config_path = Path.home() / "/OPETreeWB/.opetreewb_client_config.toml"
+            
+            config_dir = Path.home() / "AppData" / "Local" / "OPETreeWB"
+            config_dir.mkdir(parents=True, exist_ok=True)
+            config_file = config_dir / "client_config.toml"
 
-            with open(config_path, "w") as f:
+            with open(config_file, "w") as f:
                 toml.dump(client_config, f)
 
             # ✅ register config
-            set_client_config_file(config_path)
+            set_client_config_file(config_file)
 
         except Exception as e:
             self.error.emit(f"Failed to configure system: {e}")
