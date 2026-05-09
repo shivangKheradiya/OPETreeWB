@@ -946,3 +946,101 @@ Test passes if:
 
 ----
 
+### T0014.py
+
+**Purpose:**  
+Validate local session closure using the same session_id as API session.
+
+**What is validated:**
+
+*   Local session is correctly closed using CRUD layer
+*   Session is marked inactive in local DB
+*   Same session_id (from API) is used for closure
+*   Session lifecycle consistency between API and local layer
+*   No exceptions occur during execution
+
+**Layer:**  
+Integration
+
+#### Objective
+
+Verify that local session close:
+- updates session state to inactive
+- sets ended_at timestamp
+- maintains consistency with API session lifecycle
+
+#### Scope
+
+Validates integration of:
+
+- local/session_local.py
+- local/client.py
+- local/bootstrap.py
+- OPE_DB_API.crud.session.close
+
+#### Preconditions
+
+- ✅ T0004 executed (API session exists)  
+- ✅ T0012 executed (local session created)  
+- ✅ OPE_DB_CONTEXT is initialized  
+- ✅ Local PostgreSQL is configured and reachable
+
+#### Input Configuration
+
+| Parameter | Value |
+|----------|------|
+| session_id | OPE_DB_CONTEXT.session_id |
+
+#### Execution Summary
+
+The test performs:
+
+1. Execute T0004 (API session start)  
+2. Execute T0012 (local session start)  
+3. Call `SessionLocal.close()` using same session_id  
+4. Validate session state
+
+#### Expected Results
+
+✅ Session is marked inactive in local DB  
+✅ `session.active == False`  
+✅ `ended_at IS NOT NULL`  
+✅ Session_id matches API session  
+✅ No exceptions occur
+
+#### Backend Validation
+
+Verify in local DB:
+
+- Row exists in `session_metadata`  
+- `active = False`  
+- `ended_at` is populated  
+- `session_id` matches API session
+
+#### Success Criteria
+
+Test passes if:
+
+- Session is successfully closed  
+- Session state is inactive  
+- No runtime errors occur
+
+#### Failure Scenarios
+
+| Failure | Possible Cause |
+|--------|---------------|
+| session still active | close logic failed |
+| ended_at not set | DB update failure |
+| invalid session_id | mismatch with API |
+| DB connection error | config/bootstrap issue |
+#### Notes
+
+- This test completes **local session lifecycle**
+- Works together with:
+  - T0004 (API session start)
+  - T0012 (local session start)
+- Ensures a **single unified session model** across API and local layers
+- Critical for maintaining consistent overlay and transaction behavior
+
+----
+
