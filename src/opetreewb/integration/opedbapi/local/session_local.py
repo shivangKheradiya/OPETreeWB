@@ -55,7 +55,7 @@ class SessionLocal:
             )
 
             db.commit()
-
+            db.refresh(session)
             return session
 
         finally:

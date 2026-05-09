@@ -24,7 +24,7 @@ from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.local.session_local import SessionLocal
 from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 
-TEST_ID = "T0013"
+TEST_ID = "T0012"
 
 
 # ---------------------------------------------------------
@@ -32,10 +32,7 @@ def run():
 
     FreeCAD.Console.PrintMessage(f"\n[{TEST_ID}] START\n")
 
-    FreeCAD.Console.PrintMessage(f"\nRunning Preliminary Setup\n")
-    from .T0004 import run as T4Run
-    T4Run()
-    FreeCAD.Console.PrintMessage(f"\nT0004 Run\n")
+    # If fails then run T0004
 
     try:
         # ✅ Configure context (if not already)
