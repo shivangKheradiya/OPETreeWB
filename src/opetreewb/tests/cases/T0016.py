@@ -1,17 +1,17 @@
 """
-T0016 — Local Commit Test
+T0017 — Local Abort Test
 
 Objective:
-    Verify that local commit applies overlay changes to live table.
+    Verify that abort_session clears overlay without affecting live data.
 
 Scope:
     - attribute_local.py
     - query_local.py
-    - commit_session (OPE_DB_API)
+    - abort_session (OPE_DB_API)
 
 Expected:
-    - Overlay changes applied to live table
     - Overlay is cleared
+    - Live data unchanged
     - Session is closed
     - No exceptions
 """
@@ -27,9 +27,9 @@ from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.local.client import LocalClient
 from opetreewb.integration.opedbapi.local.query_local import QueryLocal
 
-from OPE_DB_API.crud.commit.commit import commit_session
+from OPE_DB_API.crud.session.abort import abort_session
 
-TEST_ID = "T0015"
+TEST_ID = "T0016"
 
 
 # ---------------------------------------------------------
@@ -47,24 +47,24 @@ def run():
         db: Session = client.get_session()
 
         FreeCAD.Console.PrintMessage(
-            f"COMMIT session_id={session_id}\n"
+            f"ABORT session_id={session_id}\n"
         )
 
-        # ✅ Step 1 — Commit overlay → live
-        commit_session(
+        # ✅ Step 1 — Abort session (clear overlay)
+        abort_session(
             db,
-            domain=domain,
             session_id=session_id,
+            domain=domain,
         )
 
         db.commit()
 
-        FreeCAD.Console.PrintMessage("Commit executed\n")
+        FreeCAD.Console.PrintMessage("Abort executed\n")
 
-        # ✅ Step 2 — Validate overlay cleared
+        # ✅ Step 2 — Validate overlay is cleared
         query_local = QueryLocal()
 
-        result_overlay = query_local.search(
+        result = query_local.search(
             filter_dict={
                 "field": "node_id",
                 "op": "=",
@@ -72,12 +72,12 @@ def run():
             }
         )
 
-        overlay_items = result_overlay.get("items", [])
+        items = result.get("items", [])
 
-        if overlay_items:
-            raise RuntimeError("FAILED: Overlay not cleared")
+        if items:
+            raise RuntimeError("FAILED: Overlay not cleared after abort")
 
-        FreeCAD.Console.PrintMessage("Overlay cleared OK\n")
+        FreeCAD.Console.PrintMessage("Overlay cleared ✅\n")
 
         FreeCAD.Console.PrintMessage(f"\n[{TEST_ID}] PASSED ✅\n")
 

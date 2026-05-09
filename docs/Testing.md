@@ -1134,3 +1134,90 @@ Test passes if:
 
 ----
 
+### T0016.py
+
+**Purpose:**  
+Validate local abort operation (overlay discard).
+
+**What is validated:**
+
+*   Overlay data is cleared after abort
+*   Live data remains unchanged
+*   Session is closed
+*   No exceptions occur during execution
+
+**Layer:**  
+Integration
+
+#### Objective
+
+Verify that local abort:
+- removes all overlay data for the session
+- does not modify live table
+- closes session properly
+
+#### Scope
+
+Validates integration of:
+
+- local/attribute_local.py
+- local/query_local.py
+- local/client.py
+- OPE_DB_API.crud.session.abort
+
+#### Preconditions
+
+- ✅ T0004 executed (API session exists)
+- ✅ T0012 executed (local session exists)
+- ✅ T0014 executed (overlay contains data)
+- ✅ Local PostgreSQL available
+
+#### Execution Summary
+
+The test performs:
+
+1. Push attribute data into overlay (T0015)  
+2. Call `abort_session()`  
+3. Validate overlay is cleared  
+4. Validate live table remains unchanged  
+
+#### Expected Results
+
+✅ Overlay table is cleared  
+✅ Live table is unaffected  
+✅ Session is closed  
+✅ No exceptions occur  
+
+#### Backend Validation
+
+Verify:
+
+- No rows exist in `<domain>_data_overlay`  
+- No new entries in `<domain>_data`  
+- Session is closed (`active = False`)
+
+#### Success Criteria
+
+Test passes if:
+
+- Overlay is cleared  
+- Live data untouched  
+- No runtime errors occur
+
+#### Failure Scenarios
+
+| Failure | Possible Cause |
+|--------|---------------|
+| overlay still contains data | abort logic failed |
+| live data changed | incorrect logic in abort |
+| session still active | close_session not triggered |
+| DB error | config/bootstrap issue |
+
+#### Notes
+
+- Mirrors API discard behavior (T0008)  
+- Ensures local rollback is correct  
+- Guarantees safe undo of staged changes
+
+----
+
