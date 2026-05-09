@@ -65,30 +65,31 @@ class ConnectionViewModel(QtCore.QObject):
 
         try:
             # ✅ ✅ ✅ STEP 1 — Configure GLOBAL CONTEXT
-            OPE_DB_CONTEXT.code=self.model.project_code,
-            OPE_DB_CONTEXT.domain=self.model.domain,
-            OPE_DB_CONTEXT.username=local_db_user,
-            OPE_DB_CONTEXT.hostname=local_db_host
+            OPE_DB_CONTEXT.code = self.model.project_code,
+            OPE_DB_CONTEXT.domain = self.model.domain,
+            OPE_DB_CONTEXT.username = local_db_user,
+            OPE_DB_CONTEXT.hostname = local_db_host
 
             # ✅ ✅ ✅ STEP 2 — Configure API Base URL
-            OPE_DB_CONTEXT._api_url = self.model.api_url.rstrip("/")
+            OPE_DB_CONTEXT.api_url = self.model.api_url.rstrip("/")
 
             # ✅ ✅ ✅ STEP 3 — Configure local DB (dynamic config)
             client_config = {
                 "database_map": {
-                    self.model.project_code: "local_dynamic_db"
+                    self.model.project_code.upper() : "postgres_" + self.model.project_code.lower()
                 },
-                "local_dynamic_db": {
-                    "user": self.model.local_db_user,
-                    "password": self.model.local_db_password,
-                    "host": self.model.local_db_host,
-                    "port": int(self.model.local_db_port),
-                    "database": self.model.project_code.lower(),
+                "postgres_" + self.model.project_code.lower(): {
+                    "user" : self.model.local_db_user,
+                    "password" : self.model.local_db_password,
+                    "host" : self.model.local_db_host,
+                    "port" : int(self.model.local_db_port),
+                    "database" : self.model.project_code.lower(),
+                    "api_url" : self.model.api_url.rstrip("/"),
                 },
             }
 
             # ✅ write temp config file
-            config_path = Path.home() / ".opetreewb_client_config.toml"
+            config_path = Path.home() / "/OPETreeWB/.opetreewb_client_config.toml"
 
             with open(config_path, "w") as f:
                 toml.dump(client_config, f)
@@ -109,5 +110,5 @@ class ConnectionViewModel(QtCore.QObject):
             "local_db_port": local_db_port,
             "local_db_name": local_db_name,
             "local_db_user": local_db_user,
-            "local_db_password": "***",
+            "local_db_password": local_db_password,
         })
