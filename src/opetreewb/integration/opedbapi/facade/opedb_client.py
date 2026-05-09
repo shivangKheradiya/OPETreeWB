@@ -7,21 +7,18 @@ from opetreewb.integration.opedbapi.local.session_local import SessionLocal
 from opetreewb.integration.opedbapi.local.attribute_local import AttributeLocal
 from opetreewb.integration.opedbapi.local.query_local import QueryLocal
 
-from opetreewb.domain.stores.stores import ID_GENERATOR
+from opetreewb.messaging.reporter import Reporter
 
 
 class OpeDBClient:
     """
-    Hybrid client (API + Local) orchestrator.
-
-    Principles:
-    - WRITE → API first, then local
-    - READ  → local first, fallback API
+    Hybrid client with explicit API / LOCAL separation.
     """
 
-    def __init__(self):
+    def __init__(self, id_generator = None):
+        id_gen = id_generator
 
-        id_gen = ID_GENERATOR
+        Reporter.info("[OpeDBClient] Initializing")
 
         # ✅ API
         self.api_session = SessionAPI()
@@ -34,101 +31,203 @@ class OpeDBClient:
         self.local_attr = AttributeLocal(id_gen)
         self.local_query = QueryLocal()
 
+        Reporter.success("[OpeDBClient] Ready")
+
     # =========================================================
-    # SESSION
+    # SESSION (EXPLICIT)
     # =========================================================
-    def start_session(self, username=None):
 
-        # ✅ API first
-        session_id = self.api_session.start(username=username)
+    # ---------- START ----------
+    def start_session_api(self, username=None):
+        Reporter.info("[OpeDBClient][API] start_session_api")
+        try:
+            session_id = self.api_session.start(username=username)
+            Reporter.success(f"[OpeDBClient][API] session started → {session_id}")
+            return session_id
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] start_session failed → {e}")
+            raise
 
-        # ✅ then local (same session_id)
-        self.local_session.start(
-            session_id=session_id,
-            username=username,
-        )
+    def start_session_local(self, session_id, username=None):
+        Reporter.info("[OpeDBClient][LOCAL] start_session_local")
+        try:
+            self.local_session.start(session_id=session_id, username=username)
+            Reporter.success("[OpeDBClient][LOCAL] session created")
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][LOCAL] start_session failed → {e}")
+            raise
 
-        return session_id
+    # ---------- CLOSE ----------
+    def close_session_api(self):
+        Reporter.info("[OpeDBClient][API] close_session_api")
+        try:
+            session_id = self.api_session.close()
+            Reporter.success("[OpeDBClient][API] session closed")
+            return session_id
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] close_session failed → {e}")
+            raise
 
-    def close_session(self):
-
-        session_id = self.api_session.close()
-
-        # ✅ ensure local also closed
-        if session_id:
+    def close_session_local(self, session_id):
+        Reporter.info("[OpeDBClient][LOCAL] close_session_local")
+        try:
             self.local_session.close(session_id)
+            Reporter.success("[OpeDBClient][LOCAL] session closed")
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][LOCAL] close_session failed → {e}")
+            raise
+
+    # ---------- COMMIT ----------
+    def commit_session_api(self):
+        Reporter.info("[OpeDBClient][API] commit_session_api")
+        try:
+            return self.api_query.commit() if hasattr(self.api_query, "commit") else None
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] commit failed → {e}")
+            raise
+
+    def commit_session_local(self):
+        Reporter.info("[OpeDBClient][LOCAL] commit_session_local")
+
+        from sqlalchemy.orm import Session
+        from opetreewb.integration.opedbapi.local.client import LocalClient
+        from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+        from OPE_DB_API.crud.commit.commit import commit_session
+
+        db: Session = LocalClient().get_session()
+
+        try:
+            commit_session(
+                db,
+                domain=OPE_DB_CONTEXT.domain.upper(),
+                session_id=OPE_DB_CONTEXT.session_id,
+            )
+            db.commit()
+            Reporter.success("[OpeDBClient][LOCAL] commit applied")
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][LOCAL] commit failed → {e}")
+            raise
+        finally:
+            db.close()
+
+    # ---------- ABORT ----------
+    def abort_session_api(self):
+        Reporter.info("[OpeDBClient][API] abort_session_api")
+        try:
+            return self.api_query.abort() if hasattr(self.api_query, "abort") else None
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] abort failed → {e}")
+            raise
+
+    def abort_session_local(self):
+        Reporter.info("[OpeDBClient][LOCAL] abort_session_local")
+
+        from sqlalchemy.orm import Session
+        from opetreewb.integration.opedbapi.local.client import LocalClient
+        from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+        from OPE_DB_API.crud.session.abort import abort_session
+
+        db: Session = LocalClient().get_session()
+
+        try:
+            abort_session(
+                db,
+                session_id=OPE_DB_CONTEXT.session_id,
+                domain=OPE_DB_CONTEXT.domain.upper(),
+            )
+            db.commit()
+            Reporter.success("[OpeDBClient][LOCAL] abort applied")
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][LOCAL] abort failed → {e}")
+            raise
+        finally:
+            db.close()
 
     # =========================================================
-    # NODE
+    # ATTRIBUTE (EXPLICIT)
     # =========================================================
-    def create_node(self, **kwargs):
 
-        # ✅ API first
-        node_id = self.api_node.create(**kwargs)
+    def push_attribute_api(self, **kwargs):
+        Reporter.info("[OpeDBClient][API] push_attribute_api")
+        try:
+            data_id = self.api_attr.push(**kwargs)
+            Reporter.success(f"[OpeDBClient][API] attribute pushed → {data_id}")
+            return data_id
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] push_attribute failed → {e}")
+            raise
 
-        # ✅ OPTIONAL: replicate locally via attribute push (future)
-        return node_id
+    def push_attribute_local(self, *, node_id, attribute_id, value, data_id):
+        Reporter.info("[OpeDBClient][LOCAL] push_attribute_local")
+        try:
+            self.local_attr.push(
+                node_id=node_id,
+                attribute_id=attribute_id,
+                value=value,
+                data_id=data_id,
+            )
+            Reporter.success("[OpeDBClient][LOCAL] attribute stored")
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][LOCAL] push_attribute failed → {e}")
+            raise
 
-    def delete_node(self, node_id):
+    def delete_attribute_api(self, **kwargs):
+        Reporter.info("[OpeDBClient][API] delete_attribute_api")
+        try:
+            self.api_attr.delete(**kwargs)
+            Reporter.success("[OpeDBClient][API] attribute deleted")
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] delete failed → {e}")
+            raise
 
-        # ✅ API first
-        self.api_node.delete(node_id)
-
-        # local cleanup happens automatically via sync/overlay later
+    def delete_attribute_local(self, **kwargs):
+        Reporter.info("[OpeDBClient][LOCAL] delete_attribute_local")
+        try:
+            self.local_attr.delete(**kwargs)
+            Reporter.success("[OpeDBClient][LOCAL] attribute removed")
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][LOCAL] delete failed → {e}")
+            raise
 
     # =========================================================
-    # ATTRIBUTE (WRITE)
+    # QUERY
     # =========================================================
-    def push_attribute(self, **kwargs):
 
-        # ✅ Step 1 — API
-        data_id = self.api_attr.push(**kwargs)
-
-        # ✅ Step 2 — LOCAL
-        self.local_attr.push(
-            node_id=kwargs["node_id"],
-            attribute_id=kwargs["attribute_id"],
-            value=kwargs["value"],
-            data_id=data_id,
-        )
-
-        return data_id
-
-    def delete_attribute(self, **kwargs):
-
-        # ✅ API
-        self.api_attr.delete(**kwargs)
-
-        # ✅ LOCAL
-        self.local_attr.delete(**kwargs)
-
-    # =========================================================
-    # QUERY (READ)
-    # =========================================================
     def search(self, **kwargs):
 
-        # ✅ Step 1 — LOCAL
+        Reporter.info("[OpeDBClient] SEARCH")
+
         try:
+            Reporter.info("[OpeDBClient][LOCAL] search")
             result = self.local_query.search(**kwargs)
 
             if result and result.get("items"):
+                Reporter.success("[OpeDBClient][LOCAL] result found")
                 return result
 
-        except Exception:
-            # fallback to API safely
-            pass
+            Reporter.info("[OpeDBClient][LOCAL] empty → fallback API")
 
-        # ✅ Step 2 — API fallback
-        return self.api_query.search(**kwargs)
+        except Exception as e:
+            Reporter.warning(f"[OpeDBClient][LOCAL] search failed → {e}")
+
+        Reporter.info("[OpeDBClient][API] search fallback")
+
+        try:
+            result = self.api_query.search(**kwargs)
+            Reporter.success("[OpeDBClient][API] result returned")
+            return result
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] search failed → {e}")
+            raise
 
     def load_node(self, node_id):
 
-        result = self.search(
+        Reporter.info(f"[OpeDBClient] LOAD NODE → {node_id}")
+
+        return self.search(
             filter_dict={
                 "field": "node_id",
                 "op": "=",
                 "value": node_id,
             }
         )
-
-        return result
