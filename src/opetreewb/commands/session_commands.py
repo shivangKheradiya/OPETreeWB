@@ -2,6 +2,7 @@ import FreeCAD
 import FreeCADGui
 
 from opetreewb.app.app_context import AppContext
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT, ID_GENERATOR
 
 class CommitSessionCommand:
     def GetResources(self):
@@ -11,7 +12,7 @@ class CommitSessionCommand:
         }
 
     def IsActive(self):
-        return AppContext.container.session_service.is_session_active() or None
+        return AppContext.container.session_service.is_session_active()
 
     def Activated(self):
         service = AppContext.container.session_service
@@ -26,7 +27,7 @@ class AbortSessionCommand:
         }
 
     def IsActive(self):
-        return AppContext.container.session_service.is_session_active() or None
+        return AppContext.container.session_service.is_session_active()
 
     def Activated(self):
         service = AppContext.container.session_service

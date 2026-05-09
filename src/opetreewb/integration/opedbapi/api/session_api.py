@@ -22,9 +22,6 @@ class SessionAPI:
         Start a new session via API.
         """
 
-        if OPE_DB_CONTEXT.is_session_active:
-            return OPE_DB_CONTEXT.session_id
-
         # ✅ Generate session_id (as required by API)
         session_id = ID_GENERATOR.next_id()
 
