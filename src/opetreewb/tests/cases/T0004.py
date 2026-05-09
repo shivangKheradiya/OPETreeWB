@@ -22,7 +22,7 @@ import FreeCAD
 # IMPORTS
 # ---------------------------------------------------------
 from opetreewb.integration.opedbapi.core.config import OPE_DB_CONFIG
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.api.session_api import SessionAPI
 
 

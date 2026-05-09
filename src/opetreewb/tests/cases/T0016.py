@@ -23,7 +23,7 @@ import FreeCAD
 # ---------------------------------------------------------
 from sqlalchemy.orm import Session
 
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.local.client import LocalClient
 from opetreewb.integration.opedbapi.local.query_local import QueryLocal
 

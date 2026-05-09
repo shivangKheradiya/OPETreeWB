@@ -2,7 +2,7 @@ from sqlalchemy import select
 from typing import Dict, Any, List
 
 from opetreewb.integration.opedbapi.local.client import LocalClient
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from OPE_DB_API.schemas.search import SearchRequest
 from OPE_DB_API.crud.search.executor import execute_search
 

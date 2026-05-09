@@ -1,5 +1,5 @@
 from opetreewb.integration.opedbapi.api.client import OpeApiClient
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.utils.schema_helper import load_element_schema
 
 class NodeAPI:

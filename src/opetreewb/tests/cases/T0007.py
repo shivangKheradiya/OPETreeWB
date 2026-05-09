@@ -21,7 +21,7 @@ import FreeCAD
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.api.client import OpeApiClient
 
 TEST_ID = "T0007"

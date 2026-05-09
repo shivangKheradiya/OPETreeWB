@@ -76,7 +76,3 @@ class OpeDBContext:
     @property
     def is_session_active(self) -> bool:
         return self._session_id is not None
-
-
-# ✅ GLOBAL INSTANCE (VERY IMPORTANT)
-OPE_DB_CONTEXT = OpeDBContext()

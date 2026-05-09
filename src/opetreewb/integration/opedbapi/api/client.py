@@ -2,7 +2,7 @@ import requests
 from typing import Optional, Dict, Any
 
 from opetreewb.integration.opedbapi.core.config import OPE_DB_CONFIG
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 
 
 class OpeApiClient:

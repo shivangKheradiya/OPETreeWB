@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from opetreewb.integration.opedbapi.local.client import LocalClient
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from OPE_DB_API.schemas.work import WorkPushRequest
 from OPE_DB_API.crud.work.push import push_work
 

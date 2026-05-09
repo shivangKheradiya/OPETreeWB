@@ -20,7 +20,7 @@ import FreeCAD
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.local.session_local import SessionLocal
 from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 

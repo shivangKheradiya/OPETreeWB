@@ -7,7 +7,13 @@ class SessionService:
     """
 
     # Temporary in-memory state (backend will replace this later)
-    _state = SessionState.NO_SESSION
+    def __init__(self, opeclient=None):
+
+        # ✅ Facade (API + LOCAL)
+        self.opeclient = opeclient
+
+        # ✅ UI state tracking
+        self._state = SessionState.NO_SESSION
 
     def start(self):
         Reporter.success("[SessionService] session start requested")

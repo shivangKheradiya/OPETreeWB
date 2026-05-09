@@ -1,7 +1,7 @@
 import socket
 
 from opetreewb.integration.opedbapi.local.client import LocalClient
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 
 from OPE_DB_API.crud.session.start import start_session
 from OPE_DB_API.crud.session.close import close_session

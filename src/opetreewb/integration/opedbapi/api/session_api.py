@@ -2,7 +2,7 @@ import time
 from typing import Optional
 
 from opetreewb.integration.opedbapi.api.client import OpeApiClient
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 
 class SessionAPI:

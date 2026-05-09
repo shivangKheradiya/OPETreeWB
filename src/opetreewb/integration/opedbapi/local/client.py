@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 
 from OPE_DB_API.db.engine import get_client_engine
-from opetreewb.integration.opedbapi.core.context import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.local.bootstrap import initialize_opedb_config
 
 class LocalClient:
