@@ -3,6 +3,7 @@ from opetreewb.domain.session_state import SessionState
 from opetreewb.domain.transection.transaction_manager import TransactionManager
 from opetreewb.domain.rules.session_rules import SessionRules
 from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
+from opetreewb.domain.transection.transaction_result import TransactionResult
 
 class SessionService:
     """
@@ -37,25 +38,27 @@ class SessionService:
                 if not self.opeclient:
                     raise RuntimeError("No OpeDBClient configured")
 
-                return self.opeclient.start_session_api()
+                session_id = self.opeclient.start_session_api()
+                return TransactionResult(success=True, message=session_id)
 
             except Exception as e:
                 Reporter.error(f"[SERVER] start_session_api failed → {e}")
                 raise
 
         # -------------------------
-        def local_op(session_id):
+        def local_op():
 
             Reporter.info("[LOCAL] Calling local start_session")
 
             try:
-                self.opeclient.start_session_local(session_id=session_id)
+                self.opeclient.start_session_local()
 
                 self._state = SessionState.ACTIVE
 
                 Reporter.info(
-                    f"[LOCAL] Session active (session_id={session_id})"
+                    f"[LOCAL] Session active)"
                 )
+                return TransactionResult(success=True, message="Added into Local Db")
 
             except Exception as e:
                 Reporter.error(f"[LOCAL] start_session_local failed → {e}")

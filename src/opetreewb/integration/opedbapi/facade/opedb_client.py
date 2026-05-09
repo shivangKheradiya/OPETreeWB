@@ -38,20 +38,20 @@ class OpeDBClient:
     # =========================================================
 
     # ---------- START ----------
-    def start_session_api(self, username=None):
+    def start_session_api(self):
         Reporter.info("[OpeDBClient][API] start_session_api")
         try:
-            session_id = self.api_session.start(username=username)
+            session_id = self.api_session.start()
             Reporter.success(f"[OpeDBClient][API] session started → {session_id}")
             return session_id
         except Exception as e:
             Reporter.error(f"[OpeDBClient][API] start_session failed → {e}")
             raise
 
-    def start_session_local(self, session_id, username=None):
+    def start_session_local(self):
         Reporter.info("[OpeDBClient][LOCAL] start_session_local")
         try:
-            self.local_session.start(session_id=session_id, username=username)
+            self.local_session.start()
             Reporter.success("[OpeDBClient][LOCAL] session created")
         except Exception as e:
             Reporter.error(f"[OpeDBClient][LOCAL] start_session failed → {e}")
@@ -68,10 +68,10 @@ class OpeDBClient:
             Reporter.error(f"[OpeDBClient][API] close_session failed → {e}")
             raise
 
-    def close_session_local(self, session_id):
+    def close_session_local(self):
         Reporter.info("[OpeDBClient][LOCAL] close_session_local")
         try:
-            self.local_session.close(session_id)
+            self.local_session.close()
             Reporter.success("[OpeDBClient][LOCAL] session closed")
         except Exception as e:
             Reporter.error(f"[OpeDBClient][LOCAL] close_session failed → {e}")

@@ -18,18 +18,16 @@ class SessionLocal:
     # -------------------------------------------------
     # START SESSION
     # -------------------------------------------------
-    def start(self, session_id, username=None):
+    def start(self):
 
         db = self.client.get_session()
 
         try:
-            hostname = OPE_DB_CONTEXT.hostname or socket.gethostname()
-
             session = start_session(
                 db,
-                session_id=session_id,
-                username=username,
-                hostname=hostname,
+                session_id=OPE_DB_CONTEXT.session_id,
+                username=OPE_DB_CONTEXT.username,
+                hostname=OPE_DB_CONTEXT.hostname,
                 domain=OPE_DB_CONTEXT.domain,
             )
 
@@ -44,14 +42,14 @@ class SessionLocal:
     # -------------------------------------------------
     # CLOSE SESSION
     # -------------------------------------------------
-    def close(self, session_id):
+    def close(self):
 
         db = self.client.get_session()
 
         try:
             session = close_session(
                 db,
-                session_id=session_id
+                session_id=OPE_DB_CONTEXT.session_id
             )
 
             db.commit()

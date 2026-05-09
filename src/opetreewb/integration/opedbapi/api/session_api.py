@@ -2,8 +2,7 @@ import time
 from typing import Optional
 
 from opetreewb.integration.opedbapi.api.client import OpeApiClient
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT, ID_GENERATOR
 
 class SessionAPI:
     """
@@ -27,7 +26,7 @@ class SessionAPI:
             return OPE_DB_CONTEXT.session_id
 
         # ✅ Generate session_id (as required by API)
-        session_id = SnowflakeIDGenerator().next_id()
+        session_id = ID_GENERATOR.next_id()
 
         params = {
             "session_id": session_id,
