@@ -179,4 +179,4 @@ class SessionService:
 
     # -------------------------------------------------
     def is_session_active(self) -> bool:
-        return self._state == SessionState.ACTIVE
+        return self._state == SessionState.ACTIVE or self._state == SessionState.ABORTED
