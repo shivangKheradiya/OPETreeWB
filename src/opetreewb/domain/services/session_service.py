@@ -10,9 +10,9 @@ class SessionService:
     Manages OPE session lifecycle (explicit API + LOCAL control).
     """
 
-    def __init__(self, opeclient:OpeDBClient=None):
+    def __init__(self, fcadclient:OpeDBClient=None):
 
-        self.opeclient = opeclient
+        self.opeclient = fcadclient
         self.tx = TransactionManager()
         self._state = SessionState.NO_SESSION
 

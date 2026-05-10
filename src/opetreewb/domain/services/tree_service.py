@@ -13,11 +13,11 @@ class TreeService:
     Tree structure contract.
     """
 
-    def __init__(self, provider_adapter=None, opeclient:OpeDBClient=None):
+    def __init__(self, provider_adapter=None, fcadclient:OpeDBClient=None):
         self.provider = provider_adapter or DummyProviderAdapter()
         self.tx = TransactionManager()
         self.model = TREE_STORE
-        self.opeclient = opeclient
+        self.fcadclient = fcadclient
 
     def load_children(self, parent_node_id):
         Reporter.info(
@@ -36,7 +36,7 @@ class TreeService:
             return False
         
         def server_op():
-            node_id = self.opeclient.create_node_api( 
+            node_id = self.fcadclient.create_node_api( 
                 parent_node_id=parent_node.node_id, 
                 element_type=element_type, 
                 name=name,
@@ -48,7 +48,7 @@ class TreeService:
                 f"[LOCAL] create_node applied under {parent_node.node_id}"
             )
 
-            self.opeclient.create_node_local(
+            self.fcadclient.create_node_local(
                 parent_node_id=parent_node.node_id, 
                 element_type=element_type, 
                 name=name,
@@ -90,7 +90,7 @@ class TreeService:
             return
 
         def server_op():
-            self.opeclient.delete_node_api(node_id.node_id)
+            self.fcadclient.delete_node_api(node_id.node_id)
             return TransactionResult(success=True, message="200 OK")
 
         def local_op():
@@ -108,7 +108,7 @@ class TreeService:
             #     self.model.roots = [
             #         r for r in self.model.roots if r is not node_id
             #     ]
-            self.opeclient.delete_node_local(node_id.node_id)
+            self.fcadclient.delete_node_local(node_id.node_id)
             return TransactionResult(success=True, message="200 OK")
 
         result = self.tx.run(server_op, local_op, "Delete Node")

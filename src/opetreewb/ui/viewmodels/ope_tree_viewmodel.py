@@ -2,7 +2,9 @@ from PySide import QtCore
 from opetreewb.ui.model.tree_model import TreeModel, TreeNodeModel
 from opetreewb.ui.store.tree_store import TREE_STORE
 from opetreewb.ui.model.tree_model import AttributeValue
-from opetreewb.domain.services.tree_service import TreeService
+from opetreewb.domain.services.service_locator import (
+    get_tree_service,
+)
 
 class OPETreeViewModel(QtCore.QObject):
 
@@ -11,7 +13,6 @@ class OPETreeViewModel(QtCore.QObject):
     def __init__(self):
         super().__init__()
         self.model = TREE_STORE
-        self.tree_service = TreeService()
 
     def get_roots(self):
         return self.model.roots
@@ -21,7 +22,7 @@ class OPETreeViewModel(QtCore.QObject):
         UI-only lazy loading.
         Later this will call provider / backend.
         """
-        self.tree_service.load_children(node.node_id)
+        get_tree_service().load_children(node.node_id)
         
         node.children = [
             TreeNodeModel(

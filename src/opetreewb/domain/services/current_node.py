@@ -1,8 +1,11 @@
 # opetreewb\domain\services\current_node.py
 from PySide.QtCore import QObject, Signal
 from opetreewb.messaging.reporter import Reporter
-from opetreewb.domain.services.tree_service import TreeService
-from opetreewb.domain.services.attribute_service import AttributeService
+from opetreewb.domain.services.service_locator import (
+    get_tree_service,
+    get_attribute_service,
+    get_geometry_service,
+)
 
 
 class CurrentNode(QObject):
@@ -83,7 +86,7 @@ class CurrentNode(QObject):
             f"[CN] create_child(type={element_type}, name={name})"
         )
 
-        ok = self._get_tree_service().create_node(
+        ok = get_tree_service().create_node(
             self._node,
             element_type,
             name,
@@ -107,12 +110,11 @@ class CurrentNode(QObject):
 
         # ✅ 1. Remove geometry FIRST
         try:
-            from opetreewb.domain.services.geometry_service import GEOMETRY_SERVICE
-            GEOMETRY_SERVICE.remove(node)
+            get_geometry_service().remove(node)
         except Exception as e:
             Reporter.error(f"[CN] Geometry remove failed: {e}")
     
-        ok = self._get_tree_service().delete_node(node)
+        ok = get_tree_service().delete_node(node)
 
         if not ok:
             return False
@@ -137,7 +139,7 @@ class CurrentNode(QObject):
             Reporter.error(f"[CN] Attribute '{name}' does not exist")
             return
         
-        ok = self._get_attr_service().update_attribute(
+        ok = get_attribute_service().update_attribute(
             self._node,
             name,
             data_id,
@@ -154,9 +156,7 @@ class CurrentNode(QObject):
         self.attribute_changed.emit(name, value)
         # ✅ Trigger geometry update
         try:
-            from opetreewb.domain.services.geometry_service import GEOMETRY_SERVICE
-            GEOMETRY_SERVICE.update(self._node)
-
+            get_geometry_service().update(self._node)
         except Exception:
             import traceback
             traceback.print_exc()
@@ -183,19 +183,3 @@ class CurrentNode(QObject):
     
         return schema.allowed_children()
     
-    def _get_tree_service(self):
-        from opetreewb.app.app_context import AppContext
-
-        if not AppContext.container:
-            raise RuntimeError("No active connection")
-
-        return AppContext.container.tree_service
-
-
-    def _get_attr_service(self):
-        from opetreewb.app.app_context import AppContext
-
-        if not AppContext.container:
-            raise RuntimeError("No active connection")
-
-        return AppContext.container.attribute_service

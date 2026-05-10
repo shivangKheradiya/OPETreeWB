@@ -4,6 +4,7 @@ from opetreewb.domain.transection.transaction_manager import TransactionManager
 from opetreewb.infrastructure.provider_adapter import ProviderAdapter
 from opetreewb.infrastructure.dummy_provider_adapter import DummyProviderAdapter
 from opetreewb.ui.model.tree_model import AttributeValue
+from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
 
 
 class AttributeService:
@@ -11,9 +12,10 @@ class AttributeService:
     Handles attribute reads and updates.
     """
 
-    def __init__(self, provider_adapter=None):
+    def __init__(self, provider_adapter=None, fcadclient:OpeDBClient=None):
         self.provider = provider_adapter or DummyProviderAdapter()
         self.tx = TransactionManager()
+        self.fcadclient = fcadclient
 
     def load_attributes(self, node_id):
         Reporter.info(

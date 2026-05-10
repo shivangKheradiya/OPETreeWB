@@ -124,5 +124,3 @@ class GeometryService:
             FreeCAD.ActiveDocument.recompute()
         except Exception:
             pass
-
-GEOMETRY_SERVICE = GeometryService()

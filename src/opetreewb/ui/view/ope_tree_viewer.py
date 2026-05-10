@@ -5,7 +5,9 @@ from opetreewb.ui.viewmodels.ope_tree_viewmodel import OPETreeViewModel
 from opetreewb.ui.model.tree_model import TreeNodeModel
 from opetreewb.ui.tree_label_utils import build_node_label
 from opetreewb.domain import CN
-from opetreewb.domain.services.geometry_service import GEOMETRY_SERVICE
+from opetreewb.domain.services.service_locator import (
+    get_geometry_service,
+)
 
 
 class OPETreeViewer(QtWidgets.QTreeWidget):
@@ -253,7 +255,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         CN.set(node)
 
         # ✅ Build geometry
-        GEOMETRY_SERVICE.build(CN.node)
+        get_geometry_service().build(CN.node)
 
         FreeCAD.Console.PrintMessage(
             f"✅ Geometry built for: {node.label}\n"
@@ -268,7 +270,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         CN.set(node)
 
         # ✅ Remove geometry
-        GEOMETRY_SERVICE.remove(CN.node)
+        get_geometry_service().remove(CN.node)
 
         FreeCAD.Console.PrintMessage(
             f"✅ Geometry removed for: {node.label}\n"
