@@ -1,3 +1,5 @@
+from ..schema.attribute_ids import get_attr_id
+
 class ElementSchema:
     """
     Base class for all hierarchy elements.
@@ -22,20 +24,20 @@ def base_attributes(type_name):
             "datatype": "string",
             "editable": True,
             "kind": "user",
-            "id": 1,
+            "id": get_attr_id("Name"),
         },        
         "Type": {
-            "default": "SHEE",
+            "default": type_name,
             "datatype": "string",
             "editable": False,
             "kind": "system",
-            "id": 2,
+            "id": get_attr_id("Type"),
         },
         "Owner": {
             "default": "",
             "datatype": "string",
             "editable": False,
             "kind": "system",
-            "id": 3,
+            "id": get_attr_id("Owner"),
         },
     }

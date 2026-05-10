@@ -1,4 +1,5 @@
 from .base import ElementSchema, base_attributes
+from ..schema.attribute_ids import get_attr_id
 
 
 class Regi(ElementSchema):
@@ -12,5 +13,12 @@ class Regi(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-            "RegionName": {"default": "", "editable": True},
+
+            "RegionName": {
+                "default": "",
+                "datatype": "string",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("RegionName"),
+            },
         }

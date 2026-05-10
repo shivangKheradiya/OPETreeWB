@@ -1,4 +1,5 @@
 from .base import ElementSchema, base_attributes
+from ..schema.attribute_ids import get_attr_id
 
 
 class Dept(ElementSchema):
@@ -15,6 +16,11 @@ class Dept(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-            "Description": {"default": "", "editable": True},
+            "Description": {
+                "default": "",
+                "datatype": "string",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("Description"),
+            },
         }
-

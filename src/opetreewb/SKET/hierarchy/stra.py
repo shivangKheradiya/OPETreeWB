@@ -1,5 +1,5 @@
 from .base import ElementSchema, base_attributes
-
+from ..schema.attribute_ids import get_attr_id
 
 class Stra(ElementSchema):
 
@@ -18,27 +18,27 @@ class Stra(ElementSchema):
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
-                "id": 4,
+                "id": get_attr_id("StartX"),
             },
             "StartY": {
                 "default": "0",
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
-                "id": 5,
+                "id": get_attr_id("StartY"),
             },
             "EndX": {
                 "default": "10",
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
-                "id": 6,
+                "id": get_attr_id("EndX"),
             },
             "EndY": {
                 "default": "0",
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
-                "id": 7,
+                "id": get_attr_id("EndY"),
             },
         }

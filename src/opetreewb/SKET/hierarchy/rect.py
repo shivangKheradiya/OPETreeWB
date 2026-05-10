@@ -1,4 +1,5 @@
 from .base import ElementSchema, base_attributes
+from ..schema.attribute_ids import get_attr_id
 
 
 class Rect(ElementSchema):
@@ -12,6 +13,20 @@ class Rect(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-            "Width": {"default": "", "editable": True},
-            "Height": {"default": "", "editable": True},
+
+            "Width": {
+                "default": "0",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("Width"),
+            },
+
+            "Height": {
+                "default": "0",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("Height"),
+            },
         }
