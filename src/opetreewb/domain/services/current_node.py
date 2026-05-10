@@ -1,3 +1,4 @@
+# opetreewb\domain\services\current_node.py
 from PySide.QtCore import QObject, Signal
 from opetreewb.messaging.reporter import Reporter
 from opetreewb.domain.services.tree_service import TreeService
@@ -17,10 +18,6 @@ class CurrentNode(QObject):
     def __init__(self):
         super().__init__()
         self._node = None
-
-        # Domain services (dummy adapters for now)
-        self._tree_service = TreeService()
-        self._attr_service = AttributeService()
 
     # -------------------------
     # Core access
@@ -86,7 +83,7 @@ class CurrentNode(QObject):
             f"[CN] create_child(type={element_type}, name={name})"
         )
 
-        ok = self._tree_service.create_node(
+        ok = self._get_tree_service().create_node(
             self._node,
             element_type,
             name,
@@ -115,7 +112,7 @@ class CurrentNode(QObject):
         except Exception as e:
             Reporter.error(f"[CN] Geometry remove failed: {e}")
     
-        ok = self._tree_service.delete_node(node)
+        ok = self._get_tree_service().delete_node(node)
 
         if not ok:
             return False
@@ -140,7 +137,7 @@ class CurrentNode(QObject):
             Reporter.error(f"[CN] Attribute '{name}' does not exist")
             return
         
-        ok = self._attr_service.update_attribute(
+        ok = self._get_attr_service().update_attribute(
             self._node,
             name,
             data_id,
@@ -185,3 +182,20 @@ class CurrentNode(QObject):
             return []
     
         return schema.allowed_children()
+    
+    def _get_tree_service(self):
+        from opetreewb.app.app_context import AppContext
+
+        if not AppContext.container:
+            raise RuntimeError("No active connection")
+
+        return AppContext.container.tree_service
+
+
+    def _get_attr_service(self):
+        from opetreewb.app.app_context import AppContext
+
+        if not AppContext.container:
+            raise RuntimeError("No active connection")
+
+        return AppContext.container.attribute_service

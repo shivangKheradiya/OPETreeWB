@@ -16,7 +16,7 @@ class SessionRules:
 
     @staticmethod
     def can_commit(current_state):
-        if current_state != SessionState.ACTIVE:
+        if current_state != SessionState.ACTIVE and current_state != SessionState.ABORTED:
             return SessionRuleResult(False, "No active session to commit")
         return SessionRuleResult(True)
 
