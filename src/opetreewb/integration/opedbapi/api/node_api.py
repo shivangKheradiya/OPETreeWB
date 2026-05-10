@@ -1,12 +1,14 @@
 from opetreewb.integration.opedbapi.api.client import OpeApiClient
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.utils.schema_helper import load_element_schema
+from opetreewb.integration.opedbapi.core.operation_context import OperationContext
 
 class NodeAPI:
 
-    def __init__(self, registry=None, id_generator=None):
-        self.client = OpeApiClient()
+    def __init__(self, id_generator=None, op_context:OperationContext=None,opeapiclient:OpeApiClient=None):
+        self.client = opeapiclient
         self.id_gen = id_generator
+        self.op_context = op_context
 
     # -------------------------------------------------
     # CREATE NODE (SPARSE MODEL ✅)
@@ -43,7 +45,7 @@ class NodeAPI:
                 # ✅ SPARSE MODEL → skip defaults
                 continue
 
-            self._push(
+            self._create_attribute(
                 data_id=data_id,
                 node_id=node_id,
                 attribute_id=attr_id,
@@ -84,30 +86,36 @@ class NodeAPI:
     # -------------------------------------------------
     # INTERNAL
     # -------------------------------------------------
-    def _push(self, *, data_id, node_id, attribute_id, value):
+    def _create_attribute(self, *, data_id, node_id, attribute_id, value):
+        
+        op = {
+            "data_id": data_id,
+            "node_id": node_id,
+            "attribute_id": attribute_id,
+            "operation_type": 1,
+            "value": value,
+        }
 
-        self.client.post(
-            "work/push",
-            json={
-                "data_id": data_id,
-                "node_id": node_id,
-                "attribute_id": attribute_id,
-                "operation_type": 1,
-                "value": value,
-            },
-            use_session=True,
-        )
+        self.log_submit_operation(op)
 
     def _delete_attribute(self, *, node_id, attribute_id, data_id):
 
+        op = {
+            "data_id": data_id,
+            "node_id": node_id,
+            "attribute_id": attribute_id,
+            "operation_type": 3,
+            "value": None,
+        }
+
+        self.log_submit_operation(op)
+
+    def log_submit_operation(self, op):
+        if self.op_context:
+            self.op_context.add(op)
+
         self.client.post(
             "work/push",
-            json={
-                "data_id": data_id,
-                "node_id": node_id,
-                "attribute_id": attribute_id,
-                "operation_type": 3,
-                "value": None,
-            },
+            json=op,
             use_session=True,
         )

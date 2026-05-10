@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 
+from opetreewb.integration.opedbapi.core.operation_context import OperationContext
+
 from opetreewb.integration.opedbapi.api.session_api import SessionAPI
 from opetreewb.integration.opedbapi.api.node_api import NodeAPI
 from opetreewb.integration.opedbapi.api.attribute_api import AttributeAPI
@@ -28,19 +30,21 @@ class OpeDBClient:
 
         Reporter.info("[OpeDBClient] Initializing")
 
+        self.operationcontext = OperationContext()
+
         # ✅ API
+        self.api_client = OpeApiClient()
         self.api_session = SessionAPI()
-        self.api_node = NodeAPI(id_generator=id_gen)
+        self.api_node = NodeAPI(id_generator=id_gen, op_context=self.operationcontext,opeapiclient=self.api_client)
         self.api_attr = AttributeAPI(id_generator=id_gen)
         self.api_query = QueryAPI()
-        self.api_client = OpeApiClient()
 
         # ✅ LOCAL
         self.local_session = SessionLocal()
         self.local_attr = AttributeLocal(id_gen)
         self.local_query = QueryLocal()
         self.local_client = LocalClient()
-        self.local_node = NodeLocal()
+        self.local_node = NodeLocal(op_context=self.operationcontext, localclient=self.local_client)
 
         Reporter.success("[OpeDBClient] Ready")
 
@@ -262,12 +266,7 @@ class OpeDBClient:
     def create_node_local(self, parent_node_id, element_type, name=None):
         Reporter.info("[OpeDBClient][LOCAL] create_node_local")
         try:
-            self.local_node.create(
-                parent_node_id=parent_node_id,
-                type_value=element_type,
-                name=name
-            )
-
+            self.local_node.apply_operations()
             Reporter.success(f"[OpeDBClient][LOCAL] node created successfully.")
 
         except Exception as e:
@@ -292,7 +291,7 @@ class OpeDBClient:
         Reporter.info(f"[OpeDBClient][LOCAL] delete_node_local → {node_id}")
 
         try:
-            self.local_node.delete(node_id)
+            self.local_node.apply_operations()
             Reporter.success(f"[OpeDBClient][LOCAL] node deleted → {node_id}")
 
         except Exception as e:
