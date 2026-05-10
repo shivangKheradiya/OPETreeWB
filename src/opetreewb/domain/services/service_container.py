@@ -15,11 +15,11 @@ class ServiceContainer:
 
     def __init__(self):
 
-        self.client = OpeDBClient(id_generator=ID_GENERATOR)
+        self.opeclient = OpeDBClient(id_generator=ID_GENERATOR)
 
         self.session_service = SessionService(
-            opeclient=self.client
+            opeclient=self.opeclient
         )
         self.attribute_service = AttributeService()
 
-        self.tree_service = TreeService()
+        self.tree_service = TreeService(opeclient=self.opeclient)

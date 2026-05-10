@@ -10,6 +10,7 @@ from opetreewb.integration.opedbapi.local.session_local import SessionLocal
 from opetreewb.integration.opedbapi.local.attribute_local import AttributeLocal
 from opetreewb.integration.opedbapi.local.query_local import QueryLocal
 from opetreewb.integration.opedbapi.local.client import LocalClient
+from opetreewb.integration.opedbapi.local.node_local import NodeLocal
 
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.messaging.reporter import Reporter
@@ -39,6 +40,7 @@ class OpeDBClient:
         self.local_attr = AttributeLocal(id_gen)
         self.local_query = QueryLocal()
         self.local_client = LocalClient()
+        self.local_node = NodeLocal()
 
         Reporter.success("[OpeDBClient] Ready")
 
@@ -236,3 +238,63 @@ class OpeDBClient:
                 "value": node_id,
             }
         )
+
+    # =========================================================
+    # NODE (API + LOCAL)
+    # =========================================================
+    def create_node_api(self, parent_node_id, element_type, name=None):
+        Reporter.info("[OpeDBClient][API] create_node_api")
+        try:
+            node_id = self.api_node.create(
+                parent_node_id=parent_node_id,
+                type_value=element_type,
+                name=name
+            )
+
+            Reporter.success(f"[OpeDBClient][API] node created → {node_id}")
+            return node_id
+
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] create_node failed → {e}")
+            raise
+
+
+    def create_node_local(self, parent_node_id, element_type, name=None):
+        Reporter.info("[OpeDBClient][LOCAL] create_node_local")
+        try:
+            self.local_node.create(
+                parent_node_id=parent_node_id,
+                type_value=element_type,
+                name=name
+            )
+
+            Reporter.success(f"[OpeDBClient][LOCAL] node created successfully.")
+
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][LOCAL] create_node failed → {e}")
+            raise
+
+
+    # ---------- DELETE NODE ----------
+    def delete_node_api(self, node_id):
+        Reporter.info(f"[OpeDBClient][API] delete_node_api → {node_id}")
+
+        try:
+            self.api_node.delete(node_id)
+            Reporter.success("[OpeDBClient][API] node deleted")
+
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][API] delete_node failed → {e}")
+            raise
+
+
+    def delete_node_local(self, node_id):
+        Reporter.info(f"[OpeDBClient][LOCAL] delete_node_local → {node_id}")
+
+        try:
+            self.local_node.delete(node_id)
+            Reporter.success(f"[OpeDBClient][LOCAL] node deleted → {node_id}")
+
+        except Exception as e:
+            Reporter.error(f"[OpeDBClient][LOCAL] delete_node failed → {e}")
+            raise

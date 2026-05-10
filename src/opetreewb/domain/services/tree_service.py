@@ -5,16 +5,19 @@ from opetreewb.domain.transection.transaction_manager import TransactionManager
 from opetreewb.infrastructure.dummy_provider_adapter import DummyProviderAdapter
 from opetreewb.ui.store.tree_store import TREE_STORE
 from opetreewb.ui.model.tree_model import TreeNodeModel, AttributeValue
+from opetreewb.domain.transection.transaction_result import TransactionResult
+from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
 
 class TreeService:
     """
     Tree structure contract.
     """
 
-    def __init__(self, provider_adapter=None):
+    def __init__(self, provider_adapter=None, opeclient:OpeDBClient=None):
         self.provider = provider_adapter or DummyProviderAdapter()
         self.tx = TransactionManager()
         self.model = TREE_STORE
+        self.opeclient = opeclient
 
     def load_children(self, parent_node_id):
         Reporter.info(
@@ -22,58 +25,57 @@ class TreeService:
         )
         return []
 
-    def create_node(self, parent_node_id, element_type, name):
-        result = TreeRules.can_create_node(parent_node_id, element_type)
+    def create_node(self, parent_node, element_type, name=None):
+        result = TreeRules.can_create_node(parent_node, element_type)
 
         if not result.allowed:
             Reporter.info(
                 f"[TreeService] create_node("
-                f"parent_id={parent_node_id.node_id}, type={element_type}, name={name})"
+                f"parent_id={parent_node.node_id}, type={element_type}, name={name})"
             )
-            return None
+            return False
         
         def server_op():
-            return self.provider.create_node_server(
-                parent_node_id, element_type, name
+            node_id = self.opeclient.create_node_api( 
+                parent_node_id=parent_node.node_id, 
+                element_type=element_type, 
+                name=name,
             )
+            return TransactionResult(success=True, message=node_id)
 
         def local_op():
             Reporter.info(
-                f"[LOCAL] create_node applied under {parent_node_id.node_id}"
+                f"[LOCAL] create_node applied under {parent_node.node_id}"
             )
 
-            new_id = max(
-                [c.node_id for c in parent_node_id.children] + [parent_node_id.node_id]
-            ) + 1
-
-            attrs = {
-                "Type": AttributeValue(new_id * 10, element_type),
-            }
-
-            if name:
-                attrs["Name"] = AttributeValue(new_id * 10 + 1, name)
-
-            new_node = TreeNodeModel(
-                node_id=new_id,
-                label="",
-                attributes=attrs,
-                children=[]
+            self.opeclient.create_node_local(
+                parent_node_id=parent_node.node_id, 
+                element_type=element_type, 
+                name=name,
             )
+            
+            # new_node = TreeNodeModel(
+            #     node_id=new_id,
+            #     label="",
+            #     attributes=attrs,
+            #     children=[]
+            # )
+            # parent_node_id.children.append(new_node)
 
-            parent_node_id.children.append(new_node)
+            return TransactionResult(success=True, message="200 OK")
 
         result = self.tx.run(server_op, local_op, "Create Node")
 
         if not result.success:
             Reporter.error(
                 f"[TreeService] Create Failed "
-                f"(parent={parent_node_id.node_id}, type={element_type}, name={name})"
+                f"(parent={parent_node.node_id}, type={element_type}, name={name})"
             )
             return False
         
         Reporter.success(
             f"[TreeService] Create allowed "
-            f"(parent={parent_node_id.node_id}, type={element_type}, name={name})"
+            f"(parent={parent_node}, type={element_type}, name={name})"
         )
 
         return True
@@ -88,24 +90,26 @@ class TreeService:
             return
 
         def server_op():
-            return self.provider.delete_node_server(node_id.node_id)
+            self.opeclient.delete_node_api(node_id.node_id)
+            return TransactionResult(success=True, message="200 OK")
 
         def local_op():
             Reporter.info(
                 f"[LOCAL] delete_node applied (node_id={node_id.node_id})"
             )
-            parent = self._find_parent(node_id)
-
-            if parent:
-                parent.children = [
-                    c for c in parent.children if c is not node_id
-                ]
-            else:
-                # root-level delete
-                self.model.roots = [
-                    r for r in self.model.roots if r is not node_id
-                ]
-
+            # parent = self._find_parent(node_id)
+            # 
+            # if parent:
+            #     parent.children = [
+            #         c for c in parent.children if c is not node_id
+            #     ]
+            # else:
+            #     # root-level delete
+            #     self.model.roots = [
+            #         r for r in self.model.roots if r is not node_id
+            #     ]
+            self.opeclient.delete_node_local(node_id.node_id)
+            return TransactionResult(success=True, message="200 OK")
 
         result = self.tx.run(server_op, local_op, "Delete Node")
 
