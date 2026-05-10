@@ -12,7 +12,7 @@ from opetreewb.integration.opedbapi.local.query_local import QueryLocal
 from opetreewb.integration.opedbapi.local.client import LocalClient
 from opetreewb.integration.opedbapi.local.node_local import NodeLocal
 
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT,ID_GENERATOR
 from opetreewb.messaging.reporter import Reporter
 
 from OPE_DB_API.crud.commit.commit import commit_session
@@ -23,8 +23,8 @@ class OpeDBClient:
     Hybrid client with explicit API / LOCAL separation.
     """
 
-    def __init__(self, id_generator = None):
-        id_gen = id_generator
+    def __init__(self):
+        id_gen = ID_GENERATOR
 
         Reporter.info("[OpeDBClient] Initializing")
 
