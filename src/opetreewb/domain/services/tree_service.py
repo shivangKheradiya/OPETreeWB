@@ -2,9 +2,7 @@
 from opetreewb.messaging.reporter import Reporter
 from opetreewb.domain.rules.tree_rules import TreeRules
 from opetreewb.domain.transection.transaction_manager import TransactionManager
-from opetreewb.infrastructure.dummy_provider_adapter import DummyProviderAdapter
 from opetreewb.ui.store.tree_store import TREE_STORE
-from opetreewb.ui.model.tree_model import TreeNodeModel, AttributeValue
 from opetreewb.domain.transection.transaction_result import TransactionResult
 from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
 
@@ -14,7 +12,6 @@ class TreeService:
     """
 
     def __init__(self, provider_adapter=None, fcadclient:OpeDBClient=None):
-        self.provider = provider_adapter or DummyProviderAdapter()
         self.tx = TransactionManager()
         self.model = TREE_STORE
         self.fcadclient = fcadclient

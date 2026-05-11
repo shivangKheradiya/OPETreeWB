@@ -2,7 +2,6 @@ import FreeCAD
 import FreeCADGui
 
 from opetreewb.app.app_context import AppContext
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT, ID_GENERATOR
 
 class CommitSessionCommand:
     def GetResources(self):

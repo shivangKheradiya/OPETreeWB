@@ -7,12 +7,14 @@ from opetreewb.integration.opedbapi.api.node_api import NodeAPI
 from opetreewb.integration.opedbapi.api.attribute_api import AttributeAPI
 from opetreewb.integration.opedbapi.api.query_api import QueryAPI
 from opetreewb.integration.opedbapi.api.client import OpeApiClient
+from opetreewb.integration.opedbapi.api.sync_api import SyncAPI
 
 from opetreewb.integration.opedbapi.local.session_local import SessionLocal
 from opetreewb.integration.opedbapi.local.attribute_local import AttributeLocal
 from opetreewb.integration.opedbapi.local.query_local import QueryLocal
 from opetreewb.integration.opedbapi.local.client import LocalClient
 from opetreewb.integration.opedbapi.local.node_local import NodeLocal
+from opetreewb.integration.opedbapi.local.sync_local import SyncLocal
 
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT,ID_GENERATOR
 from opetreewb.messaging.reporter import Reporter
@@ -38,6 +40,7 @@ class OpeDBClient:
         self.api_node = NodeAPI(id_generator=id_gen, op_context=self.operationcontext,opeapiclient=self.api_client)
         self.api_attr = AttributeAPI(id_generator=id_gen)
         self.api_query = QueryAPI()
+        self.api_sync = SyncAPI()
 
         # ✅ LOCAL
         self.local_session = SessionLocal()
@@ -45,6 +48,7 @@ class OpeDBClient:
         self.local_query = QueryLocal()
         self.local_client = LocalClient()
         self.local_node = NodeLocal(op_context=self.operationcontext, localclient=self.local_client)
+        self.local_sync = SyncLocal()
 
         Reporter.success("[OpeDBClient] Ready")
 

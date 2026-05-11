@@ -2,7 +2,7 @@ from datetime import datetime
 
 import FreeCAD
 
-from opetreewb.infrastructure import SESSION_CONTEXT
+from opetreewb.app.app_context import AppContext
 
 class SyncSnapshotCommand:
     """
@@ -17,12 +17,9 @@ class SyncSnapshotCommand:
         }
 
     def IsActive(self):
-        provider = SESSION_CONTEXT.get_provider()
-        return provider is not None
+        return AppContext.container.session_service.is_session_active()
 
     def Activated(self):
-        provider = SESSION_CONTEXT.get_provider()
-
         try:
             rows = 0
             FreeCAD.Console.PrintMessage(
@@ -52,12 +49,9 @@ class SyncHistoryCommand:
         }
 
     def IsActive(self):
-        provider = SESSION_CONTEXT.get_provider()
-        return provider is not None
+        return AppContext.container.session_service.is_session_active()
 
     def Activated(self):
-        provider = SESSION_CONTEXT.get_provider()
-
         try:
             after_ts = datetime.now()
             FreeCAD.Console.PrintMessage(
