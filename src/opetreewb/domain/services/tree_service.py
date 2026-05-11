@@ -12,7 +12,7 @@ class TreeService:
     Tree structure contract.
     """
 
-    def __init__(self, provider_adapter=None, fcadclient:OpeDBClient=None):
+    def __init__(self, fcadclient:OpeDBClient=None):
         self.tx = TransactionManager()
         self.model = TreeModel()
         self.fcadclient = fcadclient
@@ -172,4 +172,20 @@ class TreeService:
     
     def get_roots(self):
         Reporter.info("[TreeService] get_roots() called")
-        return self.model.roots
+        # ✅ 1. check local
+        roots = self.fcadclient.get_root_nodes_local()
+        if roots:
+            return roots
+    
+        # ✅ 2. fetch from server
+        Reporter.info("[TreeService] fetching roots from API")
+    
+        rows = self.fcadclient.fetch_root_nodes_api()
+    
+        # ✅ 3. save to local
+        self.fcadclient.bootstrap_local(rows)
+    
+        # ✅ 4. TODO: later → read from local
+        # for now return empty -> UI will update after create
+        return self.fcadclient.get_root_nodes_local()
+    

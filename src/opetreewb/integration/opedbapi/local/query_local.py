@@ -7,8 +7,10 @@ from OPE_DB_API.schemas.search import SearchRequest
 from OPE_DB_API.crud.search.executor import execute_search
 
 from sqlalchemy.inspection import inspect
+from opetreewb.SKET.schema.attribute_ids import get_attr_id
 
-
+from collections import defaultdict
+from opetreewb.ui.utils.node_mapper import node_dict_to_model
 
 
 class QueryLocal:
@@ -67,3 +69,60 @@ class QueryLocal:
             c.key: getattr(row, c.key)
             for c in inspect(row).mapper.column_attrs
         }
+
+    def get_root_nodes(self):
+        result = self.search(
+            filter_dict={
+                    "and": [
+                        {"field": "attribute_id", "op": "=", "value": get_attr_id("Owner")},  # Owner
+                        {"field": "value", "op": "=", "value": "0"},      # ROOT
+                    ]
+                },
+            mode="live",
+        )
+        
+        items = result.get("items", [])
+        if not items:
+            return []
+
+        node_ids = list({row["node_id"] for row in items})
+
+        # ✅ Step 2: fetch all rows for nodes
+        result = self.search(
+            filter_dict={
+                "field": "node_id",
+                "op": "in",
+                "value": node_ids,
+            },
+            mode="working",
+        )
+
+        rows = result.get("items", [])
+
+        # ✅ Step 3: convert to TreeNodeModel
+        return self._rows_to_nodes(rows)
+
+    def _rows_to_nodes(self, rows):
+
+        grouped = defaultdict(list)
+
+        for r in rows:
+            grouped[r["node_id"]].append(r)
+
+        nodes = []
+        for node_id, node_rows in grouped.items():
+            node_dict = {
+                "node_id": node_id,
+                "attributes": {
+                    r["attribute_id"]: {
+                        "data_id": r["data_id"],
+                        "value": r["value"],
+                    }
+                    for r in node_rows
+                }
+            }
+
+            node = node_dict_to_model(node_dict)
+            nodes.append(node)
+
+        return nodes

@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 
 from opetreewb.integration.opedbapi.api.client import OpeApiClient
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-
+from opetreewb.SKET.schema.attribute_ids import get_attr_id
 
 class QueryAPI:
     """
@@ -175,3 +175,46 @@ class QueryAPI:
         )
 
         return response
+
+    def fetch_root_node_ids(self):
+        result = self.client.post(
+            "search",
+            json={
+                "mode": "live",
+                "filter": {
+                    "and": [
+                        {"field": "attribute_id", "op": "=", "value": get_attr_id("Owner")},  # Owner
+                        {"field": "value", "op": "=", "value": "0"},      # ROOT
+                    ]
+                },
+                "limit": 10000,
+                "offset": 0,
+            },
+            use_session=True,
+        )
+    
+        return list({row["node_id"] for row in result.get("items", [])})
+    
+    def fetch_nodes_by_ids(self, node_ids):
+        return self.client.post(
+            "search",
+            json={
+                "mode": "live",
+                "filter": {
+                    "field": "node_id",
+                    "op": "in",
+                    "value": node_ids,
+                },
+                "limit": 10000,
+                "offset": 0,
+            },
+            use_session=True,
+        )
+    
+    def fetch_root_nodes(self):
+        node_ids = self.fetch_root_node_ids()
+        if not node_ids:
+            return {"items": []}
+
+        return self.fetch_nodes_by_ids(node_ids)
+    

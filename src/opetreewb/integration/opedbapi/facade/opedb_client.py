@@ -22,6 +22,8 @@ from opetreewb.messaging.reporter import Reporter
 
 from OPE_DB_API.crud.commit.commit import commit_session
 from OPE_DB_API.crud.session.abort import abort_session
+from OPE_DB_API.crud.live.read import get_live_row
+from OPE_DB_API.crud.live.write import insert_live_row, update_live_row
 
 class OpeDBClient:
     """
@@ -314,3 +316,25 @@ class OpeDBClient:
 
     def sync_set_history_local(self):
         pass
+
+    def bootstrap_local(self, rows):
+        session_id = OPE_DB_CONTEXT.session_id
+        domain = OPE_DB_CONTEXT.domain.upper()
+        db = self.local_client.get_session()
+        try:
+            for row in rows.get("items", []):
+                existing = get_live_row(db, domain, row["data_id"])
+                if existing:
+                    update_live_row(db, existing, row["value"])
+                else:
+                    insert_live_row(db, domain, row)
+
+            db.commit()
+        finally:
+            db.close()
+
+    def fetch_root_nodes_api(self):
+        return self.api_query.fetch_root_nodes()
+    
+    def get_root_nodes_local(self):
+        return self.local_query.get_root_nodes()
