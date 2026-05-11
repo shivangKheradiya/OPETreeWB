@@ -6,6 +6,7 @@ from opetreewb.domain.services.service_locator import (
     get_sync_service,
     get_session_service
 )
+from opetreewb.domain import CN
 
 class SyncSnapshotCommand:
     """
@@ -24,8 +25,7 @@ class SyncSnapshotCommand:
 
     def Activated(self):
         try:
-            rows = 0
-            get_sync_service().sync_snapshot()
+            rows = get_sync_service().sync_snapshot(CN.id)
             FreeCAD.Console.PrintMessage(
                 f"✅ Snapshot synced ({len(rows)} rows)\n"
             )

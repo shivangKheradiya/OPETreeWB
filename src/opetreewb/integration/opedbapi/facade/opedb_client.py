@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 from opetreewb.integration.opedbapi.core.operation_context import OperationContext
@@ -302,14 +303,14 @@ class OpeDBClient:
             Reporter.error(f"[OpeDBClient][LOCAL] delete_node failed → {e}")
             raise
 
-    def sync_get_snapshot_api(self):
-        pass
+    def sync_get_snapshot_api(self, root_node_id, owner_attribute_id):
+        return self.api_query.fetch_snapshot(root_node_id, owner_attribute_id)
 
-    def sync_set_snapshot_local(self):
-        pass
+    def sync_set_snapshot_local(self, rows):
+        self.local_sync.apply_snapshot(rows)
 
-    def sync_get_history_api(self):
-        pass
+    def sync_get_history_api(self, after_ts: datetime, limit: int = 5000):
+        return self.api_query.fetch_history(after_ts=after_ts, limit=limit)
 
     def sync_set_history_local(self):
         pass
