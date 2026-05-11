@@ -126,3 +126,45 @@ class QueryLocal:
             nodes.append(node)
 
         return nodes
+    
+    def get_children(self, parent_node_id):
+        # ✅ Step 1 → find children (Owner = parent_node_id)
+        result = self.search(
+            filter_dict={
+                "and": [
+                    {
+                        "field": "attribute_id",
+                        "op": "=",
+                        "value": get_attr_id("Owner"),
+                    },
+                    {
+                        "field": "value",
+                        "op": "=",
+                        "value": parent_node_id,
+                    },
+                ]
+            },
+            mode="working",
+        )
+
+        items = result.get("items", [])
+
+        if not items:
+            return []
+
+        # ✅ Step 2 → extract child node_ids
+        node_ids = list({row["node_id"] for row in items})
+
+        # ✅ Step 3 → fetch all attributes for those nodes
+        result = self.search(
+            filter_dict={
+                "field": "node_id",
+                "op": "in",
+                "value": node_ids,
+            },
+            mode="working",
+        )
+
+        rows = result.get("items", [])
+
+        return self._rows_to_nodes(rows)

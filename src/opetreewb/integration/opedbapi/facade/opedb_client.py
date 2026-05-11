@@ -338,3 +338,6 @@ class OpeDBClient:
     
     def get_root_nodes_local(self):
         return self.local_query.get_root_nodes()
+    
+    def get_children_local(self, parent_node_id):
+        return self.local_query.get_children(parent_node_id)

@@ -21,7 +21,7 @@ class TreeService:
         Reporter.info(
             f"[TreeService] get_children(parent_node_id={parent_node_id})"
         )
-        return []
+        return self.fcadclient.get_children_local(parent_node_id)
 
     def create_node(self, parent_node, element_type, name=None):
         result = TreeRules.can_create_node(parent_node, element_type)

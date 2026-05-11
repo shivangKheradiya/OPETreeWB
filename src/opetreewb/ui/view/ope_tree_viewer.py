@@ -97,7 +97,14 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         
         # ✅ IMPORTANT: clear existing UI children to prevent duplicates
         item.takeChildren()
-        
+
+        # ✅ If NO children → remove expander
+        if not node.children:
+            item.setChildIndicatorPolicy(
+                QtWidgets.QTreeWidgetItem.DontShowIndicator
+            )
+            return
+
         # Populate children into UI
         for child in node.children:
             child_item = self._build_item(child)
