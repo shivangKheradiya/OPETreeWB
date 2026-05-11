@@ -37,5 +37,3 @@ class NodeLocal:
         finally:
             db.close()
 
-        self.op_context.clear()
-        

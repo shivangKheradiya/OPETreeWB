@@ -4,9 +4,11 @@ from PySide import QtWidgets, QtCore
 from opetreewb.ui.viewmodels.ope_tree_viewmodel import OPETreeViewModel
 from opetreewb.ui.model.tree_model import TreeNodeModel
 from opetreewb.ui.tree_label_utils import build_node_label
+from opetreewb.ui.utils.node_mapper import node_dict_to_model
 from opetreewb.domain import CN
 from opetreewb.domain.services.service_locator import (
     get_geometry_service,
+    get_client,
 )
 
 
@@ -103,30 +105,39 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
 
     def _open_context_menu(self, pos):
         item = self.itemAt(pos)
-        if not item:
-            return
 
         menu = QtWidgets.QMenu(self)
+        
+        create_action = None
+        delete_action = None
+        addCN_action = None
+        remCN_action = None
 
-        create_action = menu.addAction("Create Child Node")
-        delete_action = menu.addAction("Delete Node")
+        if item:
+            create_action = menu.addAction("Create Child Node")
+            delete_action = menu.addAction("Delete Node")
+
+            menu.addSeparator()
+
+            addCN_action = menu.addAction("Add CN")
+            remCN_action = menu.addAction("Rem CN")
         
-        menu.addSeparator()
-        
-        addCN_action = menu.addAction("Add CN")
-        remCN_action = menu.addAction("Rem CN")
+        create_root_action = menu.addAction("Create Root Node")
 
         action = menu.exec_(self.viewport().mapToGlobal(pos))
-        if action == create_action:
+        if action == create_root_action:
+            self._create_root_node()
+
+        elif item and action == create_action:
             self._create_child_node(item)
         
-        elif action == delete_action:
+        elif item and action == delete_action:
             self._delete_node(item)
 
-        elif action == addCN_action:
+        elif item and action == addCN_action:
             self._addIn3D_node(item)
 
-        elif action == remCN_action:
+        elif item and action == remCN_action:
             self._remFrom3D_node(item)
 
     def _create_child_node(self, parent_item):
@@ -145,33 +156,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
             )
             return
         
-        dlg = QtWidgets.QDialog(self)
-        dlg.setWindowTitle("Create Node")
-
-        layout = QtWidgets.QFormLayout(dlg)
-
-        type_combo = QtWidgets.QComboBox()
-        name_edit = QtWidgets.QLineEdit()
-
-        type_combo.addItems(allowed_types)
-
-        layout.addRow("Element Type:", type_combo)
-        layout.addRow("Name (optional):", name_edit)
-
-        buttons = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok |
-            QtWidgets.QDialogButtonBox.Cancel
-        )
-        layout.addRow(buttons)
-
-        buttons.accepted.connect(dlg.accept)
-        buttons.rejected.connect(dlg.reject)
-
-        if dlg.exec_() != QtWidgets.QDialog.Accepted:
-            return
-
-        element_type = type_combo.currentText()
-        name = name_edit.text().strip()
+        element_type, name = self._open_create_dialog(allowed_types)
 
         if not element_type:
             QtWidgets.QMessageBox.critical(
@@ -184,17 +169,25 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         # Ensure CN context is correct
         CN.set(parent_node)
 
+        get_client().operationcontext.clear()
+
         # ✅ Create via CN (TX-safe)
         node_id = CN.create_child(element_type, name)
 
-        # new_node = CN._node
-        # parent_node.children.append(new_node)
-        # 
-        # child_item = self._build_item(new_node)
-        # parent_item.addChild(child_item)
+        node_dicts = get_client().operationcontext.build_node_dicts()
+        if not node_dicts:
+            return
+
+        new_node = node_dict_to_model(node_dicts[0])
+        parent_node.children.append(new_node)
+
+        child_item = self._build_item(new_node)
+        parent_item.addChild(child_item)
 
         # expand parent (very important)
         parent_item.setExpanded(True)
+
+        self.setCurrentItem(child_item)
 
         FreeCAD.Console.PrintMessage(
             f"✅ Create node request sent: {element_type} {name}\n"
@@ -229,6 +222,8 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         else:
             index = self.indexOfTopLevelItem(item)
             self.takeTopLevelItem(index)
+
+        get_client().operationcontext.clear()
 
         FreeCAD.Console.PrintMessage(
             f"✅ Delete request sent: {lable}\n"
@@ -265,4 +260,69 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
 
         FreeCAD.Console.PrintMessage(
             f"✅ Geometry removed for: {node.label}\n"
+        )
+
+    def _open_create_dialog(self, allowed_types):
+
+        dlg = QtWidgets.QDialog(self)
+        dlg.setWindowTitle("Create Node")
+
+        layout = QtWidgets.QFormLayout(dlg)
+
+        type_combo = QtWidgets.QComboBox()
+        name_edit = QtWidgets.QLineEdit()
+
+        type_combo.addItems(allowed_types)
+
+        layout.addRow("Element Type:", type_combo)
+        layout.addRow("Name (optional):", name_edit)
+
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok |
+            QtWidgets.QDialogButtonBox.Cancel
+        )
+        layout.addRow(buttons)
+
+        buttons.accepted.connect(dlg.accept)
+        buttons.rejected.connect(dlg.reject)
+
+        if dlg.exec_() != QtWidgets.QDialog.Accepted:
+            return None, None
+
+        element_type = type_combo.currentText()
+        name = name_edit.text().strip()
+
+        return element_type, name
+    
+    def _create_root_node(self):
+
+        from opetreewb.SKET.hierarchy.root import ROOTS
+
+        allowed_types = ROOTS
+
+        element_type, name = self._open_create_dialog(allowed_types)
+
+        if not element_type:
+            return
+
+        # ✅ set CN to None or root context
+        CN.clear()   # or CN.set(None) depending on your design
+
+        get_client().operationcontext.clear()
+        
+        CN.create_root(element_type, name)
+
+        node_dicts = get_client().operationcontext.build_node_dicts()
+        if not node_dicts:
+            return
+
+        new_node = node_dict_to_model(node_dicts[0])
+
+        root_item = self._build_item(new_node)
+        self.addTopLevelItem(root_item)
+
+        self.setCurrentItem(root_item)
+
+        FreeCAD.Console.PrintMessage(
+            f"✅ Created root: {element_type} {name}\n"
         )

@@ -51,14 +51,6 @@ class TreeService:
                 element_type=element_type, 
                 name=name,
             )
-            
-            # new_node = TreeNodeModel(
-            #     node_id=new_id,
-            #     label="",
-            #     attributes=attrs,
-            #     children=[]
-            # )
-            # parent_node_id.children.append(new_node)
 
             return TransactionResult(success=True, message="200 OK")
 
@@ -74,6 +66,53 @@ class TreeService:
         Reporter.success(
             f"[TreeService] Create allowed "
             f"(parent={parent_node}, type={element_type}, name={name})"
+        )
+
+        return True
+    
+    def create_node_root(self, element_type, name=None):
+        result = TreeRules.can_create_root_node(element_type)
+
+        if not result.allowed:
+            Reporter.info(
+                f"[TreeService] create_node_root("
+                f"(type={element_type}, name={name})"
+            )
+            return False
+        
+        def server_op():
+            node_id = self.fcadclient.create_node_api( 
+                parent_node_id=0,
+                element_type=element_type,
+                name=name,
+            )
+            return TransactionResult(success=True, message=node_id)
+
+        def local_op():
+            Reporter.info(
+                f"[LOCAL] create_node_root applied under root"
+            )
+
+            self.fcadclient.create_node_local(
+                parent_node_id=0,
+                element_type=element_type,
+                name=name,
+            )
+            
+            return TransactionResult(success=True, message="200 OK")
+
+        result = self.tx.run(server_op, local_op, "Create Node")
+
+        if not result.success:
+            Reporter.error(
+                f"[TreeService] Create Failed "
+                f"type={element_type}, name={name})"
+            )
+            return False
+        
+        Reporter.success(
+            f"[TreeService] Create allowed "
+            f"(type={element_type}, name={name})"
         )
 
         return True
@@ -95,17 +134,6 @@ class TreeService:
             Reporter.info(
                 f"[LOCAL] delete_node applied (node_id={node.node_id})"
             )
-            # parent = self._find_parent(node_id)
-            # 
-            # if parent:
-            #     parent.children = [
-            #         c for c in parent.children if c is not node_id
-            #     ]
-            # else:
-            #     # root-level delete
-            #     self.model.roots = [
-            #         r for r in self.model.roots if r is not node_id
-            #     ]
             self.fcadclient.delete_node_local(node.node_id)
             return TransactionResult(success=True, message="200 OK")
 
@@ -115,7 +143,7 @@ class TreeService:
             Reporter.error(
                 f"[TreeService] Delete Failed (node_id={node.node_id})"
             )
-            return False
+            return TransactionResult(success=True, message="200 OK")
 
         Reporter.success(
             f"[TreeService] Delete allowed (node_id={node.node_id})"

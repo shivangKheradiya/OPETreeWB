@@ -77,6 +77,21 @@ class CurrentNode(QObject):
     # Tree operations
     # -------------------------
 
+    def create_root(self, element_type, name=""):
+        Reporter.info(
+            f"[CN] create_root(type={element_type}, name={name})"
+        )
+        
+        ok = get_tree_service().create_node_root(
+            element_type,
+            name,
+        )
+        
+        if not ok:
+            return False
+
+        return True
+    
     def create_child(self, element_type, name=""):
         if not self._node:
             Reporter.error("[CN] No current node to create child under")
@@ -99,7 +114,7 @@ class CurrentNode(QObject):
         self.structure_changed.emit()
 
         return True
-
+    
     def delete(self):
         if not self._node:
             Reporter.error("[CN] No current node to delete")

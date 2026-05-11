@@ -3,6 +3,7 @@
 from opetreewb.domain.rules.rules import RuleResult
 from opetreewb.domain.schema.schema_loader import get_schema
 from opetreewb.messaging.reporter import Reporter
+from opetreewb.SKET.hierarchy.root import ROOTS
 
 class TreeRules:
     """
@@ -54,4 +55,10 @@ class TreeRules:
         # if node.is_root:
         #     return RuleResult.deny("Root nodes cannot be deleted")
 
+        return RuleResult.ok()
+    
+    @staticmethod
+    def can_create_root_node(element_type) -> RuleResult:
+        if element_type not in ROOTS:
+            return RuleResult.deny("Root Node type does not exist")
         return RuleResult.ok()
