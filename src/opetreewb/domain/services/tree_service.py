@@ -2,9 +2,10 @@
 from opetreewb.messaging.reporter import Reporter
 from opetreewb.domain.rules.tree_rules import TreeRules
 from opetreewb.domain.transection.transaction_manager import TransactionManager
-from opetreewb.ui.store.tree_store import TREE_STORE
 from opetreewb.domain.transection.transaction_result import TransactionResult
 from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
+from opetreewb.ui.model.tree_model import TreeModel
+
 
 class TreeService:
     """
@@ -13,7 +14,7 @@ class TreeService:
 
     def __init__(self, provider_adapter=None, fcadclient:OpeDBClient=None):
         self.tx = TransactionManager()
-        self.model = TREE_STORE
+        self.model = TreeModel()
         self.fcadclient = fcadclient
 
     def get_children(self, parent_node_id):
@@ -142,4 +143,5 @@ class TreeService:
         return None
     
     def get_roots(self):
-        pass
+        Reporter.info("[TreeService] get_roots() called")
+        return self.model.roots

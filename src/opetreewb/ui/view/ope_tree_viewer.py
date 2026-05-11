@@ -27,7 +27,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         self.customContextMenuRequested.connect(self._open_context_menu)
 
         self.itemSelectionChanged.connect(self._on_selection_changed)
-        # self.itemExpanded.connect(self._on_item_expanded)
+        self.itemExpanded.connect(self._on_item_expanded)
      
         CN.structure_changed.connect(self._on_structure_changed)
         CN.deleted.connect(self._on_structure_changed)
@@ -39,7 +39,12 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
     # -------------------------------------------------
     def _build_tree(self):
         self.clear()
-        for root in self.vm.get_roots():
+        roots = self.vm.get_roots()
+        if not roots:
+            FreeCAD.Console.PrintMessage("[Tree] No roots found\n")
+            return
+
+        for root in roots:
             root_item = self._build_item(root)
             self.addTopLevelItem(root_item)
             root_item.setExpanded(True)
@@ -180,22 +185,16 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         CN.set(parent_node)
 
         # ✅ Create via CN (TX-safe)
-        CN.create_child(element_type, name)
+        node_id = CN.create_child(element_type, name)
 
-        # get newly created node (last child in model)
-        new_node = parent_node.children[-1]
-
-        # build UI item
-        child_item = self._build_item(new_node)
-
-        # attach to UI tree
-        parent_item.addChild(child_item)
+        # new_node = CN._node
+        # parent_node.children.append(new_node)
+        # 
+        # child_item = self._build_item(new_node)
+        # parent_item.addChild(child_item)
 
         # expand parent (very important)
         parent_item.setExpanded(True)
-
-        # select new node
-        self.setCurrentItem(child_item)
 
         FreeCAD.Console.PrintMessage(
             f"✅ Create node request sent: {element_type} {name}\n"
