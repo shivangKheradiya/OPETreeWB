@@ -54,13 +54,6 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
             QtWidgets.QTreeWidgetItem.ShowIndicator
         )
 
-        # No Need To Load All children now
-
-        # ✅ Recursively add children NOW (no lazy loading)
-        for child in node.children:
-            child_item = self._build_item(child)
-            item.addChild(child_item)
-
         return item
 
     # -------------------------------------------------
@@ -85,24 +78,23 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         CN.set(node)
 
     def _on_item_expanded(self, item):
-        pass
-        #node = item.data(0, QtCore.Qt.UserRole)
-        #if node is None:
-        #    return
-        #
-        #FreeCAD.Console.PrintMessage(
-        #    f"[OPE Tree] Expanding node {node.label}\n"
-        #)
-        #
-        #self.vm.load_children(node)
-        #
-        ## ✅ IMPORTANT: clear existing UI children to prevent duplicates
-        #item.takeChildren()
-        #
-        ## Populate children into UI
-        #for child in node.children:
-        #    child_item = self._build_item(child)
-        #    item.addChild(child_item)
+        node = item.data(0, QtCore.Qt.UserRole)
+        if node is None:
+            return
+        
+        FreeCAD.Console.PrintMessage(
+            f"[OPE Tree] Expanding node {node.label}\n"
+        )
+        
+        self.vm.load_children(node)
+        
+        # ✅ IMPORTANT: clear existing UI children to prevent duplicates
+        item.takeChildren()
+        
+        # Populate children into UI
+        for child in node.children:
+            child_item = self._build_item(child)
+            item.addChild(child_item)
 
     def _open_context_menu(self, pos):
         item = self.itemAt(pos)

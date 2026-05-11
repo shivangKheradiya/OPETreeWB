@@ -16,9 +16,9 @@ class TreeService:
         self.model = TREE_STORE
         self.fcadclient = fcadclient
 
-    def load_children(self, parent_node_id):
+    def get_children(self, parent_node_id):
         Reporter.info(
-            f"[TreeService] load_children(parent_node_id={parent_node_id})"
+            f"[TreeService] get_children(parent_node_id={parent_node_id})"
         )
         return []
 
@@ -140,3 +140,6 @@ class TreeService:
                 return parent
 
         return None
+    
+    def get_roots(self):
+        pass
