@@ -29,3 +29,6 @@ def get_client():
 
 def get_geometry_service():
     return get_container().geometry_service
+
+def get_sync_service():
+    return get_container().sync_service

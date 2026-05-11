@@ -2,7 +2,10 @@ from datetime import datetime
 
 import FreeCAD
 
-from opetreewb.app.app_context import AppContext
+from opetreewb.domain.services.service_locator import (
+    get_sync_service,
+    get_session_service
+)
 
 class SyncSnapshotCommand:
     """
@@ -17,11 +20,12 @@ class SyncSnapshotCommand:
         }
 
     def IsActive(self):
-        return AppContext.container.session_service.is_session_active()
+        return get_session_service().is_session_active()
 
     def Activated(self):
         try:
             rows = 0
+            get_sync_service().sync_snapshot()
             FreeCAD.Console.PrintMessage(
                 f"✅ Snapshot synced ({len(rows)} rows)\n"
             )
@@ -49,7 +53,7 @@ class SyncHistoryCommand:
         }
 
     def IsActive(self):
-        return AppContext.container.session_service.is_session_active()
+        return get_session_service().is_session_active()
 
     def Activated(self):
         try:
@@ -59,6 +63,7 @@ class SyncHistoryCommand:
             )
 
             rows = 0
+            get_sync_service().sync_history()
             FreeCAD.Console.PrintMessage(
                 f"✅ History fetched ({len(rows)} rows)\n"
             )
