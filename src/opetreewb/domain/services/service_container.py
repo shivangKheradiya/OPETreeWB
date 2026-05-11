@@ -31,4 +31,4 @@ class ServiceContainer:
 
         self.geometry_service = GeometryService()
 
-        self.sync_service = SyncService()
+        self.sync_service = SyncService(fcadclient=self.fcadclient)

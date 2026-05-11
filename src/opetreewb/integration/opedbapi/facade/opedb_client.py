@@ -301,3 +301,15 @@ class OpeDBClient:
         except Exception as e:
             Reporter.error(f"[OpeDBClient][LOCAL] delete_node failed → {e}")
             raise
+
+    def sync_get_snapshot_api(self):
+        pass
+
+    def sync_set_snapshot_local(self):
+        pass
+
+    def sync_get_history_api(self):
+        pass
+
+    def sync_set_history_local(self):
+        pass
