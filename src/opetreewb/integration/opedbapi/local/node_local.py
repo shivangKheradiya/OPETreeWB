@@ -36,4 +36,6 @@ class NodeLocal:
                 db.refresh(row)
         finally:
             db.close()
+
+        self.op_context.clear()
         

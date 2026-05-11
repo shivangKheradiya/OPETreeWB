@@ -57,31 +57,13 @@ class NodeAPI:
     # -------------------------------------------------
     # DELETE NODE
     # -------------------------------------------------
-    def delete(self, node_id):
-
-        result = self.client.post(
-            "search",
-            json={
-                "mode": "working",
-                "filter": {
-                    "field": "node_id",
-                    "op": "=",
-                    "value": node_id,
-                },
-                "limit": 1000,
-                "offset": 0,
-            },
-            use_session=True,
+    def delete(self, node_id, type_value):
+        schema = load_element_schema(type_value)
+        self._delete_attribute(
+            node_id=node_id,
+            attribute_id=schema["Name"]["id"],
+            data_id=node_id,
         )
-
-        items = result.get("items", [])
-
-        for row in items:
-            self._delete_attribute(
-                node_id=row["node_id"],
-                attribute_id=row["attribute_id"],
-                data_id=row["data_id"],
-            )
 
     # -------------------------------------------------
     # INTERNAL

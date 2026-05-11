@@ -80,8 +80,8 @@ class TreeService:
 
         return True
 
-    def delete_node(self, node_id):
-        result = TreeRules.can_delete_node(node_id)
+    def delete_node(self, node, element_type):
+        result = TreeRules.can_delete_node(node)
 
         if not result.allowed:
             Reporter.error(
@@ -90,12 +90,12 @@ class TreeService:
             return
 
         def server_op():
-            self.fcadclient.delete_node_api(node_id.node_id)
+            self.fcadclient.delete_node_api(node.node_id, element_type)
             return TransactionResult(success=True, message="200 OK")
 
         def local_op():
             Reporter.info(
-                f"[LOCAL] delete_node applied (node_id={node_id.node_id})"
+                f"[LOCAL] delete_node applied (node_id={node.node_id})"
             )
             # parent = self._find_parent(node_id)
             # 
@@ -108,19 +108,19 @@ class TreeService:
             #     self.model.roots = [
             #         r for r in self.model.roots if r is not node_id
             #     ]
-            self.fcadclient.delete_node_local(node_id.node_id)
+            self.fcadclient.delete_node_local(node.node_id)
             return TransactionResult(success=True, message="200 OK")
 
         result = self.tx.run(server_op, local_op, "Delete Node")
 
         if not result.success:
             Reporter.error(
-                f"[TreeService] Delete Failed (node_id={node_id.node_id})"
+                f"[TreeService] Delete Failed (node_id={node.node_id})"
             )
             return False
 
         Reporter.success(
-            f"[TreeService] Delete allowed (node_id={node_id.node_id})"
+            f"[TreeService] Delete allowed (node_id={node.node_id})"
         )
 
         return True

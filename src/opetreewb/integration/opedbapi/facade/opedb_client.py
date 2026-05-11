@@ -275,11 +275,11 @@ class OpeDBClient:
 
 
     # ---------- DELETE NODE ----------
-    def delete_node_api(self, node_id):
+    def delete_node_api(self, node_id, element_type):
         Reporter.info(f"[OpeDBClient][API] delete_node_api → {node_id}")
 
         try:
-            self.api_node.delete(node_id)
+            self.api_node.delete(node_id, element_type)
             Reporter.success("[OpeDBClient][API] node deleted")
 
         except Exception as e:

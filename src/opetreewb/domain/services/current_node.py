@@ -114,7 +114,7 @@ class CurrentNode(QObject):
         except Exception as e:
             Reporter.error(f"[CN] Geometry remove failed: {e}")
     
-        ok = get_tree_service().delete_node(node)
+        ok = get_tree_service().delete_node(node, node.attributes.get("Type").value)
 
         if not ok:
             return False
