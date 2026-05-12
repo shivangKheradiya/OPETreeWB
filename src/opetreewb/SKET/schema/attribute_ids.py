@@ -37,3 +37,9 @@ def get_attr_id(name):
     if name not in ATTR_ID:
         raise KeyError(f"{name} not registered in ATTR_ID")
     return ATTR_ID[name]
+
+
+ATTR_NAME_BY_ID = {v: k for k, v in ATTR_ID.items()}
+
+def get_attr_name(attr_id):
+    return ATTR_NAME_BY_ID.get(attr_id, f"ATTR_{attr_id}")

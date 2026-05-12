@@ -1,8 +1,6 @@
 from opetreewb.messaging.reporter import Reporter
 from opetreewb.domain.rules.attribute_rules import AttributeRules
 from opetreewb.domain.transection.transaction_manager import TransactionManager
-from opetreewb.infrastructure.provider_adapter import ProviderAdapter
-from opetreewb.infrastructure.dummy_provider_adapter import DummyProviderAdapter
 from opetreewb.ui.model.tree_model import AttributeValue
 from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
 
@@ -12,21 +10,14 @@ class AttributeService:
     Handles attribute reads and updates.
     """
 
-    def __init__(self, provider_adapter=None, fcadclient:OpeDBClient=None):
-        self.provider = provider_adapter or DummyProviderAdapter()
+    def __init__(self, fcadclient:OpeDBClient=None):
         self.tx = TransactionManager()
         self.fcadclient = fcadclient
-
-    def load_attributes(self, node_id):
-        Reporter.info(
-            f"[AttributeService] load_attributes called (node_id={node_id})"
-        )
-        # TODO: return attributes from legacy provider
-        return []
 
     def update_attribute(self, node, attribute_name, data_id, new_value):
     
         result = AttributeRules.can_update(
+            node,
             attribute_name,
             data_id,
             new_value,
