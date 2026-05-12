@@ -19,7 +19,7 @@ class AttributeViewerViewModel(QtCore.QObject):
     data_changed = QtCore.Signal()
     error = QtCore.Signal(str)
     message = QtCore.Signal(str)
-    attribute_value_changed = QtCore.Signal(int, str)
+    attribute_value_changed = QtCore.Signal(object, str)
 
     def __init__(self):
         super().__init__()

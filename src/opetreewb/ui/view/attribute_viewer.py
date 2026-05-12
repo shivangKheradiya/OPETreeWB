@@ -139,7 +139,7 @@ class AttributeViewer(QWidget):
             self._refresh()
             self._building = False
 
-    def _on_attribute_value_changed(self, data_id: int, new_value: str):
+    def _on_attribute_value_changed(self, data_id, new_value: str):
         FreeCAD.Console.PrintMessage(
             f"[AttributeViewer] Attribute changed: data_id={data_id}, value={new_value}\n"
         )

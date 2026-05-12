@@ -27,7 +27,8 @@ class AttributeAPI:
         node_id: int,
         attribute_id: int,
         value: Any,
-        data_id: int | None = None,
+        data_id,
+        operation_type:int = 2
     ):
         """
         Create or update attribute row.
@@ -38,14 +39,6 @@ class AttributeAPI:
 
         if not OPE_DB_CONTEXT.is_session_active:
             raise RuntimeError("No active session")
-
-        if data_id is None:
-            # ✅ CREATE
-            data_id = self.id_gen.next_id()
-            operation_type = 1
-        else:
-            # ✅ UPDATE
-            operation_type = 2
 
         self.client.post(
             "work/push",

@@ -26,7 +26,8 @@ class AttributeLocal:
         node_id,
         attribute_id,
         value,
-        data_id=None,
+        data_id,
+        operation_type:int = 2
     ):
         db = self.client.get_session()
 
@@ -34,18 +35,11 @@ class AttributeLocal:
             session_id = OPE_DB_CONTEXT.session_id
             domain = OPE_DB_CONTEXT.domain.upper()
 
-            # ✅ Determine operation type
-            if data_id is None:
-                data_id = self.id_gen.next_id()
-                op = 1  # CREATE
-            else:
-                op = 2  # UPDATE
-
             payload = WorkPushRequest(
                 data_id=data_id,
                 node_id=node_id,
                 attribute_id=attribute_id,
-                operation_type=op,
+                operation_type=operation_type,
                 value=value,
             )
 
