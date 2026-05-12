@@ -42,7 +42,7 @@ class OpeDBClient:
         self.api_session = SessionAPI()
         self.api_node = NodeAPI(id_generator=id_gen, op_context=self.operationcontext,opeapiclient=self.api_client)
         self.api_attr = AttributeAPI(id_generator=id_gen)
-        self.api_query = QueryAPI()
+        self.api_query = QueryAPI(client=self.api_client)
         self.api_sync = SyncAPI()
 
         # ✅ LOCAL
@@ -51,7 +51,7 @@ class OpeDBClient:
         self.local_query = QueryLocal()
         self.local_client = LocalClient()
         self.local_node = NodeLocal(op_context=self.operationcontext, localclient=self.local_client)
-        self.local_sync = SyncLocal()
+        self.local_sync = SyncLocal(localclient=self.local_client)
 
         Reporter.success("[OpeDBClient] Ready")
 
@@ -316,22 +316,6 @@ class OpeDBClient:
 
     def sync_set_history_local(self):
         pass
-
-    def bootstrap_local(self, rows):
-        session_id = OPE_DB_CONTEXT.session_id
-        domain = OPE_DB_CONTEXT.domain.upper()
-        db = self.local_client.get_session()
-        try:
-            for row in rows.get("items", []):
-                existing = get_live_row(db, domain, row["data_id"])
-                if existing:
-                    update_live_row(db, existing, row["value"])
-                else:
-                    insert_live_row(db, domain, row)
-
-            db.commit()
-        finally:
-            db.close()
 
     def fetch_root_nodes_api(self):
         return self.api_query.fetch_root_nodes()

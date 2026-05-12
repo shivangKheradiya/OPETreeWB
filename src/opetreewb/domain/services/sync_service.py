@@ -13,9 +13,9 @@ class SyncService:
     def sync_snapshot(self, root_node_id):
         Reporter.info("[SyncService] snapshot sync requested")
         rows = self.opeclient.sync_get_snapshot_api(root_node_id, get_attr_id("Owner") )
+        self.opeclient.sync_set_snapshot_local(rows)
         Reporter.success("[SyncService] snapshot sync completed")
-        self.opeclient.sync_set_snapshot_local()
-        return len(rows)
+        return rows
 
     def sync_history(self):
         ts = datetime.now().isoformat()

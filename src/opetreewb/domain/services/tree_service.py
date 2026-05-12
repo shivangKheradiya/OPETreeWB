@@ -183,7 +183,7 @@ class TreeService:
         rows = self.fcadclient.fetch_root_nodes_api()
     
         # ✅ 3. save to local
-        self.fcadclient.bootstrap_local(rows)
+        self.fcadclient.sync_set_snapshot_local(rows.get("items", []))
     
         # ✅ 4. TODO: later → read from local
         # for now return empty -> UI will update after create

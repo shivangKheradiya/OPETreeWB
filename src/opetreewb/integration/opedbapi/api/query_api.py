@@ -14,7 +14,7 @@ class QueryAPI:
     - history
     """
 
-    def __init__(self):
+    def __init__(self,client:OpeApiClient=None):
         self.client = OpeApiClient()
 
     # -------------------------------------------------
@@ -133,7 +133,6 @@ class QueryAPI:
     # -------------------------------------------------
     def fetch_snapshot(
         self,
-        *,
         root_node_id: int,
         owner_attribute_id: int,
     ) -> List[Dict]:

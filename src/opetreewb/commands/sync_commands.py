@@ -26,6 +26,7 @@ class SyncSnapshotCommand:
     def Activated(self):
         try:
             rows = get_sync_service().sync_snapshot(CN.id)
+            CN.structure_changed.emit()
             FreeCAD.Console.PrintMessage(
                 f"✅ Snapshot synced ({len(rows)} rows)\n"
             )
