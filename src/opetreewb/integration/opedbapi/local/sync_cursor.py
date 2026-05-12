@@ -16,7 +16,7 @@ def get_or_initialize_global_last_synced_at(
         last_ts = db.query(func.max(SessionMetadata.last_synced_at)).scalar()
 
         if last_ts is None:
-            now_ts = datetime.now(timezone.utc)
+            now_ts = now_ts = datetime.now(timezone.utc).replace(tzinfo=None)
 
             session = (
                 db.query(SessionMetadata)
@@ -59,7 +59,10 @@ def update_last_synced_at_for_active_session(
                 f"Active session {session_id} not found"
             )
 
-        if session.last_synced_at is None or new_ts > session.last_synced_at:
+        existing_ts = session.last_synced_at
+        if existing_ts and existing_ts.tzinfo is not None:
+            existing_ts = existing_ts.replace(tzinfo=None)
+        if existing_ts is None or new_ts > existing_ts:
             session.last_synced_at = new_ts
             db.commit()
     finally:

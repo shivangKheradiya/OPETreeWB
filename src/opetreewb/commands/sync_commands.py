@@ -63,8 +63,7 @@ class SyncHistoryCommand:
                 f"ℹ️ History sync cursor = {after_ts.isoformat()}\n"
             )
 
-            rows = 0
-            get_sync_service().sync_history()
+            rows = get_sync_service().sync_history()
             FreeCAD.Console.PrintMessage(
                 f"✅ History fetched ({len(rows)} rows)\n"
             )
@@ -73,6 +72,8 @@ class SyncHistoryCommand:
                 f"✅ new_ts is updated in Session Table\n"
             )
 
+            CN.structure_changed.emit()
+        
         except Exception as exc:
             import traceback
             traceback.print_exc()

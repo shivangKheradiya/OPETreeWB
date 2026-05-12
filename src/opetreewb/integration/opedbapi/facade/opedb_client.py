@@ -22,8 +22,9 @@ from opetreewb.messaging.reporter import Reporter
 
 from OPE_DB_API.crud.commit.commit import commit_session
 from OPE_DB_API.crud.session.abort import abort_session
-from OPE_DB_API.crud.live.read import get_live_row
-from OPE_DB_API.crud.live.write import insert_live_row, update_live_row
+from opetreewb.integration.opedbapi.local.sync_cursor import (
+    update_last_synced_at_for_active_session,
+)
 
 class OpeDBClient:
     """
@@ -314,8 +315,8 @@ class OpeDBClient:
     def sync_get_history_api(self, after_ts: datetime, limit: int = 5000):
         return self.api_query.fetch_history(after_ts=after_ts, limit=limit)
 
-    def sync_set_history_local(self):
-        pass
+    def sync_set_history_local(self, rows):
+        return self.local_sync.sync_set_history(rows)
 
     def fetch_root_nodes_api(self):
         return self.api_query.fetch_root_nodes()
@@ -325,3 +326,9 @@ class OpeDBClient:
     
     def get_children_local(self, parent_node_id):
         return self.local_query.get_children(parent_node_id)
+    
+    def update_last_synced_at_for_active_session(self, datetime):
+        update_last_synced_at_for_active_session(
+            localclient=self.local_client,
+            new_ts=datetime,
+        )

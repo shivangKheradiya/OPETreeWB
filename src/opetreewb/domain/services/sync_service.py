@@ -18,8 +18,15 @@ class SyncService:
         return rows
 
     def sync_history(self):
-        ts = datetime.now().isoformat()
-        Reporter.info(f"[SyncService] history sync requested (after={ts})")
-        self.opeclient.sync_get_history_api(ts)
+        after_ts = self.opeclient.local_query.get_last_history_sync_ts()
+        Reporter.info(f"[SyncService] history sync requested (after={after_ts})")
+        rows = self.opeclient.sync_get_history_api(after_ts)
+        if not rows:
+            Reporter.info("[SyncService] no new history rows")
+            return []
+
         Reporter.success("[SyncService] history sync completed")
-        self.opeclient.sync_set_history_local()
+        new_ts = self.opeclient.sync_set_history_local(rows)
+        self.opeclient.update_last_synced_at_for_active_session(new_ts)
+        Reporter.success(f"[SyncService] history sync completed ({len(rows)} rows)")
+        return rows

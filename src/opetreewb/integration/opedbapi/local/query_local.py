@@ -12,6 +12,10 @@ from opetreewb.SKET.schema.attribute_ids import get_attr_id
 from collections import defaultdict
 from opetreewb.ui.utils.node_mapper import node_dict_to_model
 
+from opetreewb.integration.opedbapi.local.sync_cursor import (
+    get_or_initialize_global_last_synced_at,
+)
+
 
 class QueryLocal:
     """
@@ -168,3 +172,8 @@ class QueryLocal:
         rows = result.get("items", [])
 
         return self._rows_to_nodes(rows)
+    
+    def get_last_history_sync_ts(self):
+        return get_or_initialize_global_last_synced_at(
+            localclient=self.client
+        )
