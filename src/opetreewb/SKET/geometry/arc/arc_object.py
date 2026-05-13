@@ -28,4 +28,5 @@ class ArcObject:
         obj.StartAngle = get_val("StartAngle", 0)
         obj.EndAngle = get_val("EndAngle", 90)
 
-        obj.ViewObject.Proxy.update(obj)
+        if hasattr(obj.ViewObject, "Proxy") and hasattr(obj.ViewObject.Proxy, "update"):
+            obj.ViewObject.Proxy.update(obj)
