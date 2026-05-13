@@ -1,6 +1,3 @@
 [submodule "vendor/OPE_DB_API"]
 	path = vendor/OPE_DB_API
 	url = https://github.com/Open-Plant-Engineering/OPE_DB_API.git
-[submodule "vendor/PyDBML"]
-	path = vendor/PyDBML
-	url = https://github.com/shivangKheradiya/DBML.git
