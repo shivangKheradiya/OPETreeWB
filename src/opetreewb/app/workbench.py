@@ -1,5 +1,5 @@
 import FreeCADGui
-
+from opetreewb.ui.selection.selection_observer import OPESelectionObserver
 
 class OPETreeWorkbench(FreeCADGui.Workbench):
     """
@@ -12,6 +12,7 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
     def Initialize(self):
         self._register_ope_commands()
         self._setup_ope_ui()
+        FreeCADGui.Selection.addObserver(OPESelectionObserver())
 
     def _register_ope_commands(self):
         from opetreewb.commands.open_connection_command import (

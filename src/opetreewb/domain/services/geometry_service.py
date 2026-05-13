@@ -14,6 +14,7 @@ class GeometryService:
     def __init__(self):
         # node_id → FreeCAD object
         self.registry = {}
+        self.reverse_registry = {}
 
     # -------------------------------------------------
     # BUILD GEOMETRY
@@ -57,7 +58,9 @@ class GeometryService:
             FreeCAD.Console.PrintMessage(
                 f"[GeometryService] Geometry created for node_id={node.node_id}\n"
             )
+            obj.Proxy.node_id = node.node_id
             self.registry[node.node_id] = obj
+            self.reverse_registry[obj.Name] = node
         else:
             FreeCAD.Console.PrintMessage(
                 f"[GeometryService] No geometry for type={getattr(node, 'type', None)}\n"
@@ -92,6 +95,7 @@ class GeometryService:
 
             # ✅ remove from registry
             self.registry.pop(node.node_id, None)
+            self.reverse_registry.pop(obj.Name, None)
 
         for child in node.children:
             self._remove_recursive(child, doc)
