@@ -26,6 +26,8 @@ from opetreewb.integration.opedbapi.local.sync_cursor import (
     update_last_synced_at_for_active_session,
 )
 
+from opetreewb.SKET.schema.attribute_ids import get_attr_id
+
 class OpeDBClient:
     """
     Hybrid client with explicit API / LOCAL separation.
@@ -104,8 +106,12 @@ class OpeDBClient:
     def commit_session_api(self):
         Reporter.info("[OpeDBClient][API] commit_session_api")
         try:
+            owner_attr_id = get_attr_id("Owner")
             result = self.api_client.post(
                 "work/commit",
+                json={
+                    "owner_attribute_id": owner_attr_id
+                },
                 use_session=True
             )
             Reporter.success("[OpeDBClient][API] commit applied")
@@ -117,10 +123,12 @@ class OpeDBClient:
         Reporter.info("[OpeDBClient][LOCAL] commit_session_local")
         db: Session = self.local_client.get_session()
         try:
+            owner_attr_id = get_attr_id("Owner")
             commit_session(
                 db,
                 domain=OPE_DB_CONTEXT.domain.upper(),
                 session_id=OPE_DB_CONTEXT.session_id,
+                owner_attribute_id=owner_attr_id,
             )
             db.commit()
             Reporter.success("[OpeDBClient][LOCAL] commit applied")
