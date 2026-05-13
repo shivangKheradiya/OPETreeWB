@@ -32,5 +32,5 @@ class StraObject:
         obj.EndX = get_val("EndX", 10.0)
         obj.EndY = get_val("EndY", 0.0)
 
-        if hasattr(obj.ViewObject, "Proxy"):
+        if hasattr(obj.ViewObject, "Proxy") and hasattr(obj.ViewObject.Proxy, "update"):
             obj.ViewObject.Proxy.update(obj)

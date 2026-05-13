@@ -41,4 +41,25 @@ class Stra(ElementSchema):
                 "kind": "user",
                 "id": get_attr_id("EndY"),
             },
+            "LineStyle": {
+                "default": "Solid",
+                "datatype": "string",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("LineStyle"),
+            },
+            "LineWidth": {
+                "default": 2.0,
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("LineWidth"),
+            },
+            "LineColor": {
+                "default": [0.0, 0.0, 0.0],  # black
+                "datatype": "list",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("LineColor"),
+            },
         }

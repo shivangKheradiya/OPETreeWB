@@ -31,6 +31,9 @@ ATTR_ID = {
     "Font": 21,
     "X": 22,
     "Y": 23,
+    "LineStyle": 24,
+    "LineWidth": 25,
+    "LineColor": 26,
 }
 
 def get_attr_id(name):
