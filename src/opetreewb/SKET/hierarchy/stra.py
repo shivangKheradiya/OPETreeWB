@@ -28,7 +28,7 @@ class Stra(ElementSchema):
                 "id": get_attr_id("StartY"),
             },
             "EndX": {
-                "default": "10",
+                "default": "0",
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",

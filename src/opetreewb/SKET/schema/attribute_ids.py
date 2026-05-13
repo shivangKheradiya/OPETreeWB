@@ -34,6 +34,15 @@ ATTR_ID = {
     "LineStyle": 24,
     "LineWidth": 25,
     "LineColor": 26,
+    "StartAngle": 27,
+    "EndAngle": 28,
+    "CenterX": 29,
+    "CenterY": 30,
+    "FontSize": 31,
+    "TextAlign": 32,
+    "Visible": 33,
+    "Rotation": 34,
+    "Layer": 35,
 }
 
 def get_attr_id(name):

@@ -12,6 +12,21 @@ class Arc(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
+            
+            "CenterX": {
+                "default": "0",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("CenterX"),
+            },
+            "CenterY": {
+                "default": "0",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("CenterY"),
+            },
             "Radius": {
                 "default": "0",
                 "datatype": "float",
@@ -19,12 +34,39 @@ class Arc(ElementSchema):
                 "kind": "user",
                 "id": get_attr_id("Radius"),
             },
-
-            "Angle": {
+            "StartAngle": {
                 "default": "0",
                 "datatype": "float",
                 "editable": True,
                 "kind": "user",
-                "id": get_attr_id("Angle"),
+                "id": get_attr_id("StartAngle"),
+            },
+            "EndAngle": {
+                "default": "90",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("EndAngle"),
+            },
+            "LineStyle": {
+                "default": "Solid",
+                "datatype": "string",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("LineStyle"),
+            },
+            "LineWidth": {
+                "default": 2.0,
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("LineWidth"),
+            },
+            "LineColor": {
+                "default": [0, 0, 0],
+                "datatype": "list",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("LineColor"),
             },
         }

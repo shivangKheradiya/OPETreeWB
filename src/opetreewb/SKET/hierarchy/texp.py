@@ -15,18 +15,38 @@ class Texp(ElementSchema):
         return base_attributes(cls.TYPE) | {
 
             "Text": {
-                "default": "",
+                "default": "Text",
                 "datatype": "string",
                 "editable": True,
                 "kind": "user",
-                "id": get_attr_id("Text"),   # ✅ reuse same as NOTE
+                "id": get_attr_id("Text"),
             },
-
-            "Font": {
-                "default": "Arial",
-                "datatype": "string",
+            "X": {
+                "default": "0",
+                "datatype": "float",
                 "editable": True,
                 "kind": "user",
-                "id": get_attr_id("Font"),
+                "id": get_attr_id("X"),
+            },
+            "Y": {
+                "default": "0",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("Y"),
+            },
+            "FontSize": {
+                "default": "12",
+                "datatype": "float",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("FontSize"),
+            },
+            "LineColor": {
+                "default": [0, 0, 0],
+                "datatype": "list",
+                "editable": True,
+                "kind": "user",
+                "id": get_attr_id("LineColor"),
             },
         }

@@ -16,8 +16,6 @@ class Note(ElementSchema):
             "ARC",
             "HEXA",
             "ELLI",
-            "ETRI",
-            "OUTL",
         ]
 
     @classmethod
