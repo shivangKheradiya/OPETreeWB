@@ -20,6 +20,8 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.item_map = {}
+
         self.vm = OPETreeViewModel()
 
         self.setHeaderHidden(True)
@@ -33,6 +35,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
      
         CN.structure_changed.connect(self._on_structure_changed)
         CN.deleted.connect(self._on_structure_changed)
+        CN.changed.connect(self._on_cn_changed)
 
         self._build_tree()
 
@@ -41,6 +44,7 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
     # -------------------------------------------------
     def _build_tree(self):
         self.clear()
+        self.item_map.clear()
         roots = self.vm.get_roots()
         if not roots:
             FreeCAD.Console.PrintMessage("[Tree] No roots found\n")
@@ -60,6 +64,8 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         item.setChildIndicatorPolicy(
             QtWidgets.QTreeWidgetItem.ShowIndicator
         )
+
+        self.item_map[node.node_id] = item
 
         return item
 
@@ -333,3 +339,22 @@ class OPETreeViewer(QtWidgets.QTreeWidget):
         FreeCAD.Console.PrintMessage(
             f"✅ Created root: {element_type} {name}\n"
         )
+
+    def _on_cn_changed(self, node):
+
+        if not node:
+            return
+
+        item = self.item_map.get(node.node_id)
+
+        if not item:
+            # ✅ node not loaded → skip (important, don't rebuild tree)
+            return
+
+        self.blockSignals(True)
+
+        try:
+            self.setCurrentItem(item)
+            item.setExpanded(True)
+        finally:
+            self.blockSignals(False)

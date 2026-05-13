@@ -88,14 +88,15 @@ class GeometryService:
         obj = self.registry.get(node.node_id)
 
         if obj:
+            obj_name = obj.Name
             try:
-                doc.removeObject(obj.Name)
+                doc.removeObject(obj_name)
             except Exception:
                 pass
 
             # ✅ remove from registry
             self.registry.pop(node.node_id, None)
-            self.reverse_registry.pop(obj.Name, None)
+            self.reverse_registry.pop(obj_name, None)
 
         for child in node.children:
             self._remove_recursive(child, doc)
