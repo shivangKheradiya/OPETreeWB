@@ -10,18 +10,18 @@ class ViewProviderTexp:
         self.root = coin.SoSeparator()
         vobj.RootNode.addChild(self.root)
 
-        # ✅ positioning
-        self.translation = coin.SoTranslation()
+        # ✅ positioning+scale
+        self.transform = coin.SoTransform()
 
         # ✅ style
         self.material = coin.SoMaterial()
         self.font = coin.SoFont()
 
         # ✅ text node
-        self.text = coin.SoText2()
+        self.text = coin.SoText3()
 
         # ✅ assemble graph
-        self.root.addChild(self.translation)
+        self.root.addChild(self.transform)
         self.root.addChild(self.material)
         self.root.addChild(self.font)
         self.root.addChild(self.text)
@@ -43,7 +43,7 @@ class ViewProviderTexp:
         # -------------------------------------------------
         # ✅ POSITION
         # -------------------------------------------------
-        self.translation.translation.setValue(obj.X, obj.Y, 0)
+        self.transform.translation.setValue(obj.X, obj.Y, 0)
 
         # -------------------------------------------------
         # ✅ TEXT CONTENT
@@ -53,7 +53,14 @@ class ViewProviderTexp:
         # -------------------------------------------------
         # ✅ FONT SIZE
         # -------------------------------------------------
-        self.font.size = obj.FontSize
+        size = obj.FontSize if obj.FontSize else 12
+        scale_factor = size * 0.1
+
+        self.transform.scaleFactor.setValue(
+            scale_factor,
+            scale_factor,
+            scale_factor
+        )
 
         # -------------------------------------------------
         # ✅ COLOR (same parser as STRA)
