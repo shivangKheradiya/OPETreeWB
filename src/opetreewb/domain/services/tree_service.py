@@ -1,9 +1,9 @@
 # domain/services/tree_service.py
-from opetreewb.messaging.reporter import Reporter
 from opetreewb.domain.rules.tree_rules import TreeRules
 from opetreewb.domain.transection.transaction_manager import TransactionManager
 from opetreewb.domain.transection.transaction_result import TransactionResult
 from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
+from opetreewb.messaging.reporter import Reporter
 from opetreewb.ui.model.tree_model import TreeModel
 
 
@@ -12,15 +12,13 @@ class TreeService:
     Tree structure contract.
     """
 
-    def __init__(self, fcadclient:OpeDBClient=None):
+    def __init__(self, fcadclient: OpeDBClient = None):
         self.tx = TransactionManager()
         self.model = TreeModel()
         self.fcadclient = fcadclient
 
     def get_children(self, parent_node_id):
-        Reporter.info(
-            f"[TreeService] get_children(parent_node_id={parent_node_id})"
-        )
+        Reporter.info(f"[TreeService] get_children(parent_node_id={parent_node_id})")
         return self.fcadclient.get_children_local(parent_node_id)
 
     def create_node(self, parent_node, element_type, name=None):
@@ -32,23 +30,21 @@ class TreeService:
                 f"parent_id={parent_node.node_id}, type={element_type}, name={name})"
             )
             return False
-        
+
         def server_op():
-            node_id = self.fcadclient.create_node_api( 
-                parent_node_id=parent_node.node_id, 
-                element_type=element_type, 
+            node_id = self.fcadclient.create_node_api(
+                parent_node_id=parent_node.node_id,
+                element_type=element_type,
                 name=name,
             )
             return TransactionResult(success=True, message=node_id)
 
         def local_op():
-            Reporter.info(
-                f"[LOCAL] create_node applied under {parent_node.node_id}"
-            )
+            Reporter.info(f"[LOCAL] create_node applied under {parent_node.node_id}")
 
             self.fcadclient.create_node_local(
-                parent_node_id=parent_node.node_id, 
-                element_type=element_type, 
+                parent_node_id=parent_node.node_id,
+                element_type=element_type,
                 name=name,
             )
 
@@ -62,26 +58,25 @@ class TreeService:
                 f"(parent={parent_node.node_id}, type={element_type}, name={name})"
             )
             return False
-        
+
         Reporter.success(
             f"[TreeService] Create allowed "
             f"(parent={parent_node}, type={element_type}, name={name})"
         )
 
         return True
-    
+
     def create_node_root(self, element_type, name=None):
         result = TreeRules.can_create_root_node(element_type)
 
         if not result.allowed:
             Reporter.info(
-                f"[TreeService] create_node_root("
-                f"(type={element_type}, name={name})"
+                f"[TreeService] create_node_root((type={element_type}, name={name})"
             )
             return False
-        
+
         def server_op():
-            node_id = self.fcadclient.create_node_api( 
+            node_id = self.fcadclient.create_node_api(
                 parent_node_id=0,
                 element_type=element_type,
                 name=name,
@@ -89,30 +84,26 @@ class TreeService:
             return TransactionResult(success=True, message=node_id)
 
         def local_op():
-            Reporter.info(
-                f"[LOCAL] create_node_root applied under root"
-            )
+            Reporter.info(f"[LOCAL] create_node_root applied under root")
 
             self.fcadclient.create_node_local(
                 parent_node_id=0,
                 element_type=element_type,
                 name=name,
             )
-            
+
             return TransactionResult(success=True, message="200 OK")
 
         result = self.tx.run(server_op, local_op, "Create Node")
 
         if not result.success:
             Reporter.error(
-                f"[TreeService] Create Failed "
-                f"type={element_type}, name={name})"
+                f"[TreeService] Create Failed type={element_type}, name={name})"
             )
             return False
-        
+
         Reporter.success(
-            f"[TreeService] Create allowed "
-            f"(type={element_type}, name={name})"
+            f"[TreeService] Create allowed (type={element_type}, name={name})"
         )
 
         return True
@@ -121,9 +112,7 @@ class TreeService:
         result = TreeRules.can_delete_node(node)
 
         if not result.allowed:
-            Reporter.error(
-                f"[TreeService] Delete denied: {result.reason}"
-            )
+            Reporter.error(f"[TreeService] Delete denied: {result.reason}")
             return
 
         def server_op():
@@ -131,23 +120,17 @@ class TreeService:
             return TransactionResult(success=True, message="200 OK")
 
         def local_op():
-            Reporter.info(
-                f"[LOCAL] delete_node applied (node_id={node.node_id})"
-            )
+            Reporter.info(f"[LOCAL] delete_node applied (node_id={node.node_id})")
             self.fcadclient.delete_node_local(node.node_id)
             return TransactionResult(success=True, message="200 OK")
 
         result = self.tx.run(server_op, local_op, "Delete Node")
 
         if not result.success:
-            Reporter.error(
-                f"[TreeService] Delete Failed (node_id={node.node_id})"
-            )
+            Reporter.error(f"[TreeService] Delete Failed (node_id={node.node_id})")
             return TransactionResult(success=True, message="200 OK")
 
-        Reporter.success(
-            f"[TreeService] Delete allowed (node_id={node.node_id})"
-        )
+        Reporter.success(f"[TreeService] Delete allowed (node_id={node.node_id})")
 
         return True
 
@@ -169,23 +152,22 @@ class TreeService:
                 return parent
 
         return None
-    
+
     def get_roots(self):
         Reporter.info("[TreeService] get_roots() called")
         # ✅ 1. check local
         roots = self.fcadclient.get_root_nodes_local()
         if roots:
             return roots
-    
+
         # ✅ 2. fetch from server
         Reporter.info("[TreeService] fetching roots from API")
-    
+
         rows = self.fcadclient.fetch_root_nodes_api()
-    
+
         # ✅ 3. save to local
         self.fcadclient.sync_set_snapshot_local(rows.get("items", []))
-    
+
         # ✅ 4. TODO: later → read from local
         # for now return empty -> UI will update after create
         return self.fcadclient.get_root_nodes_local()
-    

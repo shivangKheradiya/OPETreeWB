@@ -1,5 +1,6 @@
+import os
+import socket
 from typing import Optional
-import socket, os
 
 
 class OpeDBContext:

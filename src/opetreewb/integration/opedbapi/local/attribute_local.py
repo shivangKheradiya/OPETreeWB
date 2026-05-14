@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
-from opetreewb.integration.opedbapi.local.client import LocalClient
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-from OPE_DB_API.schemas.work import WorkPushRequest
 from OPE_DB_API.crud.work.push import push_work
+from OPE_DB_API.schemas.work import WorkPushRequest
+
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
+from opetreewb.integration.opedbapi.local.client import LocalClient
 
 
 class AttributeLocal:
@@ -20,15 +21,7 @@ class AttributeLocal:
     # -------------------------------------------------
     # CREATE / UPDATE
     # -------------------------------------------------
-    def push(
-        self,
-        *,
-        node_id,
-        attribute_id,
-        value,
-        data_id,
-        operation_type:int = 2
-    ):
+    def push(self, *, node_id, attribute_id, value, data_id, operation_type: int = 2):
         db = self.client.get_session()
 
         try:

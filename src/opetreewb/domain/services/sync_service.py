@@ -1,18 +1,21 @@
 from datetime import datetime
-from opetreewb.messaging.reporter import Reporter
+
 from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
+from opetreewb.messaging.reporter import Reporter
 from opetreewb.SKET.schema.attribute_ids import get_attr_id
+
 
 class SyncService:
     """
     Handles snapshot and history sync.
     """
-    def __init__(self, fcadclient:OpeDBClient=None):
+
+    def __init__(self, fcadclient: OpeDBClient = None):
         self.opeclient = fcadclient
 
     def sync_snapshot(self, root_node_id):
         Reporter.info("[SyncService] snapshot sync requested")
-        rows = self.opeclient.sync_get_snapshot_api(root_node_id, get_attr_id("Owner") )
+        rows = self.opeclient.sync_get_snapshot_api(root_node_id, get_attr_id("Owner"))
         self.opeclient.sync_set_snapshot_local(rows)
         Reporter.success("[SyncService] snapshot sync completed")
         return rows

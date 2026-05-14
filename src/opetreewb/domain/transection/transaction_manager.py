@@ -1,5 +1,5 @@
-from opetreewb.messaging.reporter import Reporter
 from opetreewb.domain.transection.transaction_result import TransactionResult
+from opetreewb.messaging.reporter import Reporter
 
 
 class TransactionManager:
@@ -16,9 +16,7 @@ class TransactionManager:
         server_result = server_op()
 
         if not server_result.success:
-            Reporter.error(
-                f"[TX] Server failed: {server_result.message}"
-            )
+            Reporter.error(f"[TX] Server failed: {server_result.message}")
             return server_result
 
         Reporter.success("[TX] Server succeeded, applying local transaction")

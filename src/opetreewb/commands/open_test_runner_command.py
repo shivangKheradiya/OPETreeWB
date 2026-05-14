@@ -14,7 +14,5 @@ class OpenTestRunnerCommand:
         return True
 
     def Activated(self):
-        self.dialog = TestRunnerDialog(
-            FreeCADGui.getMainWindow()
-        )
+        self.dialog = TestRunnerDialog(FreeCADGui.getMainWindow())
         self.dialog.exec_()

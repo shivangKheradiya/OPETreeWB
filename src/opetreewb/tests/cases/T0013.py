@@ -44,9 +44,7 @@ def run():
         )
 
         # ✅ Step 3 — Close session
-        session = session_local.close(
-            session_id=OPE_DB_CONTEXT.session_id
-        )
+        session = session_local.close(session_id=OPE_DB_CONTEXT.session_id)
 
         FreeCAD.Console.PrintMessage("Session closed in local DB\n")
 

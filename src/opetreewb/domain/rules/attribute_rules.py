@@ -1,6 +1,7 @@
 from opetreewb.domain.rules.rules import RuleResult
 from opetreewb.domain.schema.schema_loader import get_schema
 
+
 class AttributeRules:
     """
     Declarative rules for attribute operations.
@@ -24,8 +25,6 @@ class AttributeRules:
 
         # ✅ 2. Check editable flag
         if not attr_meta.get("editable", True):
-            return RuleResult.deny(
-                f"Attribute '{attribute_name}' is read-only"
-            )
+            return RuleResult.deny(f"Attribute '{attribute_name}' is read-only")
 
         return RuleResult.ok()

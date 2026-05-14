@@ -4,8 +4,8 @@ import FreeCADGui
 from opetreewb.domain import CN
 from opetreewb.domain.services.service_locator import get_geometry_service
 
-class OPESelectionObserver:
 
+class OPESelectionObserver:
     def addSelection(self, doc_name, obj_name, sub, pos):
 
         doc = FreeCAD.ActiveDocument

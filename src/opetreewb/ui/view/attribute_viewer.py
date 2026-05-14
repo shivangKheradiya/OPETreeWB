@@ -3,16 +3,13 @@ Attribute Viewer (UI-only, MVVM, CN-driven).
 """
 
 import FreeCAD
-from PySide.QtWidgets import (
-    QWidget,
-    QTableWidget,
-    QTableWidgetItem,
-    QVBoxLayout,
-)
 from PySide.QtCore import Qt
+from PySide.QtWidgets import (QTableWidget, QTableWidgetItem, QVBoxLayout,
+                              QWidget)
 
-from opetreewb.ui.viewmodels.attribute_viewmodel import AttributeViewerViewModel
 from opetreewb.domain import CN
+from opetreewb.ui.viewmodels.attribute_viewmodel import \
+    AttributeViewerViewModel
 
 
 class AttributeViewer(QWidget):
@@ -27,9 +24,7 @@ class AttributeViewer(QWidget):
 
         self.vm.error.connect(self._on_error)
         self.vm.data_changed.connect(self._refresh)
-        self.vm.attribute_value_changed.connect(
-            self._on_attribute_value_changed
-        )
+        self.vm.attribute_value_changed.connect(self._on_attribute_value_changed)
 
         # CN is the single source of truth
         CN.changed.connect(self._on_cn_changed)
@@ -44,14 +39,11 @@ class AttributeViewer(QWidget):
     # -------------------------------------------------
     def _build_ui(self):
         self.table = QTableWidget(0, 3)
-        self.table.setHorizontalHeaderLabels(
-            ["Attribute", "Value", "Data ID"]
-        )
+        self.table.setHorizontalHeaderLabels(["Attribute", "Value", "Data ID"])
         self.table.horizontalHeader().setStretchLastSection(True)
 
         self.table.setEditTriggers(
-            QTableWidget.DoubleClicked |
-            QTableWidget.EditKeyPressed
+            QTableWidget.DoubleClicked | QTableWidget.EditKeyPressed
         )
 
         layout = QVBoxLayout(self)
@@ -130,7 +122,7 @@ class AttributeViewer(QWidget):
                 self._on_error("Value must be a float")
                 self._refresh()
                 return
-        
+
         # View → ViewModel → CN → AttributeService
         ok = self.vm.update_value(row_index, new_value)
         if not ok:

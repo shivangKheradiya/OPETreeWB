@@ -1,16 +1,17 @@
-from opetreewb.messaging.reporter import Reporter
+from opetreewb.domain.rules.session_rules import SessionRules
 from opetreewb.domain.session_state import SessionState
 from opetreewb.domain.transection.transaction_manager import TransactionManager
-from opetreewb.domain.rules.session_rules import SessionRules
-from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
 from opetreewb.domain.transection.transaction_result import TransactionResult
+from opetreewb.integration.opedbapi.facade.opedb_client import OpeDBClient
+from opetreewb.messaging.reporter import Reporter
+
 
 class SessionService:
     """
     Manages OPE session lifecycle (explicit API + LOCAL control).
     """
 
-    def __init__(self, fcadclient:OpeDBClient=None):
+    def __init__(self, fcadclient: OpeDBClient = None):
 
         self.opeclient = fcadclient
         self.tx = TransactionManager()
@@ -24,9 +25,7 @@ class SessionService:
         result = SessionRules.can_start(self._state)
 
         if not result.allowed:
-            Reporter.error(
-                f"[SessionService] Start denied: {result.reason}"
-            )
+            Reporter.error(f"[SessionService] Start denied: {result.reason}")
             return False
 
         # -------------------------
@@ -55,9 +54,7 @@ class SessionService:
 
                 self._state = SessionState.ACTIVE
 
-                Reporter.info(
-                    f"[LOCAL] Session active)"
-                )
+                Reporter.info(f"[LOCAL] Session active)")
                 return TransactionResult(success=True, message="Added into Local Db")
 
             except Exception as e:
@@ -82,9 +79,7 @@ class SessionService:
         result = SessionRules.can_commit(self._state)
 
         if not result.allowed:
-            Reporter.error(
-                f"[SessionService] Commit denied: {result.reason}"
-            )
+            Reporter.error(f"[SessionService] Commit denied: {result.reason}")
             return False
 
         # -------------------------
@@ -111,7 +106,7 @@ class SessionService:
 
                 Reporter.info("[LOCAL] Session committed")
                 return TransactionResult(success=True, message=result)
-            
+
             except Exception as e:
                 Reporter.error(f"[LOCAL] commit_session_local failed → {e}")
                 raise
@@ -134,9 +129,7 @@ class SessionService:
         result = SessionRules.can_abort(self._state)
 
         if not result.allowed:
-            Reporter.error(
-                f"[SessionService] Abort denied: {result.reason}"
-            )
+            Reporter.error(f"[SessionService] Abort denied: {result.reason}")
             return False
 
         # -------------------------

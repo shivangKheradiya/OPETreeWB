@@ -1,5 +1,6 @@
 import os
 
+
 def collect_py_files(root_dir, output_txt, skip_dirs=None):
     if skip_dirs is None:
         skip_dirs = set()
@@ -9,10 +10,7 @@ def collect_py_files(root_dir, output_txt, skip_dirs=None):
     with open(output_txt, "w", encoding="utf-8") as out_file:
         for foldername, subfolders, filenames in os.walk(root_dir):
             # Remove skipped directories (prevents os.walk from entering them)
-            subfolders[:] = [
-                sf for sf in subfolders
-                if sf.lower() not in skip_dirs
-            ]
+            subfolders[:] = [sf for sf in subfolders if sf.lower() not in skip_dirs]
 
             for filename in filenames:
                 if filename.endswith(".py"):
@@ -26,7 +24,9 @@ def collect_py_files(root_dir, output_txt, skip_dirs=None):
                     out_file.write("-" * 80 + "\n")
 
                     try:
-                        with open(file_path, "r", encoding="utf-8", errors="replace") as py_file:
+                        with open(
+                            file_path, "r", encoding="utf-8", errors="replace"
+                        ) as py_file:
                             out_file.write(py_file.read())
                     except Exception as e:
                         out_file.write(f"[Error reading file: {e}]")
@@ -46,6 +46,12 @@ if __name__ == "__main__":
     collect_py_files(directory_to_scan, output_file, skip_folders)
 
     skip_folders = {}
-    collect_py_files(r"C:\SKRepo\OPETreeWB\vendor\OPE_DB_API\OPE_DB_API", "OPE_DB_API.txt", skip_folders)
-    collect_py_files(r"C:\SKRepo\OPETreeWB\vendor\PyDBML\PyDBML", "PyDBML.txt", skip_folders)
+    collect_py_files(
+        r"C:\SKRepo\OPETreeWB\vendor\OPE_DB_API\OPE_DB_API",
+        "OPE_DB_API.txt",
+        skip_folders,
+    )
+    collect_py_files(
+        r"C:\SKRepo\OPETreeWB\vendor\PyDBML\PyDBML", "PyDBML.txt", skip_folders
+    )
     print("Done! Python files have been consolidated.")

@@ -1,5 +1,4 @@
 class ArcObject:
-
     def __init__(self, obj, node):
 
         obj.Proxy = self

@@ -1,9 +1,10 @@
+import json
+import math
+
 from pivy import coin
-import math, json
 
 
 class ViewProviderHexa:
-
     def __init__(self, vobj):
         vobj.Proxy = self
 
@@ -78,7 +79,6 @@ class ViewProviderHexa:
         color = (0.0, 0.0, 0.0)
 
         if color_attr and color_attr.value:
-
             raw = color_attr.value
 
             try:

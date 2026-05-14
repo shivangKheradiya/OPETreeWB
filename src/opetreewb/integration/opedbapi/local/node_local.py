@@ -1,12 +1,16 @@
-from opetreewb.integration.opedbapi.core.operation_context import OperationContext
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-from OPE_DB_API.schemas.work import WorkPushRequest
 from OPE_DB_API.crud.work.push import push_work
+from OPE_DB_API.schemas.work import WorkPushRequest
+
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
+from opetreewb.integration.opedbapi.core.operation_context import \
+    OperationContext
 from opetreewb.integration.opedbapi.local.client import LocalClient
 
-class NodeLocal:
 
-    def __init__(self, op_context:OperationContext=None,localclient:LocalClient=None):
+class NodeLocal:
+    def __init__(
+        self, op_context: OperationContext = None, localclient: LocalClient = None
+    ):
         self.op_context = op_context
         self.client = localclient
 
@@ -36,4 +40,3 @@ class NodeLocal:
                 db.refresh(row)
         finally:
             db.close()
-

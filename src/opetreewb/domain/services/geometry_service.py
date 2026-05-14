@@ -31,9 +31,7 @@ class GeometryService:
 
         self._build_recursive(node, doc)
 
-        FreeCAD.Console.PrintMessage(
-            "[GeometryService] Recompute triggered\n"
-        )
+        FreeCAD.Console.PrintMessage("[GeometryService] Recompute triggered\n")
 
         doc.recompute()
 
@@ -121,9 +119,7 @@ class GeometryService:
             )
             return
 
-        FreeCAD.Console.PrintMessage(
-            "[GeometryService] ✅ Object found → recompute\n"
-        )
+        FreeCAD.Console.PrintMessage("[GeometryService] ✅ Object found → recompute\n")
         try:
             obj.touch()
             FreeCAD.ActiveDocument.recompute()

@@ -1,18 +1,17 @@
 from datetime import datetime, timezone
-from opetreewb.integration.opedbapi.local.client import LocalClient
+
 from OPE_DB_API.crud.live.read import get_live_row
-from OPE_DB_API.crud.live.write import insert_live_row, update_live_row
+from OPE_DB_API.crud.live.write import (delete_live_row, insert_live_row,
+                                        update_live_row)
+
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-from OPE_DB_API.crud.live.write import (
-    insert_live_row,
-    update_live_row,
-    delete_live_row,
-)
+from opetreewb.integration.opedbapi.local.client import LocalClient
+
 
 class SyncLocal:
-    def __init__(self,localclient:LocalClient=None):
+    def __init__(self, localclient: LocalClient = None):
         self.client = localclient
-    
+
     def apply_snapshot(self, rows):
         domain = OPE_DB_CONTEXT.domain.upper()
         db = self.client.get_session()
@@ -35,10 +34,10 @@ class SyncLocal:
         try:
             for row in rows:
                 row_ts = row.get("committed_at")
-                
+
                 if isinstance(row_ts, str):
                     row_ts = datetime.fromisoformat(row_ts)
-                    
+
                 if row_ts.tzinfo is not None:
                     row_ts = row_ts.astimezone(timezone.utc).replace(tzinfo=None)
 
@@ -73,5 +72,5 @@ class SyncLocal:
             db.commit()
         finally:
             db.close()
-        
+
         return latest_ts

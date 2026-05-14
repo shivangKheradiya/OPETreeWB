@@ -1,5 +1,4 @@
 class HexaObject:
-
     def __init__(self, obj, node):
 
         obj.Proxy = self

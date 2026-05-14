@@ -1,32 +1,29 @@
 from datetime import datetime
-from sqlalchemy.orm import Session
-
-from opetreewb.integration.opedbapi.core.operation_context import OperationContext
-
-from opetreewb.integration.opedbapi.api.session_api import SessionAPI
-from opetreewb.integration.opedbapi.api.node_api import NodeAPI
-from opetreewb.integration.opedbapi.api.attribute_api import AttributeAPI
-from opetreewb.integration.opedbapi.api.query_api import QueryAPI
-from opetreewb.integration.opedbapi.api.client import OpeApiClient
-from opetreewb.integration.opedbapi.api.sync_api import SyncAPI
-
-from opetreewb.integration.opedbapi.local.session_local import SessionLocal
-from opetreewb.integration.opedbapi.local.attribute_local import AttributeLocal
-from opetreewb.integration.opedbapi.local.query_local import QueryLocal
-from opetreewb.integration.opedbapi.local.client import LocalClient
-from opetreewb.integration.opedbapi.local.node_local import NodeLocal
-from opetreewb.integration.opedbapi.local.sync_local import SyncLocal
-
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT,ID_GENERATOR
-from opetreewb.messaging.reporter import Reporter
 
 from OPE_DB_API.crud.commit.commit import commit_session
 from OPE_DB_API.crud.session.abort import abort_session
-from opetreewb.integration.opedbapi.local.sync_cursor import (
-    update_last_synced_at_for_active_session,
-)
+from sqlalchemy.orm import Session
 
+from opetreewb.domain.stores.stores import ID_GENERATOR, OPE_DB_CONTEXT
+from opetreewb.integration.opedbapi.api.attribute_api import AttributeAPI
+from opetreewb.integration.opedbapi.api.client import OpeApiClient
+from opetreewb.integration.opedbapi.api.node_api import NodeAPI
+from opetreewb.integration.opedbapi.api.query_api import QueryAPI
+from opetreewb.integration.opedbapi.api.session_api import SessionAPI
+from opetreewb.integration.opedbapi.api.sync_api import SyncAPI
+from opetreewb.integration.opedbapi.core.operation_context import \
+    OperationContext
+from opetreewb.integration.opedbapi.local.attribute_local import AttributeLocal
+from opetreewb.integration.opedbapi.local.client import LocalClient
+from opetreewb.integration.opedbapi.local.node_local import NodeLocal
+from opetreewb.integration.opedbapi.local.query_local import QueryLocal
+from opetreewb.integration.opedbapi.local.session_local import SessionLocal
+from opetreewb.integration.opedbapi.local.sync_cursor import \
+    update_last_synced_at_for_active_session
+from opetreewb.integration.opedbapi.local.sync_local import SyncLocal
+from opetreewb.messaging.reporter import Reporter
 from opetreewb.SKET.schema.attribute_ids import get_attr_id
+
 
 class OpeDBClient:
     """
@@ -43,7 +40,11 @@ class OpeDBClient:
         # ✅ API
         self.api_client = OpeApiClient()
         self.api_session = SessionAPI()
-        self.api_node = NodeAPI(id_generator=id_gen, op_context=self.operationcontext,opeapiclient=self.api_client)
+        self.api_node = NodeAPI(
+            id_generator=id_gen,
+            op_context=self.operationcontext,
+            opeapiclient=self.api_client,
+        )
         self.api_attr = AttributeAPI(id_generator=id_gen)
         self.api_query = QueryAPI(client=self.api_client)
         self.api_sync = SyncAPI()
@@ -53,7 +54,9 @@ class OpeDBClient:
         self.local_attr = AttributeLocal(id_gen)
         self.local_query = QueryLocal()
         self.local_client = LocalClient()
-        self.local_node = NodeLocal(op_context=self.operationcontext, localclient=self.local_client)
+        self.local_node = NodeLocal(
+            op_context=self.operationcontext, localclient=self.local_client
+        )
         self.local_sync = SyncLocal(localclient=self.local_client)
 
         Reporter.success("[OpeDBClient] Ready")
@@ -109,10 +112,8 @@ class OpeDBClient:
             owner_attr_id = get_attr_id("Owner")
             result = self.api_client.post(
                 "work/commit",
-                json={
-                    "owner_attribute_id": owner_attr_id
-                },
-                use_session=True
+                json={"owner_attribute_id": owner_attr_id},
+                use_session=True,
             )
             Reporter.success("[OpeDBClient][API] commit applied")
         except Exception as e:
@@ -142,10 +143,7 @@ class OpeDBClient:
     def abort_session_api(self):
         Reporter.info("[OpeDBClient][API] abort_session_api")
         try:
-            result = self.api_client.post(
-                "work/discard",
-                use_session=True
-            )
+            result = self.api_client.post("work/discard", use_session=True)
             Reporter.success("[OpeDBClient][API] abort applied")
         except Exception as e:
             Reporter.error(f"[OpeDBClient][API] abort failed → {e}")
@@ -266,9 +264,7 @@ class OpeDBClient:
         Reporter.info("[OpeDBClient][API] create_node_api")
         try:
             node_id = self.api_node.create(
-                parent_node_id=parent_node_id,
-                type_value=element_type,
-                name=name
+                parent_node_id=parent_node_id, type_value=element_type, name=name
             )
 
             Reporter.success(f"[OpeDBClient][API] node created → {node_id}")
@@ -277,7 +273,6 @@ class OpeDBClient:
         except Exception as e:
             Reporter.error(f"[OpeDBClient][API] create_node failed → {e}")
             raise
-
 
     def create_node_local(self, parent_node_id, element_type, name=None):
         Reporter.info("[OpeDBClient][LOCAL] create_node_local")
@@ -288,7 +283,6 @@ class OpeDBClient:
         except Exception as e:
             Reporter.error(f"[OpeDBClient][LOCAL] create_node failed → {e}")
             raise
-
 
     # ---------- DELETE NODE ----------
     def delete_node_api(self, node_id, element_type):
@@ -301,7 +295,6 @@ class OpeDBClient:
         except Exception as e:
             Reporter.error(f"[OpeDBClient][API] delete_node failed → {e}")
             raise
-
 
     def delete_node_local(self, node_id):
         Reporter.info(f"[OpeDBClient][LOCAL] delete_node_local → {node_id}")
@@ -328,13 +321,13 @@ class OpeDBClient:
 
     def fetch_root_nodes_api(self):
         return self.api_query.fetch_root_nodes()
-    
+
     def get_root_nodes_local(self):
         return self.local_query.get_root_nodes()
-    
+
     def get_children_local(self, parent_node_id):
         return self.local_query.get_children(parent_node_id)
-    
+
     def update_last_synced_at_for_active_session(self, datetime):
         update_last_synced_at_for_active_session(
             localclient=self.local_client,

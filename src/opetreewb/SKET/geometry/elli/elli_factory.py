@@ -1,4 +1,5 @@
 import FreeCAD
+
 from .elli_object import ElliObject
 from .elli_view import ViewProviderElli
 

@@ -1,9 +1,11 @@
+import json
+import math
+
+import FreeCAD
 from pivy import coin
-import math, json, FreeCAD
 
 
 class ViewProviderArc:
-
     def __init__(self, vobj):
         vobj.Proxy = self
 
@@ -83,7 +85,6 @@ class ViewProviderArc:
         color = (0.0, 0.0, 0.0)
 
         if color_attr and color_attr.value:
-
             raw = color_attr.value
 
             try:

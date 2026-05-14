@@ -7,12 +7,11 @@ AttributeViewerViewModel
 """
 
 from PySide import QtCore
-from opetreewb.ui.model.attribute_model import (
-    AttributeTableModel,
-    AttributeRow,
-)
+
 from opetreewb.domain import CN
 from opetreewb.domain.schema.schema_loader import get_schema
+from opetreewb.ui.model.attribute_model import (AttributeRow,
+                                                AttributeTableModel)
 
 
 class AttributeViewerViewModel(QtCore.QObject):
@@ -95,9 +94,7 @@ class AttributeViewerViewModel(QtCore.QObject):
 
         # UI‑level validation
         if row.attribute in ("Type", "Owner"):
-            self.error.emit(
-                f"'{row.attribute}' is read-only"
-            )
+            self.error.emit(f"'{row.attribute}' is read-only")
             return False
 
         old_value = row.value
@@ -119,7 +116,5 @@ class AttributeViewerViewModel(QtCore.QObject):
             new_value,
         )
 
-        self.message.emit(
-            f"Attribute '{row.attribute}' updated to '{new_value}'"
-        )
+        self.message.emit(f"Attribute '{row.attribute}' updated to '{new_value}'")
         self.data_changed.emit()

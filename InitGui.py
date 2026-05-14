@@ -1,7 +1,8 @@
 import sys
 from pathlib import Path
-import FreeCADGui
+
 import FreeCAD
+import FreeCADGui
 
 # -------------------------------------------------
 # Add src/ to Python path (FreeCAD-safe way)
@@ -25,7 +26,9 @@ for p in paths:
 # -------------------------------------------------
 # Register Plugins
 # -------------------------------------------------
-from opetreewb.domain.plugin.plugin_loader import register_sys_path, register_plugin_path
+from opetreewb.domain.plugin.plugin_loader import (register_plugin_path,
+                                                   register_sys_path)
+
 register_plugin_path("opetreewb.SKET")
 
 # -------------------------------------------------

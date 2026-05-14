@@ -1,5 +1,4 @@
 class CircObject:
-
     def __init__(self, obj, node):
 
         obj.Proxy = self
@@ -16,9 +15,7 @@ class CircObject:
 
         import FreeCAD
 
-        FreeCAD.Console.PrintMessage(
-            f"[CIRC_EXECUTE] node={self.node.node_id}\n"
-        )
+        FreeCAD.Console.PrintMessage(f"[CIRC_EXECUTE] node={self.node.node_id}\n")
 
         node = self.node
 

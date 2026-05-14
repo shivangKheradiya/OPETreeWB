@@ -44,22 +44,21 @@ def run():
         FreeCAD.Console.PrintMessage("Committing overlay → live\n")
 
         # ✅ Step 1 — SAVE (COMMIT)
-        result = client.post(
-            "work/commit",
-            use_session=True
-        )
+        result = client.post("work/commit", use_session=True)
 
         FreeCAD.Console.PrintMessage("Result :{}\n".format(result))
         FreeCAD.Console.PrintMessage("Save response received\n")
 
         # ✅ Step 2 — Validate session closed
         if OPE_DB_CONTEXT.is_session_active:
-            FreeCAD.Console.PrintMessage("Note: Context still active (API closes backend session only)\n")
+            FreeCAD.Console.PrintMessage(
+                "Note: Context still active (API closes backend session only)\n"
+            )
 
         FreeCAD.Console.PrintMessage(f"\n[{TEST_ID}] PASSED ✅\n")
 
     except Exception as e:
         import traceback
+
         traceback.print_exc()
         FreeCAD.Console.PrintError(f"[{TEST_ID}] FAILED ❌ → {e}\n")
-

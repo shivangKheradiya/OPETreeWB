@@ -21,7 +21,5 @@ class OpenConnectionCommand:
         return True
 
     def Activated(self):
-        dialog = ConnectionDialog(
-            parent=FreeCADGui.getMainWindow()
-        )
+        dialog = ConnectionDialog(parent=FreeCADGui.getMainWindow())
         dialog.exec_()

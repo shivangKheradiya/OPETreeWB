@@ -8,8 +8,7 @@ def load_element_schema(element_type):
 
     try:
         module = __import__(
-            f"opetreewb.SKET.hierarchy.{element_type.lower()}",
-            fromlist=["*"]
+            f"opetreewb.SKET.hierarchy.{element_type.lower()}", fromlist=["*"]
         )
 
         class_name = element_type.capitalize()

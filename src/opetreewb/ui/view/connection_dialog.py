@@ -4,12 +4,12 @@ Connection and Project Selection Dialog (UI only).
 - Messages are printed to FreeCAD Report View
 """
 
-from PySide import QtWidgets
 import FreeCAD
+from PySide import QtWidgets
 
-from opetreewb.ui.viewmodels.connection_viewmodel import ConnectionViewModel
-from opetreewb.domain.services.service_container import ServiceContainer
 from opetreewb.app.app_context import AppContext
+from opetreewb.domain.services.service_container import ServiceContainer
+from opetreewb.ui.viewmodels.connection_viewmodel import ConnectionViewModel
 
 
 class ConnectionDialog(QtWidgets.QDialog):
@@ -37,11 +37,13 @@ class ConnectionDialog(QtWidgets.QDialog):
         self.project_code_edit = QtWidgets.QLineEdit()
 
         self.domain_combo = QtWidgets.QComboBox()
-        self.domain_combo.addItems([
-            "SKET",
-            "DESI",
-            "DICT",
-        ])
+        self.domain_combo.addItems(
+            [
+                "SKET",
+                "DESI",
+                "DICT",
+            ]
+        )
 
         layout.addRow("API Base URL:", self.api_url_edit)
         layout.addRow("Project Code:", self.project_code_edit)
@@ -63,8 +65,7 @@ class ConnectionDialog(QtWidgets.QDialog):
         layout.addRow("Local DB Password:", self.local_db_password_edit)
 
         buttons = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok |
-            QtWidgets.QDialogButtonBox.Cancel
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
         )
         buttons.accepted.connect(self._on_accept)
         buttons.rejected.connect(self.reject)
@@ -108,34 +109,26 @@ class ConnectionDialog(QtWidgets.QDialog):
     # Report View output
     # -------------------------------------------------
     def _report_error(self, msg: str):
-        FreeCAD.Console.PrintError(
-            f"[ConnectionDialog] ERROR: {msg}\n"
-        )
+        FreeCAD.Console.PrintError(f"[ConnectionDialog] ERROR: {msg}\n")
 
     def _on_success(self, data: dict):
         FreeCAD.Console.PrintMessage(
             "[ConnectionDialog] Connection parameters accepted:\n"
         )
-        
+
         AppContext.container = ServiceContainer()
 
         # =================================================
         # ✅ START SESSION
         # =================================================
-        FreeCAD.Console.PrintMessage(
-            "[ConnectionDialog] Starting session...\n"
-        )
-        
+        FreeCAD.Console.PrintMessage("[ConnectionDialog] Starting session...\n")
+
         success = AppContext.container.session_service.start()
 
         if not success:
-            FreeCAD.Console.PrintError(
-                "[ConnectionDialog] Session start FAILED ❌\n"
-            )
+            FreeCAD.Console.PrintError("[ConnectionDialog] Session start FAILED ❌\n")
             return
 
-        FreeCAD.Console.PrintMessage(
-            "[ConnectionDialog] Session started ✅\n"
-        )
+        FreeCAD.Console.PrintMessage("[ConnectionDialog] Session started ✅\n")
 
         self.accept()

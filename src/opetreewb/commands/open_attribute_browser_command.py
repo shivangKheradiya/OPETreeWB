@@ -3,8 +3,8 @@ FreeCAD command to open the Attribute Viewer (UI only).
 """
 
 import FreeCADGui
-from PySide.QtWidgets import QDockWidget
 from PySide.QtCore import Qt
+from PySide.QtWidgets import QDockWidget
 
 from opetreewb.ui.view.attribute_viewer import AttributeViewer
 
@@ -13,7 +13,7 @@ class OpenAttributeBrowserCommand:
     """Open the OPE Attribute Browser (UI only)."""
 
     DOCK_NAME = "OPEAttributeBrowserDock"
-    
+
     def GetResources(self):
         return {
             "MenuText": "OPE Attribute Browser",
@@ -46,9 +46,7 @@ class OpenAttributeBrowserCommand:
         dock.setWidget(viewer)
 
         dock.setAllowedAreas(
-            Qt.LeftDockWidgetArea |
-            Qt.RightDockWidgetArea |
-            Qt.BottomDockWidgetArea
+            Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea
         )
 
         # -------------------------------------------------

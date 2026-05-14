@@ -46,10 +46,7 @@ def run():
         FreeCAD.Console.PrintMessage(f"Discarding session: {session_id}\n")
 
         # ✅ Step 1 — DISCARD overlay
-        client.post(
-            "work/discard",
-            use_session=True
-        )
+        client.post("work/discard", use_session=True)
 
         FreeCAD.Console.PrintMessage("Discard response received\n")
 
@@ -59,7 +56,7 @@ def run():
             filter_dict={
                 "field": "node_id",
                 "op": "=",
-                "value": 999999999  # dummy control query
+                "value": 999999999,  # dummy control query
             }
         )
 
@@ -72,4 +69,3 @@ def run():
 
     except Exception as e:
         FreeCAD.Console.PrintError(f"[{TEST_ID}] FAILED ❌ → {e}\n")
-

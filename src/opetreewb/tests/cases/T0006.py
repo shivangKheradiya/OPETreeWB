@@ -18,13 +18,13 @@ Expected:
 
 import FreeCAD
 
+from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.api.attribute_api import AttributeAPI
 from opetreewb.integration.opedbapi.api.query_api import QueryAPI
-from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 
 TEST_ID = "T0006"
 
@@ -42,8 +42,8 @@ def run():
             raise RuntimeError("FAILED: No active session (run T0004 first)")
 
         # ✅ Setup
-        node_id = 999999999   # test node (can be dummy)
-        attribute_id = 1     # example attribute (must exist in DB config)
+        node_id = 999999999  # test node (can be dummy)
+        attribute_id = 1  # example attribute (must exist in DB config)
         value = {"test": "value"}
 
         id_gen = SnowflakeIDGenerator()
@@ -54,21 +54,14 @@ def run():
 
         # ✅ Step 1 — PUSH (CREATE)
         data_id = attr_api.push(
-            node_id=node_id,
-            attribute_id=attribute_id,
-            value=value,
-            data_id=None
+            node_id=node_id, attribute_id=attribute_id, value=value, data_id=None
         )
 
         FreeCAD.Console.PrintMessage(f"Data ID: {data_id}\n")
 
         # ✅ Step 2 — Validate via WORKING STATE
         result = query_api.search(
-            filter_dict={
-                "field": "node_id",
-                "op": "=",
-                "value": node_id
-            }
+            filter_dict={"field": "node_id", "op": "=", "value": node_id}
         )
 
         FreeCAD.Console.PrintMessage("SEARCH RESULT RECEIVED\n")

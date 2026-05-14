@@ -1,10 +1,10 @@
 import socket
 
-from opetreewb.integration.opedbapi.local.client import LocalClient
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-
-from OPE_DB_API.crud.session.start import start_session
 from OPE_DB_API.crud.session.close import close_session
+from OPE_DB_API.crud.session.start import start_session
+
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
+from opetreewb.integration.opedbapi.local.client import LocalClient
 
 
 class SessionLocal:
@@ -47,10 +47,7 @@ class SessionLocal:
         db = self.client.get_session()
 
         try:
-            session = close_session(
-                db,
-                session_id=OPE_DB_CONTEXT.session_id
-            )
+            session = close_session(db, session_id=OPE_DB_CONTEXT.session_id)
 
             db.commit()
             db.refresh(session)

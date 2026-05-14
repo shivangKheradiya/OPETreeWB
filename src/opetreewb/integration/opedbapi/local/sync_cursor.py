@@ -1,13 +1,16 @@
 from datetime import datetime, timezone
-from sqlalchemy import func
+
 from OPE_DB_API.db.session import get_client_db_session
 from OPE_DB_API.models.session import SessionMetadata
-from opetreewb.integration.opedbapi.local.client import LocalClient
+from sqlalchemy import func
+
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
+from opetreewb.integration.opedbapi.local.client import LocalClient
+
 
 def get_or_initialize_global_last_synced_at(
     *,
-    localclient:LocalClient=None,
+    localclient: LocalClient = None,
 ) -> datetime:
     active_session_id = OPE_DB_CONTEXT.session_id
     db = localclient.get_session()
@@ -25,9 +28,7 @@ def get_or_initialize_global_last_synced_at(
             )
 
             if session is None:
-                raise RuntimeError(
-                    f"Active session {active_session_id} not found"
-                )
+                raise RuntimeError(f"Active session {active_session_id} not found")
 
             session.last_synced_at = now_ts
             db.commit()
@@ -41,7 +42,7 @@ def get_or_initialize_global_last_synced_at(
 
 def update_last_synced_at_for_active_session(
     *,
-    localclient:LocalClient=None,
+    localclient: LocalClient = None,
     new_ts: datetime,
 ) -> None:
     session_id = OPE_DB_CONTEXT.session_id
@@ -55,9 +56,7 @@ def update_last_synced_at_for_active_session(
         )
 
         if session is None:
-            raise RuntimeError(
-                f"Active session {session_id} not found"
-            )
+            raise RuntimeError(f"Active session {session_id} not found")
 
         existing_ts = session.last_synced_at
         if existing_ts and existing_ts.tzinfo is not None:

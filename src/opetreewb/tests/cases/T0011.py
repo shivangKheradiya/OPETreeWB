@@ -16,13 +16,13 @@ Expected:
 
 import FreeCAD
 
+from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.api.node_api import NodeAPI
 from opetreewb.integration.opedbapi.api.query_api import QueryAPI
-from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 
 TEST_ID = "T0011"
 
@@ -67,11 +67,7 @@ def run():
         # VALIDATE REMOVAL
         # -----------------------------------------
         result = query.search(
-            filter_dict={
-                "field": "node_id",
-                "op": "=",
-                "value": node_id
-            }
+            filter_dict={"field": "node_id", "op": "=", "value": node_id}
         )
 
         if result["total"] != 0:

@@ -1,9 +1,8 @@
-from .base import ElementSchema, base_attributes
 from ..schema.attribute_ids import get_attr_id
+from .base import ElementSchema, base_attributes
 
 
 class Rect(ElementSchema):
-
     TYPE = "RECT"
 
     @classmethod
@@ -13,7 +12,6 @@ class Rect(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-
             "X": {
                 "default": "0",
                 "datatype": "float",

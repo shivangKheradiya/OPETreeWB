@@ -3,6 +3,7 @@ Utility functions for formatting tree node labels.
 Pure domain logic.
 """
 
+
 def format_node_label(
     *,
     type_name: str | None,

@@ -1,5 +1,6 @@
 from ..schema.attribute_ids import get_attr_id
 
+
 class ElementSchema:
     """
     Base class for all hierarchy elements.
@@ -14,7 +15,7 @@ class ElementSchema:
     @classmethod
     def allowed_children(cls):
         return []
-    
+
 
 # ✅ Common helper
 def base_attributes(type_name):
@@ -25,7 +26,7 @@ def base_attributes(type_name):
             "editable": True,
             "kind": "user",
             "id": get_attr_id("Name"),
-        },        
+        },
         "Type": {
             "default": type_name,
             "datatype": "string",

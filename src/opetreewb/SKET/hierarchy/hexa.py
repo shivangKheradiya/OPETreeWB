@@ -1,9 +1,8 @@
-from .base import ElementSchema, base_attributes
 from ..schema.attribute_ids import get_attr_id
+from .base import ElementSchema, base_attributes
 
 
 class Hexa(ElementSchema):
-
     TYPE = "HEXA"
 
     @classmethod
@@ -13,7 +12,6 @@ class Hexa(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-    
             "CenterX": {
                 "default": "0",
                 "datatype": "float",
@@ -35,7 +33,6 @@ class Hexa(ElementSchema):
                 "kind": "user",
                 "id": get_attr_id("Radius"),
             },
-
             # ✅ STYLE
             "LineStyle": {
                 "default": "Solid",

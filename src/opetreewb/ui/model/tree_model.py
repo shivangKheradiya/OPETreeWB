@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import Dict, List
 
 
 @dataclass
@@ -7,12 +7,14 @@ class AttributeValue:
     data_id: int
     value: str
 
+
 @dataclass
 class TreeNodeModel:
     node_id: int
     label: str
     attributes: Dict[str, AttributeValue]
     children: List["TreeNodeModel"]
+
 
 class TreeModel:
     """

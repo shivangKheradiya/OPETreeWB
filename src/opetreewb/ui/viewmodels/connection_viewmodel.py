@@ -1,12 +1,13 @@
+from pathlib import Path
+
+import toml
+from OPE_DB_API.config.loader import set_client_config_file
 from PySide import QtCore
-from opetreewb.ui.model.connection_model import ConnectionFormModel
 
 # ✅ NEW
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-from OPE_DB_API.config.loader import set_client_config_file
+from opetreewb.ui.model.connection_model import ConnectionFormModel
 
-from pathlib import Path
-import toml
 
 class ConnectionViewModel(QtCore.QObject):
     error = QtCore.Signal(str)
@@ -75,20 +76,22 @@ class ConnectionViewModel(QtCore.QObject):
             # ✅ ✅ ✅ STEP 3 — Configure local DB (dynamic config)
             client_config = {
                 "database_map": {
-                    self.model.project_code.upper() : "postgres_" + self.model.project_code.lower()
+                    self.model.project_code.upper(): "postgres_"
+                    + self.model.project_code.lower()
                 },
-                "postgres_" + self.model.project_code.lower(): {
-                    "user" : self.model.local_db_user,
-                    "password" : self.model.local_db_password,
-                    "host" : self.model.local_db_host,
-                    "port" : int(self.model.local_db_port),
-                    "database" : self.model.project_code.lower(),
-                    "api_url" : self.model.api_url.rstrip("/"),
+                "postgres_"
+                + self.model.project_code.lower(): {
+                    "user": self.model.local_db_user,
+                    "password": self.model.local_db_password,
+                    "host": self.model.local_db_host,
+                    "port": int(self.model.local_db_port),
+                    "database": self.model.project_code.lower(),
+                    "api_url": self.model.api_url.rstrip("/"),
                 },
             }
 
             # ✅ write temp config file
-            
+
             config_dir = Path.home() / "AppData" / "Local" / "OPETreeWB"
             config_dir.mkdir(parents=True, exist_ok=True)
             config_file = config_dir / "client_config.toml"
@@ -104,13 +107,15 @@ class ConnectionViewModel(QtCore.QObject):
             return
 
         # -------- Emit success --------
-        self.success.emit({
-            "api_url": api_url,
-            "project_code": self.model.project_code,
-            "domain": self.model.domain,
-            "local_db_host": local_db_host,
-            "local_db_port": local_db_port,
-            "local_db_name": local_db_name,
-            "local_db_user": local_db_user,
-            "local_db_password": local_db_password,
-        })
+        self.success.emit(
+            {
+                "api_url": api_url,
+                "project_code": self.model.project_code,
+                "domain": self.model.domain,
+                "local_db_host": local_db_host,
+                "local_db_port": local_db_port,
+                "local_db_name": local_db_name,
+                "local_db_user": local_db_user,
+                "local_db_password": local_db_password,
+            }
+        )

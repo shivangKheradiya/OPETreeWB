@@ -1,8 +1,10 @@
+from OPE_DB_API.db.engine import get_client_engine
 from sqlalchemy.orm import sessionmaker
 
-from OPE_DB_API.db.engine import get_client_engine
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-from opetreewb.integration.opedbapi.local.bootstrap import initialize_opedb_config
+from opetreewb.integration.opedbapi.local.bootstrap import \
+    initialize_opedb_config
+
 
 class LocalClient:
     """
@@ -21,10 +23,7 @@ class LocalClient:
         initialize_opedb_config()
         self.engine = get_client_engine(code)
 
-        self.SessionFactory = sessionmaker(
-            bind=self.engine,
-            future=True
-        )
+        self.SessionFactory = sessionmaker(bind=self.engine, future=True)
 
     # -------------------------------------------------
     # SESSION ACCESS

@@ -1,11 +1,18 @@
-from opetreewb.integration.opedbapi.api.client import OpeApiClient
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-from opetreewb.integration.opedbapi.utils.schema_helper import load_element_schema
-from opetreewb.integration.opedbapi.core.operation_context import OperationContext
+from opetreewb.integration.opedbapi.api.client import OpeApiClient
+from opetreewb.integration.opedbapi.core.operation_context import \
+    OperationContext
+from opetreewb.integration.opedbapi.utils.schema_helper import \
+    load_element_schema
+
 
 class NodeAPI:
-
-    def __init__(self, id_generator=None, op_context:OperationContext=None,opeapiclient:OpeApiClient=None):
+    def __init__(
+        self,
+        id_generator=None,
+        op_context: OperationContext = None,
+        opeapiclient: OpeApiClient = None,
+    ):
         self.client = opeapiclient
         self.id_gen = id_generator
         self.op_context = op_context
@@ -23,7 +30,6 @@ class NodeAPI:
         schema = load_element_schema(type_value)
 
         for attr_name, meta in schema.items():
-
             attr_id = meta["id"]
 
             # -------------------------
@@ -69,7 +75,7 @@ class NodeAPI:
     # INTERNAL
     # -------------------------------------------------
     def _create_attribute(self, *, data_id, node_id, attribute_id, value):
-        
+
         op = {
             "data_id": data_id,
             "node_id": node_id,

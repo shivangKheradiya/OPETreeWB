@@ -1,9 +1,9 @@
-from pivy import coin
 import json
+
+from pivy import coin
 
 
 class ViewProviderTexp:
-
     def __init__(self, vobj):
         vobj.Proxy = self
 
@@ -36,9 +36,7 @@ class ViewProviderTexp:
 
         attrs = node.attributes
 
-        FreeCAD.Console.PrintMessage(
-            f"[TEXT_VIEW] updating node={node.node_id}\n"
-        )
+        FreeCAD.Console.PrintMessage(f"[TEXT_VIEW] updating node={node.node_id}\n")
 
         # -------------------------------------------------
         # ✅ POSITION
@@ -56,11 +54,7 @@ class ViewProviderTexp:
         size = obj.FontSize if obj.FontSize else 12
         scale_factor = size * 0.1
 
-        self.transform.scaleFactor.setValue(
-            scale_factor,
-            scale_factor,
-            scale_factor
-        )
+        self.transform.scaleFactor.setValue(scale_factor, scale_factor, scale_factor)
 
         # -------------------------------------------------
         # ✅ COLOR (same parser as STRA)

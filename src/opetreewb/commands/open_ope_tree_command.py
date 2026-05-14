@@ -1,12 +1,11 @@
 import FreeCADGui
-from PySide.QtWidgets import QDockWidget
 from PySide.QtCore import Qt
+from PySide.QtWidgets import QDockWidget
 
 from opetreewb.ui.view.ope_tree_viewer import OPETreeViewer
 
 
 class OpenOPETreeCommand:
-
     DOCK_NAME = "OPETreeDock"
 
     def GetResources(self):
@@ -31,10 +30,7 @@ class OpenOPETreeCommand:
         dock = QDockWidget("OPE Tree", mw)
         dock.setObjectName(self.DOCK_NAME)
         dock.setWidget(viewer)
-        dock.setAllowedAreas(
-            Qt.LeftDockWidgetArea |
-            Qt.RightDockWidgetArea
-        )
+        dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         mw.addDockWidget(Qt.LeftDockWidgetArea, dock)
         dock.show()

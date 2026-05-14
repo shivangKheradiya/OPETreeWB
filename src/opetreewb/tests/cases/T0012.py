@@ -17,12 +17,12 @@ Expected:
 
 import FreeCAD
 
+from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.local.session_local import SessionLocal
-from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 
 TEST_ID = "T0012"
 
@@ -37,16 +37,18 @@ def run():
     try:
         # ✅ Configure context (if not already)
         if not OPE_DB_CONTEXT.code:
-            OPE_DB_CONTEXT.code="XYZ"
-            OPE_DB_CONTEXT.domain="SKET"
-            OPE_DB_CONTEXT.username="Shivang"
-            OPE_DB_CONTEXT.hostname="PCS"
+            OPE_DB_CONTEXT.code = "XYZ"
+            OPE_DB_CONTEXT.domain = "SKET"
+            OPE_DB_CONTEXT.username = "Shivang"
+            OPE_DB_CONTEXT.hostname = "PCS"
 
         id_gen = SnowflakeIDGenerator()
 
         session_local = SessionLocal()
 
-        FreeCAD.Console.PrintMessage(f"STARTING session_id={OPE_DB_CONTEXT.session_id}\n")
+        FreeCAD.Console.PrintMessage(
+            f"STARTING session_id={OPE_DB_CONTEXT.session_id}\n"
+        )
 
         # ✅ Start session
         session = session_local.start(

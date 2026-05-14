@@ -1,5 +1,5 @@
-from .base import ElementSchema, base_attributes
 from ..schema.attribute_ids import get_attr_id
+from .base import ElementSchema, base_attributes
 
 
 class Dept(ElementSchema):

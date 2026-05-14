@@ -1,5 +1,4 @@
 class TexpObject:
-
     def __init__(self, obj, node):
 
         obj.Proxy = self
@@ -17,9 +16,7 @@ class TexpObject:
 
         import FreeCAD
 
-        FreeCAD.Console.PrintMessage(
-            f"[TEXT_EXECUTE] node={self.node.node_id}\n"
-        )
+        FreeCAD.Console.PrintMessage(f"[TEXT_EXECUTE] node={self.node.node_id}\n")
 
         node = self.node
 

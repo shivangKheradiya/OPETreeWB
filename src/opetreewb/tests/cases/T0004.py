@@ -24,8 +24,9 @@ import FreeCAD
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.api.session_api import SessionAPI
 
-
 TEST_ID = "T0004"
+
+
 # ---------------------------------------------------------
 # TEST EXECUTION
 # ---------------------------------------------------------
@@ -37,10 +38,10 @@ def run():
     OPE_DB_CONTEXT._api_url = "http://127.0.0.1:8000"
 
     # ✅ Step 2 — Configure context
-    OPE_DB_CONTEXT.code="XYZ"
-    OPE_DB_CONTEXT.domain="SKET"
-    OPE_DB_CONTEXT.username="Shivang"
-    OPE_DB_CONTEXT.hostname="PCS"
+    OPE_DB_CONTEXT.code = "XYZ"
+    OPE_DB_CONTEXT.domain = "SKET"
+    OPE_DB_CONTEXT.username = "Shivang"
+    OPE_DB_CONTEXT.hostname = "PCS"
 
     FreeCAD.Console.PrintMessage("Context configured:\n")
     FreeCAD.Console.PrintMessage("  Code:{}\n".format(OPE_DB_CONTEXT.code))
@@ -56,8 +57,12 @@ def run():
     # ✅ Step 4 — Validate
     FreeCAD.Console.PrintMessage("\n--- RESULT ---\n")
     FreeCAD.Console.PrintMessage("Session ID:{}\n".format(session_id))
-    FreeCAD.Console.PrintMessage("Context Active:{}\n".format(OPE_DB_CONTEXT.is_session_active))
-    FreeCAD.Console.PrintMessage("Context Session ID:{}\n".format(OPE_DB_CONTEXT.session_id))
+    FreeCAD.Console.PrintMessage(
+        "Context Active:{}\n".format(OPE_DB_CONTEXT.is_session_active)
+    )
+    FreeCAD.Console.PrintMessage(
+        "Context Session ID:{}\n".format(OPE_DB_CONTEXT.session_id)
+    )
 
     # ✅ Assertion-style checks (manual)
     if not session_id:

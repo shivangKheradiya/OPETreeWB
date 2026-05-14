@@ -1,20 +1,17 @@
-from sqlalchemy import select
-from typing import Dict, Any, List
-
-from opetreewb.integration.opedbapi.local.client import LocalClient
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
-from OPE_DB_API.schemas.search import SearchRequest
-from OPE_DB_API.crud.search.executor import execute_search
-
-from sqlalchemy.inspection import inspect
-from opetreewb.SKET.schema.attribute_ids import get_attr_id
-
 from collections import defaultdict
-from opetreewb.ui.utils.node_mapper import node_dict_to_model
+from typing import Any, Dict, List
 
-from opetreewb.integration.opedbapi.local.sync_cursor import (
-    get_or_initialize_global_last_synced_at,
-)
+from OPE_DB_API.crud.search.executor import execute_search
+from OPE_DB_API.schemas.search import SearchRequest
+from sqlalchemy import select
+from sqlalchemy.inspection import inspect
+
+from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
+from opetreewb.integration.opedbapi.local.client import LocalClient
+from opetreewb.integration.opedbapi.local.sync_cursor import \
+    get_or_initialize_global_last_synced_at
+from opetreewb.SKET.schema.attribute_ids import get_attr_id
+from opetreewb.ui.utils.node_mapper import node_dict_to_model
 
 
 class QueryLocal:
@@ -39,7 +36,7 @@ class QueryLocal:
         mode: str = "working",
         limit: int = 1000,
         offset: int = 0,
-    )-> Dict:
+    ) -> Dict:
         db = self.client.get_session()
 
         try:
@@ -64,27 +61,28 @@ class QueryLocal:
             result["items"] = [self._serialize_row(row) for row in result["items"]]
 
             return result
-        
+
         finally:
             db.close()
 
     def _serialize_row(self, row):
-        return {
-            c.key: getattr(row, c.key)
-            for c in inspect(row).mapper.column_attrs
-        }
+        return {c.key: getattr(row, c.key) for c in inspect(row).mapper.column_attrs}
 
     def get_root_nodes(self):
         result = self.search(
             filter_dict={
-                    "and": [
-                        {"field": "attribute_id", "op": "=", "value": get_attr_id("Owner")},  # Owner
-                        {"field": "value", "op": "=", "value": "0"},      # ROOT
-                    ]
-                },
+                "and": [
+                    {
+                        "field": "attribute_id",
+                        "op": "=",
+                        "value": get_attr_id("Owner"),
+                    },  # Owner
+                    {"field": "value", "op": "=", "value": "0"},  # ROOT
+                ]
+            },
             mode="live",
         )
-        
+
         items = result.get("items", [])
         if not items:
             return []
@@ -123,14 +121,14 @@ class QueryLocal:
                         "value": r["value"],
                     }
                     for r in node_rows
-                }
+                },
             }
 
             node = node_dict_to_model(node_dict)
             nodes.append(node)
 
         return nodes
-    
+
     def get_children(self, parent_node_id):
         # ✅ Step 1 → find children (Owner = parent_node_id)
         result = self.search(
@@ -172,8 +170,6 @@ class QueryLocal:
         rows = result.get("items", [])
 
         return self._rows_to_nodes(rows)
-    
+
     def get_last_history_sync_ts(self):
-        return get_or_initialize_global_last_synced_at(
-            localclient=self.client
-        )
+        return get_or_initialize_global_last_synced_at(localclient=self.client)

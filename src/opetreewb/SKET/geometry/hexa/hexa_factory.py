@@ -1,4 +1,5 @@
 import FreeCAD
+
 from .hexa_object import HexaObject
 from .hexa_view import ViewProviderHexa
 

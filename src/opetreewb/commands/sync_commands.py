@@ -2,11 +2,10 @@ from datetime import datetime
 
 import FreeCAD
 
-from opetreewb.domain.services.service_locator import (
-    get_sync_service,
-    get_session_service
-)
 from opetreewb.domain import CN
+from opetreewb.domain.services.service_locator import (get_session_service,
+                                                       get_sync_service)
+
 
 class SyncSnapshotCommand:
     """
@@ -27,14 +26,10 @@ class SyncSnapshotCommand:
         try:
             rows = get_sync_service().sync_snapshot(CN.id)
             CN.structure_changed.emit()
-            FreeCAD.Console.PrintMessage(
-                f"✅ Snapshot synced ({len(rows)} rows)\n"
-            )
+            FreeCAD.Console.PrintMessage(f"✅ Snapshot synced ({len(rows)} rows)\n")
 
         except Exception as exc:
-            FreeCAD.Console.PrintError(
-                f"❌ Snapshot sync failed: {exc}\n"
-            )
+            FreeCAD.Console.PrintError(f"❌ Snapshot sync failed: {exc}\n")
 
 
 class SyncHistoryCommand:
@@ -64,19 +59,14 @@ class SyncHistoryCommand:
             )
 
             rows = get_sync_service().sync_history()
-            FreeCAD.Console.PrintMessage(
-                f"✅ History fetched ({len(rows)} rows)\n"
-            )
+            FreeCAD.Console.PrintMessage(f"✅ History fetched ({len(rows)} rows)\n")
 
-            FreeCAD.Console.PrintMessage(
-                f"✅ new_ts is updated in Session Table\n"
-            )
+            FreeCAD.Console.PrintMessage(f"✅ new_ts is updated in Session Table\n")
 
             CN.structure_changed.emit()
-        
+
         except Exception as exc:
             import traceback
+
             traceback.print_exc()
-            FreeCAD.Console.PrintError(
-                f"❌ History sync failed: {exc}\n"
-            )
+            FreeCAD.Console.PrintError(f"❌ History sync failed: {exc}\n")

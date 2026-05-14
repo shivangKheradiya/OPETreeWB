@@ -1,16 +1,16 @@
 # PyDBML/identity/snowflake.py
 
 from __future__ import annotations
-import os
-import time
-import threading
-from pathlib import Path
+
 import hashlib
+import os
+import platform
 import random
 import socket
-import platform
+import threading
+import time
 import uuid
-import hashlib
+from pathlib import Path
 
 
 class SnowflakeIDGenerator:
@@ -38,9 +38,7 @@ class SnowflakeIDGenerator:
         self._lock = threading.Lock()
 
         self.machine_id = (
-            machine_id
-            if machine_id is not None
-            else self._load_or_create_machine_id()
+            machine_id if machine_id is not None else self._load_or_create_machine_id()
         )
 
         if not (0 <= self.machine_id <= self.MAX_MACHINE_ID):
@@ -117,7 +115,6 @@ class SnowflakeIDGenerator:
     def _machine_id_path(self) -> Path:
         home = Path.home()
         return home / ".pydbml" / "machine_id"
-
 
     def _generate_machine_id(self) -> int:
         """

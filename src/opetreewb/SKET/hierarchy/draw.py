@@ -1,5 +1,5 @@
-from .base import ElementSchema, base_attributes
 from ..schema.attribute_ids import get_attr_id
+from .base import ElementSchema, base_attributes
 
 
 class Draw(ElementSchema):
@@ -16,7 +16,6 @@ class Draw(ElementSchema):
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-
             "Title": {
                 "default": "",
                 "datatype": "string",
@@ -24,7 +23,6 @@ class Draw(ElementSchema):
                 "kind": "user",
                 "id": get_attr_id("Title"),
             },
-
             "Number": {
                 "default": "",
                 "datatype": "string",

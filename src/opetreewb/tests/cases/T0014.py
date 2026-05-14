@@ -18,13 +18,13 @@ Expected:
 
 import FreeCAD
 
+from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.local.attribute_local import AttributeLocal
 from opetreewb.integration.opedbapi.local.query_local import QueryLocal
-from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 
 TEST_ID = "T0014"
 
@@ -38,7 +38,9 @@ def run():
 
     try:
         if not OPE_DB_CONTEXT.session_id:
-            raise RuntimeError("FAILED: No session_id in context (run T0004 , T0012 first)")
+            raise RuntimeError(
+                "FAILED: No session_id in context (run T0004 , T0012 first)"
+            )
 
         id_gen = SnowflakeIDGenerator()
         attr_local = AttributeLocal(id_gen)
@@ -54,21 +56,14 @@ def run():
 
         # ✅ Step 1 — Push attribute (CREATE)
         data_id = attr_local.push(
-            node_id=node_id,
-            attribute_id=attribute_id,
-            value=value,
-            data_id=None
+            node_id=node_id, attribute_id=attribute_id, value=value, data_id=None
         )
 
         FreeCAD.Console.PrintMessage(f"data_id={data_id}\n")
 
         # ✅ Step 2 — Validate using local query
         result = query_local.search(
-            filter_dict={
-                "field": "node_id",
-                "op": "=",
-                "value": node_id
-            }
+            filter_dict={"field": "node_id", "op": "=", "value": node_id}
         )
 
         FreeCAD.Console.PrintMessage("SEARCH RESULT RECEIVED\n")

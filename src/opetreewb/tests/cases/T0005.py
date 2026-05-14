@@ -49,7 +49,9 @@ def run():
 
         # ✅ Step 2 — Validate context
         FreeCAD.Console.PrintMessage("\nRESULT:\n")
-        FreeCAD.Console.PrintMessage(f"  Context Active: {OPE_DB_CONTEXT.is_session_active}\n")
+        FreeCAD.Console.PrintMessage(
+            f"  Context Active: {OPE_DB_CONTEXT.is_session_active}\n"
+        )
 
         # ✅ Assertions
         if OPE_DB_CONTEXT.is_session_active:

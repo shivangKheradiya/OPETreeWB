@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+
 class OperationContext:
     """
     Captures operations generated during API execution.
@@ -51,18 +52,14 @@ class OperationContext:
         nodes = []
 
         for node_id, ops in grouped.items():
-
             attr_map = {}
 
             for op in ops:
                 attr_map[op["attribute_id"]] = {
                     "data_id": op["data_id"],
-                    "value": op["value"]
+                    "value": op["value"],
                 }
 
-            nodes.append({
-                "node_id": node_id,
-                "attributes": attr_map
-            })
+            nodes.append({"node_id": node_id, "attributes": attr_map})
 
         return nodes

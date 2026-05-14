@@ -1,17 +1,14 @@
-import psycopg2
 import os
+
+import psycopg2
 
 # --------------------
 # Configuration
 # --------------------
-OUTPUT_FILE = r"C:\db\dict_data.bin"   # ✅ change folder if needed
+OUTPUT_FILE = r"C:\db\dict_data.bin"  # ✅ change folder if needed
 
 src_conn = psycopg2.connect(
-    host="localhost",
-    port=5432,
-    dbname="xyz",
-    user="postgres",
-    password="postgres"
+    host="localhost", port=5432, dbname="xyz", user="postgres", password="postgres"
 )
 
 src_cur = src_conn.cursor()
@@ -28,7 +25,7 @@ with open(OUTPUT_FILE, "wb") as f:
         COPY public.dict_data
         TO STDOUT WITH BINARY
         """,
-        f
+        f,
     )
 
 # Cleanup
@@ -38,20 +35,21 @@ src_conn.close()
 print(f"✅ Binary COPY saved successfully to: {OUTPUT_FILE}")
 
 
-import psycopg2
 import os
+
+import psycopg2
 
 # --------------------
 # Configuration
 # --------------------
-BIN_FILE = r"C:\db\dict_data.bin"    # path to saved binary file
+BIN_FILE = r"C:\db\dict_data.bin"  # path to saved binary file
 
 dst_conn = psycopg2.connect(
     host="localhost",
-    port=5433,          # destination PostgreSQL port
+    port=5433,  # destination PostgreSQL port
     dbname="xyz",
     user="postgres",
-    password="postgres"
+    password="postgres",
 )
 
 dst_cur = dst_conn.cursor()
@@ -66,7 +64,6 @@ if not os.path.exists(BIN_FILE):
 # Load binary data
 # --------------------
 with open(BIN_FILE, "rb") as f:
-
     # OPTIONAL but recommended for full reload
     dst_cur.execute("TRUNCATE TABLE public.dict_data")
 
@@ -76,7 +73,7 @@ with open(BIN_FILE, "rb") as f:
         COPY public.dict_data
         FROM STDIN WITH BINARY
         """,
-        f
+        f,
     )
 
 dst_conn.commit()

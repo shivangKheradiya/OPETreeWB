@@ -17,7 +17,7 @@ Expected:
 """
 
 import FreeCAD
-
+from OPE_DB_API.crud.session.abort import abort_session
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
@@ -27,8 +27,6 @@ from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.local.client import LocalClient
 from opetreewb.integration.opedbapi.local.query_local import QueryLocal
 
-from OPE_DB_API.crud.session.abort import abort_session
-
 TEST_ID = "T0016"
 
 
@@ -37,7 +35,9 @@ def run():
 
     FreeCAD.Console.PrintMessage(f"\n[{TEST_ID}] START\n")
 
-    FreeCAD.Console.PrintMessage("\nPlease Run Preliminary Setup T0004 T0012 T0014 if not run \n")
+    FreeCAD.Console.PrintMessage(
+        "\nPlease Run Preliminary Setup T0004 T0012 T0014 if not run \n"
+    )
 
     try:
         session_id = OPE_DB_CONTEXT.session_id
@@ -46,9 +46,7 @@ def run():
         client = LocalClient()
         db: Session = client.get_session()
 
-        FreeCAD.Console.PrintMessage(
-            f"ABORT session_id={session_id}\n"
-        )
+        FreeCAD.Console.PrintMessage(f"ABORT session_id={session_id}\n")
 
         # ✅ Step 1 — Abort session (clear overlay)
         abort_session(

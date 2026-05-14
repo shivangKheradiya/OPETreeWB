@@ -13,9 +13,7 @@ class Open3DSpaceCommand:
         return True
 
     def Activated(self):
-        FreeCAD.Console.PrintMessage(
-            "✅ 3D Space opened (temporary stub)\n"
-        )
+        FreeCAD.Console.PrintMessage("✅ 3D Space opened (temporary stub)\n")
 
         doc = FreeCAD.newDocument("OPE_3D_TEMP")
         FreeCADGui.ActiveDocument.ActiveView.viewIsometric()

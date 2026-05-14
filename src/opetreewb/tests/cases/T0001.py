@@ -1,7 +1,9 @@
 import FreeCAD
+
 from opetreewb.domain.rules.domain_rules import DOMAIN_RULES
 
 TEST_ID = "T0001"
+
 
 def run():
     FreeCAD.Console.PrintMessage(f"[{TEST_ID}] START\n")

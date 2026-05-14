@@ -1,7 +1,7 @@
 from typing import Any
 
-from opetreewb.integration.opedbapi.api.client import OpeApiClient
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
+from opetreewb.integration.opedbapi.api.client import OpeApiClient
 
 
 class AttributeAPI:
@@ -28,7 +28,7 @@ class AttributeAPI:
         attribute_id: int,
         value: Any,
         data_id,
-        operation_type:int = 2
+        operation_type: int = 2,
     ):
         """
         Create or update attribute row.

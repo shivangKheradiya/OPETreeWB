@@ -20,13 +20,13 @@ Expected:
 
 import FreeCAD
 
+from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.api.node_api import NodeAPI
 from opetreewb.integration.opedbapi.api.query_api import QueryAPI
-from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 
 TEST_ID = "T0010"
 
@@ -54,9 +54,7 @@ def run():
         # CREATE NODE
         # -----------------------------------------
         node_id = node_api.create(
-            parent_node_id=parent_id,
-            type_value=element_type,
-            name=""
+            parent_node_id=parent_id, type_value=element_type, name=""
         )
 
         FreeCAD.Console.PrintMessage(f"CREATED node_id={node_id}\n")
@@ -65,11 +63,7 @@ def run():
         # FETCH NODE DATA
         # -----------------------------------------
         result = query.search(
-            filter_dict={
-                "field": "node_id",
-                "op": "=",
-                "value": node_id
-            }
+            filter_dict={"field": "node_id", "op": "=", "value": node_id}
         )
 
         items = result.get("items", [])
@@ -96,7 +90,6 @@ def run():
         # 3 → Owner
         # -------------------------------------------------
         for row in items:
-
             attr_id = row["attribute_id"]
             value = row["value"]
             data_id = row["data_id"]

@@ -1,8 +1,9 @@
 import time
 from typing import Optional
 
+from opetreewb.domain.stores.stores import ID_GENERATOR, OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.api.client import OpeApiClient
-from opetreewb.domain.stores.stores import OPE_DB_CONTEXT, ID_GENERATOR
+
 
 class SessionAPI:
     """
@@ -15,9 +16,7 @@ class SessionAPI:
     # -------------------------------------------------
     # START SESSION
     # -------------------------------------------------
-    def start(
-        self
-    ) -> int:
+    def start(self) -> int:
         """
         Start a new session via API.
         """

@@ -1,5 +1,4 @@
 class StraObject:
-
     def __init__(self, obj, node):
 
         obj.Proxy = self
@@ -12,6 +11,7 @@ class StraObject:
 
     def execute(self, obj):
         import FreeCAD
+
         FreeCAD.Console.PrintMessage(
             f"[STRA_EXECUTE] Executing geometry for node {self.node.node_id}\n"
         )

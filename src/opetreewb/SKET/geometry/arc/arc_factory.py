@@ -1,4 +1,5 @@
 import FreeCAD
+
 from .arc_object import ArcObject
 from .arc_view import ViewProviderArc
 

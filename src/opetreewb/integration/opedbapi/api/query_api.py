@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
-from opetreewb.integration.opedbapi.api.client import OpeApiClient
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
+from opetreewb.integration.opedbapi.api.client import OpeApiClient
 from opetreewb.SKET.schema.attribute_ids import get_attr_id
+
 
 class QueryAPI:
     """
@@ -14,7 +15,7 @@ class QueryAPI:
     - history
     """
 
-    def __init__(self,client:OpeApiClient=None):
+    def __init__(self, client: OpeApiClient = None):
         self.client = OpeApiClient()
 
     # -------------------------------------------------
@@ -122,11 +123,7 @@ class QueryAPI:
 
         items = response.get("items", [])
 
-        return [
-            row["node_id"]
-            for row in items
-            if row["value"] == parent_node_id
-        ]
+        return [row["node_id"] for row in items if row["value"] == parent_node_id]
 
     # -------------------------------------------------
     # SNAPSHOT (TREE RECONSTRUCTION)
@@ -182,8 +179,12 @@ class QueryAPI:
                 "mode": "live",
                 "filter": {
                     "and": [
-                        {"field": "attribute_id", "op": "=", "value": get_attr_id("Owner")},  # Owner
-                        {"field": "value", "op": "=", "value": "0"},      # ROOT
+                        {
+                            "field": "attribute_id",
+                            "op": "=",
+                            "value": get_attr_id("Owner"),
+                        },  # Owner
+                        {"field": "value", "op": "=", "value": "0"},  # ROOT
                     ]
                 },
                 "limit": 10000,
@@ -191,9 +192,9 @@ class QueryAPI:
             },
             use_session=True,
         )
-    
+
         return list({row["node_id"] for row in result.get("items", [])})
-    
+
     def fetch_nodes_by_ids(self, node_ids):
         return self.client.post(
             "search",
@@ -209,11 +210,10 @@ class QueryAPI:
             },
             use_session=True,
         )
-    
+
     def fetch_root_nodes(self):
         node_ids = self.fetch_root_node_ids()
         if not node_ids:
             return {"items": []}
 
         return self.fetch_nodes_by_ids(node_ids)
-    

@@ -5,6 +5,7 @@ class SessionState(Enum):
     """
     Canonical session lifecycle states.
     """
+
     NO_SESSION = auto()
     ACTIVE = auto()
     DIRTY = auto()

@@ -1,10 +1,13 @@
-#OPETreeWB\src\opetreewb\domain\schema\schema_loader.py
+# OPETreeWB\src\opetreewb\domain\schema\schema_loader.py
 
-import importlib, sys
+import importlib
+import sys
+
 from opetreewb.domain.plugin.plugin_loader import get_plugin_paths
 
 _SCHEMA_CACHE = {}
 DEV_MODE = True
+
 
 def get_schema(type_name: str):
 

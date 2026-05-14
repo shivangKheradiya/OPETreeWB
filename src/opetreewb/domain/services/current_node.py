@@ -1,11 +1,10 @@
 # opetreewb\domain\services\current_node.py
 from PySide.QtCore import QObject, Signal
+
+from opetreewb.domain.services.service_locator import (get_attribute_service,
+                                                       get_geometry_service,
+                                                       get_tree_service)
 from opetreewb.messaging.reporter import Reporter
-from opetreewb.domain.services.service_locator import (
-    get_tree_service,
-    get_attribute_service,
-    get_geometry_service,
-)
 
 
 class CurrentNode(QObject):
@@ -13,11 +12,11 @@ class CurrentNode(QObject):
     CN - Current Node (like !!CE in AVEVA PML)
     """
 
-    changed = Signal(object)               # node
-    deleted = Signal(object)               # node
+    changed = Signal(object)  # node
+    deleted = Signal(object)  # node
     attribute_changed = Signal(str, object)  # name, value
     structure_changed = Signal()
-    
+
     def __init__(self):
         super().__init__()
         self._node = None
@@ -35,10 +34,7 @@ class CurrentNode(QObject):
 
     def set(self, node):
         self._node = node
-        Reporter.info(
-            f"[CN] Current node set to: "
-            f"{getattr(node, 'label', None)}"
-        )
+        Reporter.info(f"[CN] Current node set to: {getattr(node, 'label', None)}")
         self.changed.emit(node)
 
     def clear(self):
@@ -78,28 +74,24 @@ class CurrentNode(QObject):
     # -------------------------
 
     def create_root(self, element_type, name=""):
-        Reporter.info(
-            f"[CN] create_root(type={element_type}, name={name})"
-        )
-        
+        Reporter.info(f"[CN] create_root(type={element_type}, name={name})")
+
         ok = get_tree_service().create_node_root(
             element_type,
             name,
         )
-        
+
         if not ok:
             return False
 
         return True
-    
+
     def create_child(self, element_type, name=""):
         if not self._node:
             Reporter.error("[CN] No current node to create child under")
             return
 
-        Reporter.info(
-            f"[CN] create_child(type={element_type}, name={name})"
-        )
+        Reporter.info(f"[CN] create_child(type={element_type}, name={name})")
 
         ok = get_tree_service().create_node(
             self._node,
@@ -114,7 +106,7 @@ class CurrentNode(QObject):
         self.structure_changed.emit()
 
         return True
-    
+
     def delete(self):
         if not self._node:
             Reporter.error("[CN] No current node to delete")
@@ -128,12 +120,12 @@ class CurrentNode(QObject):
             get_geometry_service().remove(node)
         except Exception as e:
             Reporter.error(f"[CN] Geometry remove failed: {e}")
-    
+
         ok = get_tree_service().delete_node(node, node.attributes.get("Type").value)
 
         if not ok:
             return False
-        
+
         self.structure_changed.emit()
         self.deleted.emit(node)
         self.clear()
@@ -153,7 +145,7 @@ class CurrentNode(QObject):
         if not attr:
             Reporter.error(f"[CN] Attribute '{name}' does not exist")
             return
-        
+
         ok = get_attribute_service().update_attribute(
             self._node,
             name,
@@ -163,17 +155,16 @@ class CurrentNode(QObject):
 
         if not ok:
             return False
-        
-        Reporter.info(
-            f"[CN] set_attr({name}={value})"
-        )
-        
+
+        Reporter.info(f"[CN] set_attr({name}={value})")
+
         self.attribute_changed.emit(name, value)
         # ✅ Trigger geometry update
         try:
             get_geometry_service().update(self._node)
         except Exception:
             import traceback
+
             traceback.print_exc()
             pass
 
@@ -188,13 +179,12 @@ class CurrentNode(QObject):
     def allowed_child_types(self):
         if not self._node:
             return []
-    
+
         from opetreewb.domain.schema.schema_loader import get_schema
-    
+
         schema = get_schema(self.type)
-    
+
         if not schema:
             return []
-    
+
         return schema.allowed_children()
-    

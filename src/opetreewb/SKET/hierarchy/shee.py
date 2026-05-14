@@ -1,5 +1,5 @@
-from .base import ElementSchema, base_attributes
 from ..schema.attribute_ids import get_attr_id
+from .base import ElementSchema, base_attributes
 
 
 class Shee(ElementSchema):
@@ -11,25 +11,23 @@ class Shee(ElementSchema):
 
     @classmethod
     def allowed_children(cls):
-        return ["NOTE"]   # leaf node (for now)
+        return ["NOTE"]  # leaf node (for now)
 
     @classmethod
     def attributes(cls):
         return base_attributes(cls.TYPE) | {
-
             "SheetNumber": {
-                "default": "0",                 # ✅ FIXED (was "")
+                "default": "0",  # ✅ FIXED (was "")
                 "datatype": "int",
                 "editable": True,
                 "kind": "user",
-                "id": get_attr_id("SheetNumber"),   # ✅ ADDED
+                "id": get_attr_id("SheetNumber"),  # ✅ ADDED
             },
-
             "Scale": {
                 "default": "",
                 "datatype": "string",
                 "editable": False,
                 "kind": "system",
-                "id": get_attr_id("Scale"),         # ✅ ADDED
+                "id": get_attr_id("Scale"),  # ✅ ADDED
             },
         }

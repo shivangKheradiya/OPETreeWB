@@ -1,9 +1,9 @@
-from pivy import coin
 import json
+
+from pivy import coin
 
 
 class ViewProviderStra:
-
     def __init__(self, vobj):
         vobj.Proxy = self
 
@@ -33,9 +33,7 @@ class ViewProviderStra:
 
         attrs = node.attributes
 
-        FreeCAD.Console.PrintMessage(
-            f"[STRA_VIEW] updating node={node.node_id}\n"
-        )
+        FreeCAD.Console.PrintMessage(f"[STRA_VIEW] updating node={node.node_id}\n")
 
         # -------------------------------------------------
         # ✅ GEOMETRY (CORE PART)
@@ -88,7 +86,6 @@ class ViewProviderStra:
         color = (0.0, 0.0, 0.0)
 
         if color_attr and color_attr.value:
-
             raw = color_attr.value
 
             try:

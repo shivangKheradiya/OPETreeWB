@@ -1,10 +1,10 @@
-from pivy import coin
-import math
 import json
+import math
+
+from pivy import coin
 
 
 class ViewProviderCirc:
-
     def __init__(self, vobj):
         vobj.Proxy = self
 
@@ -34,9 +34,7 @@ class ViewProviderCirc:
 
         attrs = node.attributes
 
-        FreeCAD.Console.PrintMessage(
-            f"[CIRC_VIEW] update node={node.node_id}\n"
-        )
+        FreeCAD.Console.PrintMessage(f"[CIRC_VIEW] update node={node.node_id}\n")
 
         cx = obj.CenterX
         cy = obj.CenterY
@@ -92,7 +90,6 @@ class ViewProviderCirc:
         color = (0.0, 0.0, 0.0)
 
         if color_attr and color_attr.value:
-
             raw = color_attr.value
 
             try:

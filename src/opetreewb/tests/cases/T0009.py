@@ -16,13 +16,13 @@ Expected:
 
 import FreeCAD
 
+from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 # ---------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 from opetreewb.integration.opedbapi.api.attribute_api import AttributeAPI
 from opetreewb.integration.opedbapi.api.query_api import QueryAPI
-from opetreewb.domain.identity.snowflake import SnowflakeIDGenerator
 
 TEST_ID = "T0009"
 
@@ -47,10 +47,7 @@ def run():
         # CREATE
         # -----------------------------------------
         data_id = attr_api.push(
-            node_id=node_id,
-            attribute_id=attribute_id,
-            value="100",
-            data_id=None
+            node_id=node_id, attribute_id=attribute_id, value="100", data_id=None
         )
 
         FreeCAD.Console.PrintMessage(f"CREATED data_id={data_id}\n")
@@ -59,10 +56,7 @@ def run():
         # UPDATE
         # -----------------------------------------
         attr_api.push(
-            node_id=node_id,
-            attribute_id=attribute_id,
-            value="200",
-            data_id=data_id
+            node_id=node_id, attribute_id=attribute_id, value="200", data_id=data_id
         )
 
         FreeCAD.Console.PrintMessage("UPDATED\n")
@@ -70,11 +64,7 @@ def run():
         # -----------------------------------------
         # DELETE
         # -----------------------------------------
-        attr_api.delete(
-            node_id=node_id,
-            attribute_id=attribute_id,
-            data_id=data_id
-        )
+        attr_api.delete(node_id=node_id, attribute_id=attribute_id, data_id=data_id)
 
         FreeCAD.Console.PrintMessage("DELETED\n")
 

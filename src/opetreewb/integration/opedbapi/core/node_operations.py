@@ -1,13 +1,8 @@
-from opetreewb.integration.opedbapi.utils.schema_helper import load_element_schema
+from opetreewb.integration.opedbapi.utils.schema_helper import \
+    load_element_schema
 
 
-def build_node_create_operations(
-    *,
-    parent_node_id,
-    type_value,
-    name,
-    id_gen
-):
+def build_node_create_operations(*, parent_node_id, type_value, name, id_gen):
     node_id = id_gen.next_id()
 
     schema = load_element_schema(type_value)
@@ -15,7 +10,6 @@ def build_node_create_operations(
     operations = []
 
     for attr_name, meta in schema.items():
-
         attr_id = meta["id"]
 
         if attr_name == "Name":
@@ -33,11 +27,13 @@ def build_node_create_operations(
         else:
             continue
 
-        operations.append({
-            "data_id": data_id,
-            "node_id": node_id,
-            "attribute_id": attr_id,
-            "value": value,
-        })
+        operations.append(
+            {
+                "data_id": data_id,
+                "node_id": node_id,
+                "attribute_id": attr_id,
+                "value": value,
+            }
+        )
 
     return node_id, operations

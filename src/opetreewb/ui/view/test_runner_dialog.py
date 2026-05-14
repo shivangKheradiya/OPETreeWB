@@ -1,20 +1,9 @@
-from PySide.QtWidgets import (
-    QDialog,
-    QVBoxLayout,
-    QHBoxLayout,
-    QListWidget,
-    QListWidgetItem,
-    QPushButton,
-)
-from PySide.QtCore import Qt
-
 import FreeCAD
+from PySide.QtCore import Qt
+from PySide.QtWidgets import (QDialog, QHBoxLayout, QListWidget,
+                              QListWidgetItem, QPushButton, QVBoxLayout)
 
-from opetreewb.tests.run_tests import (
-    list_tests,
-    run_all,
-    run_selected,
-)
+from opetreewb.tests.run_tests import list_tests, run_all, run_selected
 
 
 class TestRunnerDialog(QDialog):
@@ -34,9 +23,7 @@ class TestRunnerDialog(QDialog):
         layout = QVBoxLayout(self)
 
         self.test_list = QListWidget()
-        self.test_list.setSelectionMode(
-            QListWidget.MultiSelection
-        )
+        self.test_list.setSelectionMode(QListWidget.MultiSelection)
         layout.addWidget(self.test_list)
 
         button_row = QHBoxLayout()
@@ -51,12 +38,8 @@ class TestRunnerDialog(QDialog):
 
         layout.addLayout(button_row)
 
-        self.run_selected_btn.clicked.connect(
-            self._on_run_selected
-        )
-        self.run_all_btn.clicked.connect(
-            self._on_run_all
-        )
+        self.run_selected_btn.clicked.connect(self._on_run_selected)
+        self.run_all_btn.clicked.connect(self._on_run_all)
         self.close_btn.clicked.connect(self.close)
 
     # -------------------------------
@@ -73,9 +56,7 @@ class TestRunnerDialog(QDialog):
     # Actions
     # -------------------------------
     def _on_run_all(self):
-        FreeCAD.Console.PrintMessage(
-            "\n[OPETreeWB] Running ALL tests\n"
-        )
+        FreeCAD.Console.PrintMessage("\n[OPETreeWB] Running ALL tests\n")
         run_all()
 
     def _on_run_selected(self):
@@ -86,9 +67,7 @@ class TestRunnerDialog(QDialog):
                 selected.append(item.text())
 
         if not selected:
-            FreeCAD.Console.PrintWarning(
-                "[OPETreeWB] No tests selected\n"
-            )
+            FreeCAD.Console.PrintWarning("[OPETreeWB] No tests selected\n")
             return
 
         FreeCAD.Console.PrintMessage(

@@ -1,12 +1,11 @@
 from PySide import QtCore
-from opetreewb.ui.model.tree_model import TreeModel, TreeNodeModel
-from opetreewb.ui.model.tree_model import AttributeValue
-from opetreewb.domain.services.service_locator import (
-    get_tree_service,
-)
+
+from opetreewb.domain.services.service_locator import get_tree_service
+from opetreewb.ui.model.tree_model import (AttributeValue, TreeModel,
+                                           TreeNodeModel)
+
 
 class OPETreeViewModel(QtCore.QObject):
-
     children_requested = QtCore.Signal(int)  # node_id
 
     def __init__(self):

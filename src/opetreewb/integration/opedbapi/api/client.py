@@ -1,5 +1,6 @@
+from typing import Any, Dict, Optional
+
 import requests
-from typing import Optional, Dict, Any
 
 from opetreewb.domain.stores.stores import OPE_DB_CONTEXT
 

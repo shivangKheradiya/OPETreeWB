@@ -1,5 +1,4 @@
 class RectObject:
-
     def __init__(self, obj, node):
 
         obj.Proxy = self
@@ -16,9 +15,7 @@ class RectObject:
 
         import FreeCAD
 
-        FreeCAD.Console.PrintMessage(
-            f"[RECT_EXECUTE] node={self.node.node_id}\n"
-        )
+        FreeCAD.Console.PrintMessage(f"[RECT_EXECUTE] node={self.node.node_id}\n")
 
         node = self.node
 

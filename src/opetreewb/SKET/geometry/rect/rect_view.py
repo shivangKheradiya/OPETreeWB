@@ -1,9 +1,9 @@
-from pivy import coin
 import json
+
+from pivy import coin
 
 
 class ViewProviderRect:
-
     def __init__(self, vobj):
         vobj.Proxy = self
 
@@ -33,9 +33,7 @@ class ViewProviderRect:
 
         attrs = node.attributes
 
-        FreeCAD.Console.PrintMessage(
-            f"[RECT_VIEW] updating node={node.node_id}\n"
-        )
+        FreeCAD.Console.PrintMessage(f"[RECT_VIEW] updating node={node.node_id}\n")
 
         x = obj.X
         y = obj.Y

@@ -1,5 +1,7 @@
 import FreeCADGui
+
 from opetreewb.ui.selection.selection_observer import OPESelectionObserver
+
 
 class OPETreeWorkbench(FreeCADGui.Workbench):
     """
@@ -15,69 +17,60 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
         FreeCADGui.Selection.addObserver(OPESelectionObserver())
 
     def _register_ope_commands(self):
-        from opetreewb.commands.open_connection_command import (
-            OpenConnectionCommand,
-        )
+        from opetreewb.commands.open_connection_command import \
+            OpenConnectionCommand
 
         FreeCADGui.addCommand(
             "OpenOPEConnection",
             OpenConnectionCommand(),
         )
 
-        from opetreewb.commands.session_commands import (
-            CommitSessionCommand,
-            AbortSessionCommand,
-        )
+        from opetreewb.commands.session_commands import (AbortSessionCommand,
+                                                         CommitSessionCommand)
 
         FreeCADGui.addCommand(
-            "CommitOPESession", 
+            "CommitOPESession",
             CommitSessionCommand(),
         )
 
         FreeCADGui.addCommand(
-            "AbortOPESession", 
+            "AbortOPESession",
             AbortSessionCommand(),
         )
 
-        from opetreewb.commands.open_ope_tree_command import (
-            OpenOPETreeCommand,
-        )
+        from opetreewb.commands.open_ope_tree_command import OpenOPETreeCommand
 
         FreeCADGui.addCommand(
             "OpenOPETreeCommand",
             OpenOPETreeCommand(),
         )
 
-        from opetreewb.commands.open_attribute_browser_command import (
-            OpenAttributeBrowserCommand,
-        )
+        from opetreewb.commands.open_attribute_browser_command import \
+            OpenAttributeBrowserCommand
 
         FreeCADGui.addCommand(
             "OpenOPEAttributeBrowser",
             OpenAttributeBrowserCommand(),
         )
 
-        from opetreewb.commands.open_test_runner_command import (
-            OpenTestRunnerCommand,
-        )
+        from opetreewb.commands.open_test_runner_command import \
+            OpenTestRunnerCommand
 
         FreeCADGui.addCommand(
             "OpenOPETestRunner",
             OpenTestRunnerCommand(),
         )
 
-        from opetreewb.commands.sync_commands import (
-            SyncSnapshotCommand,
-            SyncHistoryCommand,
-        )
+        from opetreewb.commands.sync_commands import (SyncHistoryCommand,
+                                                      SyncSnapshotCommand)
 
         FreeCADGui.addCommand(
-            "SyncOPESnapshot", 
+            "SyncOPESnapshot",
             SyncSnapshotCommand(),
         )
 
         FreeCADGui.addCommand(
-            "SyncOPEHistory", 
+            "SyncOPEHistory",
             SyncHistoryCommand(),
         )
 
@@ -120,7 +113,7 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             [
                 "CommitOPESession",
                 "AbortOPESession",
-            ]
+            ],
         )
 
         self.appendToolbar(
@@ -128,15 +121,15 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             [
                 "CommitOPESession",
                 "AbortOPESession",
-            ]
+            ],
         )
-        
+
         self.appendMenu(
             "OPE Sync",
             [
                 "SyncOPESnapshot",
                 "SyncOPEHistory",
-            ]
+            ],
         )
 
         self.appendToolbar(
@@ -144,14 +137,14 @@ class OPETreeWorkbench(FreeCADGui.Workbench):
             [
                 "SyncOPESnapshot",
                 "SyncOPEHistory",
-            ]
+            ],
         )
 
         self.appendMenu(
             "OPE_3D",
             ["OpenOPE3DSpace"],
         )
-        
+
         self.appendToolbar(
             "OPE_3D",
             ["OpenOPE3DSpace"],
